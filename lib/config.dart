@@ -65,17 +65,17 @@ class Config {
         (results) => results.map((e) => new Region(e[0], id: e[1])).toList());
   }
 
-  void insertRegion(Region reg) async {
-    await query("INSERT INTO region (name) VALUES (@name) RETURNING id",
+  void insertRegion(Region reg) {
+    query("INSERT INTO region (name) VALUES (@name) RETURNING id",
         values: {"name": reg.name});
   }
 
-  void updateRegion(Region reg) async {
-    await query("UPDATE region SET name=@name WHERE id=@id",
+  void updateRegion(Region reg) {
+    query("UPDATE region SET name=@name WHERE id=@id",
         values: {"name": reg.name, "id": reg.id});
   }
 
-  void removeRegion(Region reg) async {
-    await query("DELETE FROM region WHERE id=@id", values: {"id": reg.id});
+  void removeRegion(Region reg) {
+    query("DELETE FROM region WHERE id=@id", values: {"id": reg.id});
   }
 }

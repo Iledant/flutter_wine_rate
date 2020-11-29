@@ -77,14 +77,14 @@ class _RegionScreenState extends State<RegionScreen> {
   }
 
   void addRegion() async {
-    await _config.insertRegion(new Region("nouvelle région"));
+    _config.insertRegion(new Region("nouvelle région"));
     setState(() {
       _regions = _config.getRegions();
     });
   }
 
   void removeRegion(Region reg) async {
-    await _config.removeRegion(reg);
+    _config.removeRegion(reg);
     setState(() {
       _regions = _config.getRegions();
     });
@@ -143,7 +143,10 @@ class _RegionScreenState extends State<RegionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Régions', style: TextStyle(fontSize: 24.0)),
+                Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Icon(Icons.map),
+                  Text(' Régions', style: TextStyle(fontSize: 24.0))
+                ]),
                 Center(
                     child: Container(
                         alignment: Alignment.center,
