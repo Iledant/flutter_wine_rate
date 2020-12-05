@@ -1,7 +1,7 @@
 import 'package:postgres/postgres.dart';
 import "package:yaml/yaml.dart";
 import 'dart:io';
-import 'region.dart';
+import 'models/region.dart';
 
 class Log {
   static File _logFile;
