@@ -1,31 +1,30 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_wine_rate/redux/regions/regions_actions.dart';
+import 'package:flutter_wine_rate/redux/store.dart';
 
 import 'config.dart';
 import 'drawer.dart';
 import 'models/region.dart';
 
 class RegionScreen extends StatefulWidget {
-  final Config _config;
+  final Config config;
 
-  RegionScreen(this._config);
+  RegionScreen(this.config, {Key key}) : super(key: key);
 
   @override
-  _RegionScreenState createState() => _RegionScreenState(this._config);
+  _RegionScreenState createState() => _RegionScreenState();
 }
 
 class _RegionScreenState extends State<RegionScreen> {
   final _controller = TextEditingController();
   String _searchText = '';
-  Config _config;
-  Future<List<Region>> _regions;
-
-  _RegionScreenState(this._config);
 
   void initState() {
     super.initState();
-    _regions = _config.getRegions();
+    Redux.store.dispatch((store) => fetchRegionsAction(store, widget.config));
     _controller.addListener(() {
       setState(() {
         _searchText = _controller.text.toLowerCase();
@@ -38,18 +37,14 @@ class _RegionScreenState extends State<RegionScreen> {
     super.dispose();
   }
 
-  void addRegion() async {
-    _config.insertRegion(new Region("nouvelle région"));
-    setState(() {
-      _regions = _config.getRegions();
-    });
+  void addRegion(Region region) async {
+    await Redux.store
+        .dispatch((store) => addRegionAction(store, widget.config, region));
   }
 
-  void removeRegion(Region reg) async {
-    _config.removeRegion(reg);
-    setState(() {
-      _regions = _config.getRegions();
-    });
+  void removeRegion(Region region) async {
+    await Redux.store
+        .dispatch((store) => removeRegionAction(store, widget.config, region));
   }
 
   Widget regionTable(List<Region> regions) {
@@ -70,24 +65,30 @@ class _RegionScreenState extends State<RegionScreen> {
             DataColumn(label: Text('Action'))
           ],
           rows: List<DataRow>.generate(
-              lines.length,
-              (i) => DataRow(cells: [
-                    DataCell(Text(lines[i].name)),
-                    DataCell(Row(
-                      children: [
-                        IconButton(
-                            iconSize: 16.0,
-                            splashRadius: 16.0,
-                            onPressed: addRegion,
-                            icon: Icon(Icons.edit)),
-                        IconButton(
-                            splashRadius: 16.0,
-                            iconSize: 16.0,
-                            onPressed: () => removeRegion(lines[i]),
-                            icon: Icon(Icons.delete)),
-                      ],
-                    ))
-                  ])),
+            lines.length,
+            (i) => DataRow(
+              cells: [
+                DataCell(Text(lines[i].name)),
+                DataCell(
+                  Row(
+                    children: [
+                      IconButton(
+                          iconSize: 16.0,
+                          splashRadius: 16.0,
+                          onPressed: () =>
+                              addRegion(Region(0, 'Nouvelle région')),
+                          icon: Icon(Icons.edit)),
+                      IconButton(
+                          splashRadius: 16.0,
+                          iconSize: 16.0,
+                          onPressed: () => removeRegion(lines[i]),
+                          icon: Icon(Icons.delete)),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
         elevation: 3.0);
   }
@@ -116,26 +117,41 @@ class _RegionScreenState extends State<RegionScreen> {
                               icon: Icon(Icons.search), hintText: 'Recherche'),
                         ))),
                 Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: Center(
-                        child: FutureBuilder<List<Region>>(
-                            future: _regions,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<List<Region>> snapshot) {
-                              if (snapshot.hasData) {
-                                return regionTable(snapshot.data);
-                              } else if (snapshot.hasError) {
-                                return Card(
-                                    color: Colors.red,
-                                    child: Text(
-                                        'Impossible de récupérer la liste des régions'));
-                              } else {
-                                return SizedBox(
-                                    child: CircularProgressIndicator(),
-                                    width: 60,
-                                    height: 60);
-                              }
-                            })))
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        StoreConnector<AppState, bool>(
+                            distinct: true,
+                            converter: (store) =>
+                                store.state.regionsState.isLoading,
+                            builder: (context, isLoading) {
+                              return isLoading
+                                  ? Text('Chargement')
+                                  : SizedBox.shrink();
+                            }),
+                        StoreConnector<AppState, bool>(
+                          distinct: true,
+                          converter: (store) =>
+                              store.state.regionsState.isError,
+                          builder: (context, isError) {
+                            return isError
+                                ? Text('Erreur de récupération des régions')
+                                : SizedBox.shrink();
+                          },
+                        ),
+                        StoreConnector<AppState, List<Region>>(
+                          distinct: true,
+                          converter: (store) =>
+                              store.state.regionsState.regions,
+                          builder: (context, regions) {
+                            return regionTable(regions);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               ],
             )));
   }

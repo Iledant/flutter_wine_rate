@@ -2,5 +2,7 @@ class Region {
   String name;
   int id;
 
-  Region(this.name, {this.id = 0});
+  Region(this.id, this.name);
+
+  Region copy() => Region(id, name);
 }

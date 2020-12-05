@@ -59,23 +59,4 @@ class Config {
   Future<int> execute(String qry, {Map<String, dynamic> values}) async {
     return this._db.execute(qry, substitutionValues: values);
   }
-
-  Future<List<Region>> getRegions() {
-    return query("SELECT name,id FROM region").then(
-        (results) => results.map((e) => new Region(e[0], id: e[1])).toList());
-  }
-
-  void insertRegion(Region reg) {
-    query("INSERT INTO region (name) VALUES (@name) RETURNING id",
-        values: {"name": reg.name});
-  }
-
-  void updateRegion(Region reg) {
-    query("UPDATE region SET name=@name WHERE id=@id",
-        values: {"name": reg.name, "id": reg.id});
-  }
-
-  void removeRegion(Region reg) {
-    query("DELETE FROM region WHERE id=@id", values: {"id": reg.id});
-  }
 }
