@@ -62,7 +62,7 @@ class _RegionScreenState extends State<RegionScreen> {
               TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
           columns: [
             DataColumn(label: Text('Nom')),
-            DataColumn(label: Text('Action'))
+            DataColumn(label: Text('Actions'))
           ],
           rows: List<DataRow>.generate(
             lines.length,
@@ -97,62 +97,62 @@ class _RegionScreenState extends State<RegionScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Wine Rate'),
-        ),
-        drawer: AppDrawer(),
-        body: Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(' Régions', style: TextStyle(fontSize: 24.0)),
-                Center(
-                    child: Container(
-                        alignment: Alignment.center,
-                        width: min(max(300, screenWidth * 0.5), screenWidth),
-                        child: TextFormField(
-                          controller: _controller,
-                          decoration: InputDecoration(
-                              icon: Icon(Icons.search), hintText: 'Recherche'),
-                        ))),
-                Padding(
-                  padding: EdgeInsets.only(top: 8.0),
-                  child: Center(
-                    child: Column(
-                      children: <Widget>[
-                        StoreConnector<AppState, bool>(
-                            distinct: true,
-                            converter: (store) =>
-                                store.state.regionsState.isLoading,
-                            builder: (context, isLoading) {
-                              return isLoading
-                                  ? Text('Chargement')
-                                  : SizedBox.shrink();
-                            }),
-                        StoreConnector<AppState, bool>(
-                          distinct: true,
-                          converter: (store) =>
-                              store.state.regionsState.isError,
-                          builder: (context, isError) {
-                            return isError
-                                ? Text('Erreur de récupération des régions')
-                                : SizedBox.shrink();
-                          },
-                        ),
-                        StoreConnector<AppState, List<Region>>(
-                          distinct: true,
-                          converter: (store) =>
-                              store.state.regionsState.regions,
-                          builder: (context, regions) {
-                            return regionTable(regions);
-                          },
-                        ),
-                      ],
-                    ),
+      appBar: AppBar(title: Text('Wine Rate')),
+      drawer: AppDrawer(),
+      body: Padding(
+        padding: EdgeInsets.all(8),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(' Régions', style: TextStyle(fontSize: 24.0)),
+              Container(
+                alignment: Alignment.center,
+                width: min(max(300, screenWidth * 0.5), screenWidth),
+                child: TextFormField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.search),
+                    hintText: 'Recherche',
                   ),
-                )
-              ],
-            )));
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Column(
+                  children: <Widget>[
+                    StoreConnector<AppState, bool>(
+                      distinct: true,
+                      converter: (store) => store.state.regionsState.isLoading,
+                      builder: (context, isLoading) {
+                        return isLoading
+                            ? Text('Chargement')
+                            : SizedBox.shrink();
+                      },
+                    ),
+                    StoreConnector<AppState, bool>(
+                      distinct: true,
+                      converter: (store) => store.state.regionsState.isError,
+                      builder: (context, isError) {
+                        return isError
+                            ? Text('Erreur de récupération des régions')
+                            : SizedBox.shrink();
+                      },
+                    ),
+                    StoreConnector<AppState, List<Region>>(
+                      distinct: true,
+                      converter: (store) => store.state.regionsState.regions,
+                      builder: (context, regions) {
+                        return regionTable(regions);
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

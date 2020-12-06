@@ -17,11 +17,9 @@ Future<void> fetchRegionsAction(Store<AppState> store, Config config) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
-    final results = await config
-        .query("SELECT id,name FROM region")
-        .then((results) => results.map((e) => Region(e[0], e[1])).toList());
+    final regions = await Region.getAll(config);
     store.dispatch(SetRegionsStateAction(
-        RegionsState(isLoading: false, regions: results)));
+        RegionsState(isLoading: false, regions: regions)));
   } catch (error) {
     store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
   }
@@ -32,10 +30,7 @@ Future<void> addRegionAction(
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
-    final results = await config.query(
-        "INSERT INTO region (name) VALUES (@name) RETURNING id",
-        values: {"name": region.name});
-    region.id = results[0][0];
+    await region.add(config);
     final newRegions = [...store.state.regionsState.regions, region];
     store.dispatch(SetRegionsStateAction(
         RegionsState(isLoading: false, regions: newRegions)));
@@ -49,8 +44,7 @@ Future<void> removeRegionAction(
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
-    await config
-        .query("DELETE FROM region WHERE id=@id", values: {"id": region.id});
+    await region.remove(config);
     final newRegions = store.state.regionsState.regions
         .where((element) => element.id != region.id)
         .toList();

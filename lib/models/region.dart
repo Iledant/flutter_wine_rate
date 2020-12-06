@@ -1,3 +1,5 @@
+import '../config.dart';
+
 class Region {
   String name;
   int id;
@@ -5,4 +7,21 @@ class Region {
   Region(this.id, this.name);
 
   Region copy() => Region(id, name);
+
+  static Future<List<Region>> getAll(Config config) {
+    return config
+        .query("SELECT id,name FROM region")
+        .then((results) => results.map((e) => Region(e[0], e[1])).toList());
+  }
+
+  Future<void> add(Config config) async {
+    final results = await config.query(
+        "INSERT INTO region (name) VALUES (@name) RETURNING id",
+        values: {"name": name});
+    id = results[0][0];
+  }
+
+  Future<void> remove(Config config) async {
+    await config.query("DELETE FROM region WHERE id=@id", values: {"id": id});
+  }
 }
