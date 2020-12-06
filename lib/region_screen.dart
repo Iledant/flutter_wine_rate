@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_wine_rate/constant.dart';
 import 'package:flutter_wine_rate/redux/regions/regions_actions.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
+import 'package:flutter_wine_rate/region_edit_dialog.dart';
 
 import 'config.dart';
 import 'drawer.dart';
@@ -37,9 +39,24 @@ class _RegionScreenState extends State<RegionScreen> {
     super.dispose();
   }
 
-  void addRegion(Region region) async {
-    await Redux.store
-        .dispatch((store) => addRegionAction(store, widget.config, region));
+  void editRegion(DialogMode mode, Region region) async {
+    final result = await showDialog<Region>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => RegionEditDialog(mode, region));
+    if (result == null) {
+      return;
+    }
+    switch (mode) {
+      case DialogMode.Edit:
+        await Redux.store.dispatch(
+            (store) => updateRegionAction(store, widget.config, result));
+
+        break;
+      default:
+        await Redux.store
+            .dispatch((store) => addRegionAction(store, widget.config, result));
+    }
   }
 
   void removeRegion(Region region) async {
@@ -76,7 +93,7 @@ class _RegionScreenState extends State<RegionScreen> {
                           iconSize: 16.0,
                           splashRadius: 16.0,
                           onPressed: () =>
-                              addRegion(Region(0, 'Nouvelle région')),
+                              editRegion(DialogMode.Edit, lines[i]),
                           icon: Icon(Icons.edit)),
                       IconButton(
                           splashRadius: 16.0,

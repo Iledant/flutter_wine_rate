@@ -21,6 +21,11 @@ class Region {
     id = results[0][0];
   }
 
+  Future<void> update(Config config) async {
+    await config.query("UPDATE region SET name=@name WHERE id=@id",
+        values: {"name": name, "id": id});
+  }
+
   Future<void> remove(Config config) async {
     await config.query("DELETE FROM region WHERE id=@id", values: {"id": id});
   }

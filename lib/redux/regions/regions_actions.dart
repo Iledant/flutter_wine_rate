@@ -39,6 +39,22 @@ Future<void> addRegionAction(
   }
 }
 
+Future<void> updateRegionAction(
+    Store<AppState> store, Config config, Region region) async {
+  store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
+
+  try {
+    await region.update(config);
+    final newRegions = store.state.regionsState.regions
+        .map((e) => e.id == region.id ? region : e)
+        .toList();
+    store.dispatch(SetRegionsStateAction(
+        RegionsState(isLoading: false, regions: newRegions)));
+  } catch (error) {
+    store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
+  }
+}
+
 Future<void> removeRegionAction(
     Store<AppState> store, Config config, Region region) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
