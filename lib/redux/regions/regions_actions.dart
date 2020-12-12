@@ -43,12 +43,14 @@ Future<void> addRegionAction(
 
   try {
     await region.add(config);
-    final newRegions = [
-      ...store.state.regionsState.paginatedRegions.regions,
-      region
-    ];
+    final actualPaginatedRegions = store.state.regionsState.paginatedRegions;
+    final newRegions = [...actualPaginatedRegions.regions, region];
+    final newPaginatedRegions = PaginatedRegions(
+        actualPaginatedRegions.actualLine,
+        actualPaginatedRegions.totalLines,
+        newRegions);
     store.dispatch(SetRegionsStateAction(
-        RegionsState(isLoading: false, regions: newRegions)));
+        RegionsState(isLoading: false, paginatedRegions: newPaginatedRegions)));
   } catch (error) {
     store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
   }
