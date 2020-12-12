@@ -1,4 +1,24 @@
+import 'dart:math';
+
 import '../config.dart';
+
+enum RegionFieldSort { NoSort, NameShort }
+
+class PaginatedRegionParams {
+  String search;
+  int firstLine;
+  RegionFieldSort sort;
+
+  PaginatedRegionParams(this.search, this.firstLine, this.sort);
+}
+
+class PaginatedRegions {
+  int actualLine;
+  int totalLines;
+  List<Region> regions;
+
+  PaginatedRegions(this.actualLine, this.totalLines, this.regions);
+}
 
 class Region {
   String name;
@@ -9,6 +29,30 @@ class Region {
   Region copy() => Region(id, name);
 
   static Future<List<Region>> getAll(Config config) {
+    return config
+        .query("SELECT id,name FROM region")
+        .then((results) => results.map((e) => Region(e[0], e[1])).toList());
+  }
+
+  static Future<PaginatedRegions> getPaginated(
+      Config config, PaginatedRegionParams params) async {
+    final courtResults = await config.query(
+        "SELECT count(1) FROM region WHERE name ILIKE @search",
+        values: {"search": '%${params.search}%'});
+    final int totalLines = courtResults[0][0];
+    final int actualLine = min(params.firstLine, totalLines + 1);
+    final int sort = params.sort == RegionFieldSort.NameShort ? 2 : 1;
+    final regions = await config.query(
+        "select id,name FROM region WHERE name ILIKE @search order by @sort LIMIT 10 OFFSET @offset",
+        values: {
+          "sort": sort,
+          "offset": actualLine - 1,
+          'search': '%${params.search}%'
+        }).then((results) => results.map((e) => Region(e[0], e[1])).toList());
+    return PaginatedRegions(actualLine, totalLines, regions);
+  }
+
+  static Future<List<Region>> getAllPage(Config config) {
     return config
         .query("SELECT id,name FROM region")
         .then((results) => results.map((e) => Region(e[0], e[1])).toList());

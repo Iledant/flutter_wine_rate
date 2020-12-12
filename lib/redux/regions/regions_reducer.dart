@@ -6,5 +6,6 @@ regionsReducer(RegionsState prevState, SetRegionsStateAction action) {
   return prevState.copyWith(
       isError: payload.isError,
       isLoading: payload.isLoading,
-      regions: payload.regions);
+      regions: payload.regions,
+      paginatedRegions: payload.paginatedRegions);
 }

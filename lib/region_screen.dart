@@ -22,15 +22,19 @@ class RegionScreen extends StatefulWidget {
 
 class _RegionScreenState extends State<RegionScreen> {
   final _controller = TextEditingController();
-  String _searchText = '';
 
   void initState() {
     super.initState();
-    Redux.store.dispatch((store) => fetchRegionsAction(store, widget.config));
+    Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
+        store,
+        widget.config,
+        PaginatedRegionParams('', 1, RegionFieldSort.NameShort)));
     _controller.addListener(() {
-      setState(() {
-        _searchText = _controller.text.toLowerCase();
-      });
+      Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
+          store,
+          widget.config,
+          PaginatedRegionParams(
+              _controller.text, 1, RegionFieldSort.NameShort)));
     });
   }
 
@@ -51,7 +55,6 @@ class _RegionScreenState extends State<RegionScreen> {
       case DialogMode.Edit:
         await Redux.store.dispatch(
             (store) => updateRegionAction(store, widget.config, result));
-
         break;
       default:
         await Redux.store
@@ -64,50 +67,33 @@ class _RegionScreenState extends State<RegionScreen> {
         .dispatch((store) => removeRegionAction(store, widget.config, region));
   }
 
-  Widget regionTable(List<Region> regions) {
-    final lines = regions
-        .where((r) => r.name.toLowerCase().contains(_searchText))
-        .toList();
-
-    return Card(
-        child: DataTable(
-          headingRowColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-            return Colors.deepPurple.shade50;
-          }),
-          headingTextStyle:
-              TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
-          columns: [
-            DataColumn(label: Text('Nom')),
-            DataColumn(label: Text('Actions'))
-          ],
-          rows: List<DataRow>.generate(
-            lines.length,
-            (i) => DataRow(
-              cells: [
-                DataCell(Text(lines[i].name)),
-                DataCell(
-                  Row(
-                    children: [
-                      IconButton(
-                          iconSize: 16.0,
-                          splashRadius: 16.0,
-                          onPressed: () =>
-                              editRegion(DialogMode.Edit, lines[i]),
-                          icon: Icon(Icons.edit)),
-                      IconButton(
-                          splashRadius: 16.0,
-                          iconSize: 16.0,
-                          onPressed: () => removeRegion(lines[i]),
-                          icon: Icon(Icons.delete)),
-                    ],
-                  ),
-                )
+  List<DataRow> generateRows(List<Region> regions) {
+    return List<DataRow>.generate(
+      regions.length,
+      (i) => DataRow(
+        cells: [
+          DataCell(Text(regions[i].name)),
+          DataCell(
+            Row(
+              children: [
+                IconButton(
+                  iconSize: 16.0,
+                  splashRadius: 16.0,
+                  onPressed: () => editRegion(DialogMode.Edit, regions[i]),
+                  icon: Icon(Icons.edit),
+                ),
+                IconButton(
+                  splashRadius: 16.0,
+                  iconSize: 16.0,
+                  onPressed: () => removeRegion(regions[i]),
+                  icon: Icon(Icons.delete),
+                ),
               ],
             ),
-          ),
-        ),
-        elevation: 3.0);
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -118,56 +104,97 @@ class _RegionScreenState extends State<RegionScreen> {
       drawer: AppDrawer(),
       body: Padding(
         padding: EdgeInsets.all(8),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(' Régions', style: TextStyle(fontSize: 24.0)),
-              Container(
-                alignment: Alignment.center,
-                width: min(max(300, screenWidth * 0.5), screenWidth),
-                child: TextFormField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.search),
-                    hintText: 'Recherche',
-                  ),
+        child: Column(
+          children: [
+            Text(' Régions', style: TextStyle(fontSize: 24.0)),
+            Container(
+              alignment: Alignment.center,
+              width: min(max(300, screenWidth * 0.5), screenWidth),
+              child: TextFormField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search),
+                  hintText: 'Recherche',
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Column(
-                  children: <Widget>[
-                    StoreConnector<AppState, bool>(
-                      distinct: true,
-                      converter: (store) => store.state.regionsState.isLoading,
-                      builder: (context, isLoading) {
-                        return isLoading
-                            ? Text('Chargement')
-                            : SizedBox.shrink();
-                      },
+            ),
+            SizedBox(height: 10.0),
+            StoreConnector<AppState, bool>(
+              distinct: true,
+              converter: (store) => store.state.regionsState.isLoading,
+              builder: (context, isLoading) {
+                return isLoading
+                    ? CircularProgressIndicator(value: null)
+                    : SizedBox.shrink();
+              },
+            ),
+            StoreConnector<AppState, bool>(
+              distinct: true,
+              converter: (store) => store.state.regionsState.isError,
+              builder: (context, isError) {
+                return isError
+                    ? Text('Erreur de récupération des régions')
+                    : SizedBox.shrink();
+              },
+            ),
+            StoreConnector<AppState, PaginatedRegions>(
+              distinct: true,
+              converter: (store) => store.state.regionsState.paginatedRegions,
+              builder: (builder, paginatedRegions) {
+                final actualLine = paginatedRegions.actualLine;
+                final totalLines = paginatedRegions.totalLines;
+                final lastLine = min(actualLine + 10, totalLines);
+                final backButtonDisabled = actualLine == 1;
+                final nextButtonDisabled = totalLines == lastLine;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    DataTable(
+                      headingRowColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        return Colors.deepPurple.shade50;
+                      }),
+                      headingTextStyle: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                      columns: [
+                        DataColumn(label: Text('Nom')),
+                        DataColumn(label: Text('Actions'))
+                      ],
+                      rows: generateRows(paginatedRegions.regions),
                     ),
-                    StoreConnector<AppState, bool>(
-                      distinct: true,
-                      converter: (store) => store.state.regionsState.isError,
-                      builder: (context, isError) {
-                        return isError
-                            ? Text('Erreur de récupération des régions')
-                            : SizedBox.shrink();
-                      },
-                    ),
-                    StoreConnector<AppState, List<Region>>(
-                      distinct: true,
-                      converter: (store) => store.state.regionsState.regions,
-                      builder: (context, regions) {
-                        return regionTable(regions);
-                      },
+                    SizedBox(height: 8.0),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('$actualLine - $lastLine sur $totalLines'),
+                        SizedBox(width: 16.0),
+                        IconButton(
+                          icon: Icon(
+                            Icons.keyboard_arrow_left,
+                            color:
+                                backButtonDisabled ? Colors.grey : Colors.black,
+                          ),
+                          splashRadius: 16.0,
+                          onPressed: () {},
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.keyboard_arrow_right,
+                            color:
+                                nextButtonDisabled ? Colors.grey : Colors.black,
+                          ),
+                          splashRadius: 16.0,
+                          onPressed: () {},
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              )
-            ],
-          ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

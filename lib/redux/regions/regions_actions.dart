@@ -25,6 +25,18 @@ Future<void> fetchRegionsAction(Store<AppState> store, Config config) async {
   }
 }
 
+Future<void> fetchPaginatedRegionsAction(
+    Store<AppState> store, Config config, PaginatedRegionParams params) async {
+  store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
+  try {
+    final paginatedRegions = await Region.getPaginated(config, params);
+    store.dispatch(SetRegionsStateAction(
+        RegionsState(isLoading: false, paginatedRegions: paginatedRegions)));
+  } catch (error) {
+    store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
+  }
+}
+
 Future<void> addRegionAction(
     Store<AppState> store, Config config, Region region) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
