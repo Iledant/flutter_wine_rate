@@ -20,21 +20,113 @@ class RegionScreen extends StatefulWidget {
   _RegionScreenState createState() => _RegionScreenState();
 }
 
+class PaginatedTable extends StatelessWidget {
+  final TableHeaders headers;
+  final TableRowText rows;
+  final Function(int) editHook;
+  final Function(int) deleteHook;
+
+  PaginatedTable(
+      {@required this.headers,
+      @required this.rows,
+      @required this.editHook,
+      @required this.deleteHook,
+      Key key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<DataColumn> dataColumns =
+        headers.columns.map((e) => DataColumn(label: Text(e))).toList();
+    if (headers.hasAction) {
+      dataColumns.add(DataColumn(label: Text('Actions')));
+    }
+    final actualLine = rows.actualLine;
+    final totalLines = rows.totalLines;
+    final lastLine = min(actualLine + 10, totalLines);
+    final backButtonDisabled = actualLine == 1;
+    final nextButtonDisabled = totalLines == lastLine;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        DataTable(
+            headingRowColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+              return Colors.deepPurple.shade50;
+            }),
+            headingTextStyle: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+            columns: dataColumns,
+            rows: List<DataRow>.generate(
+              lastLine - actualLine + 1,
+              (i) => DataRow(
+                cells: [
+                  ...rows.rows(i).map((r) => DataCell(Text(r))).toList(),
+                  DataCell(
+                    Row(
+                      children: [
+                        IconButton(
+                          iconSize: 16.0,
+                          splashRadius: 16.0,
+                          onPressed: () => editHook(i),
+                          icon: Icon(Icons.edit),
+                        ),
+                        IconButton(
+                          splashRadius: 16.0,
+                          iconSize: 16.0,
+                          onPressed: () => deleteHook(i),
+                          icon: Icon(Icons.delete),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$actualLine - $lastLine sur $totalLines'),
+            SizedBox(width: 16.0),
+            IconButton(
+              icon: Icon(
+                Icons.keyboard_arrow_left,
+                color: backButtonDisabled ? Colors.grey : Colors.black,
+              ),
+              splashRadius: 16.0,
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.keyboard_arrow_right,
+                color: nextButtonDisabled ? Colors.grey : Colors.black,
+              ),
+              splashRadius: 16.0,
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 class _RegionScreenState extends State<RegionScreen> {
   final _controller = TextEditingController();
 
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-        store,
-        widget.config,
-        PaginatedRegionParams('', 1, RegionFieldSort.NameShort)));
+        store, widget.config, PaginatedParams('', 1, FieldSort.NameSort)));
     _controller.addListener(() {
       Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
           store,
           widget.config,
-          PaginatedRegionParams(
-              _controller.text, 1, RegionFieldSort.NameShort)));
+          PaginatedParams(_controller.text, 1, FieldSort.NameSort)));
     });
   }
 
@@ -62,38 +154,9 @@ class _RegionScreenState extends State<RegionScreen> {
     }
   }
 
-  void removeRegion(Region region) async {
-    await Redux.store
-        .dispatch((store) => removeRegionAction(store, widget.config, region));
-  }
-
-  List<DataRow> generateRows(List<Region> regions) {
-    return List<DataRow>.generate(
-      regions.length,
-      (i) => DataRow(
-        cells: [
-          DataCell(Text(regions[i].name)),
-          DataCell(
-            Row(
-              children: [
-                IconButton(
-                  iconSize: 16.0,
-                  splashRadius: 16.0,
-                  onPressed: () => editRegion(DialogMode.Edit, regions[i]),
-                  icon: Icon(Icons.edit),
-                ),
-                IconButton(
-                  splashRadius: 16.0,
-                  iconSize: 16.0,
-                  onPressed: () => removeRegion(regions[i]),
-                  icon: Icon(Icons.delete),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+  void removeRegion(Region region, PaginatedParams params) async {
+    await Redux.store.dispatch(
+        (store) => removeRegionAction(store, widget.config, region, params));
   }
 
   @override
@@ -141,57 +204,16 @@ class _RegionScreenState extends State<RegionScreen> {
               distinct: true,
               converter: (store) => store.state.regionsState.paginatedRegions,
               builder: (builder, paginatedRegions) {
-                final actualLine = paginatedRegions.actualLine;
-                final totalLines = paginatedRegions.totalLines;
-                final lastLine = min(actualLine + 10, totalLines);
-                final backButtonDisabled = actualLine == 1;
-                final nextButtonDisabled = totalLines == lastLine;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    DataTable(
-                      headingRowColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                        return Colors.deepPurple.shade50;
-                      }),
-                      headingTextStyle: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                      columns: [
-                        DataColumn(label: Text('Nom')),
-                        DataColumn(label: Text('Actions'))
-                      ],
-                      rows: generateRows(paginatedRegions.regions),
-                    ),
-                    SizedBox(height: 8.0),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('$actualLine - $lastLine sur $totalLines'),
-                        SizedBox(width: 16.0),
-                        IconButton(
-                          icon: Icon(
-                            Icons.keyboard_arrow_left,
-                            color:
-                                backButtonDisabled ? Colors.grey : Colors.black,
-                          ),
-                          splashRadius: 16.0,
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.keyboard_arrow_right,
-                            color:
-                                nextButtonDisabled ? Colors.grey : Colors.black,
-                          ),
-                          splashRadius: 16.0,
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                );
+                return PaginatedTable(
+                  headers: TableHeaders(hasAction: true, columns: ['Nom']),
+                  rows: paginatedRegions,
+                  editHook: (i) =>
+                      editRegion(DialogMode.Edit, paginatedRegions.regions[i]),
+                  deleteHook: (i) => removeRegion(
+                      paginatedRegions.regions[i],
+                      PaginatedParams(_controller.text,
+                          paginatedRegions.actualLine, FieldSort.NameSort)),
+                ).build(builder);
               },
             ),
           ],

@@ -1,23 +1,40 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 import '../config.dart';
 
-enum RegionFieldSort { NoSort, NameShort }
+enum FieldSort { NoSort, NameSort }
 
-class PaginatedRegionParams {
-  String search;
-  int firstLine;
-  RegionFieldSort sort;
+class TableHeaders {
+  bool hasAction;
+  List<String> columns;
 
-  PaginatedRegionParams(this.search, this.firstLine, this.sort);
+  TableHeaders({@required this.hasAction, @required this.columns});
 }
 
-class PaginatedRegions {
+abstract class TableRowText {
+  List<String> rows(int index);
+  int actualLine;
+  int totalLines;
+}
+
+class PaginatedParams {
+  String search;
+  int firstLine;
+  FieldSort sort;
+
+  PaginatedParams(this.search, this.firstLine, this.sort);
+}
+
+class PaginatedRegions extends TableRowText {
   int actualLine;
   int totalLines;
   List<Region> regions;
 
   PaginatedRegions(this.actualLine, this.totalLines, this.regions);
+
+  @override
+  List<String> rows(int index) => [regions[index].name];
 }
 
 class Region {
@@ -35,13 +52,13 @@ class Region {
   }
 
   static Future<PaginatedRegions> getPaginated(
-      Config config, PaginatedRegionParams params) async {
+      Config config, PaginatedParams params) async {
     final courtResults = await config.query(
         "SELECT count(1) FROM region WHERE name ILIKE @search",
         values: {"search": '%${params.search}%'});
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = params.sort == RegionFieldSort.NameShort ? 2 : 1;
+    final int sort = params.sort == FieldSort.NameSort ? 2 : 1;
     final regions = await config.query(
         "select id,name FROM region WHERE name ILIKE @search order by @sort LIMIT 10 OFFSET @offset",
         values: {

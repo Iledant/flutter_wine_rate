@@ -26,7 +26,7 @@ Future<void> fetchRegionsAction(Store<AppState> store, Config config) async {
 }
 
 Future<void> fetchPaginatedRegionsAction(
-    Store<AppState> store, Config config, PaginatedRegionParams params) async {
+    Store<AppState> store, Config config, PaginatedParams params) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
   try {
     final paginatedRegions = await Region.getPaginated(config, params);
@@ -43,7 +43,10 @@ Future<void> addRegionAction(
 
   try {
     await region.add(config);
-    final newRegions = [...store.state.regionsState.regions, region];
+    final newRegions = [
+      ...store.state.regionsState.paginatedRegions.regions,
+      region
+    ];
     store.dispatch(SetRegionsStateAction(
         RegionsState(isLoading: false, regions: newRegions)));
   } catch (error) {
@@ -56,28 +59,30 @@ Future<void> updateRegionAction(
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
+    print('Store ${store.state.regionsState.regions.length}');
     await region.update(config);
-    final newRegions = store.state.regionsState.regions
+    final actualPaginatedRegions = store.state.regionsState.paginatedRegions;
+    final newRegions = actualPaginatedRegions.regions
         .map((e) => e.id == region.id ? region : e)
         .toList();
+    final newPaginatedRegions = PaginatedRegions(
+        actualPaginatedRegions.actualLine,
+        actualPaginatedRegions.totalLines,
+        newRegions);
     store.dispatch(SetRegionsStateAction(
-        RegionsState(isLoading: false, regions: newRegions)));
+        RegionsState(isLoading: false, paginatedRegions: newPaginatedRegions)));
   } catch (error) {
     store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
   }
 }
 
-Future<void> removeRegionAction(
-    Store<AppState> store, Config config, Region region) async {
+Future<void> removeRegionAction(Store<AppState> store, Config config,
+    Region region, PaginatedParams params) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
     await region.remove(config);
-    final newRegions = store.state.regionsState.regions
-        .where((element) => element.id != region.id)
-        .toList();
-    store.dispatch(SetRegionsStateAction(
-        RegionsState(isLoading: false, regions: newRegions)));
+    fetchPaginatedRegionsAction(store, config, params);
   } catch (error) {
     store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
   }
