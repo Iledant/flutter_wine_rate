@@ -55,7 +55,7 @@ class PaginatedTable extends StatelessWidget {
     }
     final actualLine = rows.actualLine;
     final totalLines = rows.totalLines;
-    final lastLine = min(actualLine + 10, totalLines);
+    final lastLine = min(actualLine + 9, totalLines);
     final backButtonDisabled = actualLine == 1;
     final nextButtonDisabled = totalLines == lastLine;
 
