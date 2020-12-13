@@ -122,7 +122,7 @@ class _CriticScreenState extends State<CriticScreen> {
                         firstLine: paginatedCritics.actualLine,
                         sort: FieldSort.NameSort),
                   ),
-                  moveHook: (i) async => {
+                  moveHook: (i) async {
                     await Redux.store.dispatch((store) =>
                         fetchPaginatedCriticsAction(
                             store,
@@ -130,7 +130,7 @@ class _CriticScreenState extends State<CriticScreen> {
                             PaginatedParams(
                                 firstLine: i,
                                 search: _controller.text,
-                                sort: FieldSort.NameSort)))
+                                sort: FieldSort.NameSort)));
                   },
                 );
               },

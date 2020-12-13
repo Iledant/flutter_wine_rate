@@ -114,7 +114,7 @@ class PaginatedTable extends StatelessWidget {
                 if (backButtonDisabled) {
                   return;
                 }
-                moveHook(actualLine + 10);
+                moveHook(actualLine - 10);
               },
             ),
             IconButton(
@@ -127,7 +127,7 @@ class PaginatedTable extends StatelessWidget {
                 if (nextButtonDisabled) {
                   return;
                 }
-                moveHook(actualLine - 10);
+                moveHook(actualLine + 10);
               },
             ),
           ],
