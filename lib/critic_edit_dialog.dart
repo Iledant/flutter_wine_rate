@@ -14,6 +14,7 @@ class CriticEditDialog extends StatefulWidget {
 
 class _CriticEditDialogState extends State<CriticEditDialog> {
   final _controller = TextEditingController();
+  Color _buttonColor;
 
   void initState() {
     super.initState();
@@ -33,9 +34,18 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
           : 'Nouveau critique'),
       content: Form(
         child: TextFormField(
+          onChanged: (value) {
+            setState(() {
+              _buttonColor =
+                  value.isEmpty ? Colors.grey : Theme.of(context).accentColor;
+            });
+          },
+          autovalidateMode: AutovalidateMode.always,
           controller: _controller,
+          validator: (String value) =>
+              value.isEmpty ? 'Le nom ne peut être vide' : null,
           decoration: InputDecoration(
-            hintText: 'Recherche',
+            hintText: 'Nom',
           ),
         ),
       ),
@@ -45,9 +55,13 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
           onPressed: () => Navigator.of(context).pop(null),
         ),
         FlatButton(
-          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Annuler'),
-          onPressed: () => Navigator.of(context)
-              .pop(Critic(id: widget._critic.id, name: _controller.text)),
+          textColor: _buttonColor,
+          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+          onPressed: () {
+            if (_controller.text.isEmpty) return;
+            Navigator.of(context)
+                .pop(Critic(id: widget._critic.id, name: _controller.text));
+          },
         ),
       ],
     );
