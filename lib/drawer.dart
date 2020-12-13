@@ -44,6 +44,9 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Critiques'),
           leading: Icon(Icons.account_circle),
+          onTap: () {
+            Navigator.pushNamed(context, '/critics');
+          },
         ),
       ],
     ));

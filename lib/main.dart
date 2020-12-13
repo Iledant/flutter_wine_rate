@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/region_screen.dart';
+import 'package:flutter_wine_rate/critic_screen.dart';
 import 'config.dart';
 import 'drawer.dart';
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => HomeScreen(),
           '/regions': (context) => RegionScreen(config),
+          '/critics': (context) => CriticScreen(config),
         },
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
