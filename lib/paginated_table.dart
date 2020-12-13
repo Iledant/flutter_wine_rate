@@ -26,19 +26,23 @@ class PaginatedParams {
       {this.search = '', this.firstLine = 1, this.sort = FieldSort.IdSort});
 }
 
+typedef hookFunction = void Function(int);
+
 class PaginatedTable extends StatelessWidget {
   final TableHeaders headers;
   final TableRowText rows;
-  final void Function(int) editHook;
-  final void Function(int) deleteHook;
-  final void Function(int) moveHook;
+  final hookFunction editHook;
+  final hookFunction deleteHook;
+  final hookFunction moveHook;
+
+  static void _defaultHook(int i) {}
 
   PaginatedTable(
       {@required this.headers,
       @required this.rows,
-      this.editHook,
-      this.deleteHook,
-      this.moveHook,
+      this.editHook = _defaultHook,
+      this.deleteHook = _defaultHook,
+      this.moveHook = _defaultHook,
       Key key})
       : super(key: key);
 
@@ -79,15 +83,13 @@ class PaginatedTable extends StatelessWidget {
                         IconButton(
                           iconSize: 16.0,
                           splashRadius: 16.0,
-                          onPressed: () =>
-                              editHook != null ? editHook(i) : () => {},
+                          onPressed: () => editHook(i),
                           icon: Icon(Icons.edit),
                         ),
                         IconButton(
                           splashRadius: 16.0,
                           iconSize: 16.0,
-                          onPressed: () =>
-                              deleteHook != null ? deleteHook(i) : () => {},
+                          onPressed: () => deleteHook(i),
                           icon: Icon(Icons.delete),
                         ),
                       ],
@@ -109,7 +111,7 @@ class PaginatedTable extends StatelessWidget {
               ),
               splashRadius: 16.0,
               onPressed: () {
-                if (backButtonDisabled || moveHook == null) {
+                if (backButtonDisabled) {
                   return;
                 }
                 moveHook(actualLine + 10);
@@ -122,7 +124,7 @@ class PaginatedTable extends StatelessWidget {
               ),
               splashRadius: 16.0,
               onPressed: () {
-                if (nextButtonDisabled || moveHook == null) {
+                if (nextButtonDisabled) {
                   return;
                 }
                 moveHook(actualLine - 10);
