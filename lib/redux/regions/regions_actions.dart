@@ -62,7 +62,6 @@ Future<void> updateRegionAction(
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
 
   try {
-    print('Store ${store.state.regionsState.regions.length}');
     await region.update(config);
     final actualPaginatedRegions = store.state.regionsState.paginatedRegions;
     final newRegions = actualPaginatedRegions.regions
