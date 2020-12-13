@@ -1,30 +1,7 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 
 import '../config.dart';
-
-enum FieldSort { NoSort, NameSort }
-
-class TableHeaders {
-  bool hasAction;
-  List<String> columns;
-
-  TableHeaders({@required this.hasAction, @required this.columns});
-}
-
-abstract class TableRowText {
-  List<String> rows(int index);
-  int actualLine;
-  int totalLines;
-}
-
-class PaginatedParams {
-  String search;
-  int firstLine;
-  FieldSort sort;
-
-  PaginatedParams(this.search, this.firstLine, this.sort);
-}
+import '../paginated_table.dart';
 
 class PaginatedRegions extends TableRowText {
   int actualLine;

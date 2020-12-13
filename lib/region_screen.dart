@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_wine_rate/constant.dart';
+import 'package:flutter_wine_rate/paginated_table.dart';
 import 'package:flutter_wine_rate/redux/regions/regions_actions.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/region_edit_dialog.dart';
@@ -20,113 +21,18 @@ class RegionScreen extends StatefulWidget {
   _RegionScreenState createState() => _RegionScreenState();
 }
 
-class PaginatedTable extends StatelessWidget {
-  final TableHeaders headers;
-  final TableRowText rows;
-  final Function(int) editHook;
-  final Function(int) deleteHook;
-
-  PaginatedTable(
-      {@required this.headers,
-      @required this.rows,
-      @required this.editHook,
-      @required this.deleteHook,
-      Key key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    List<DataColumn> dataColumns =
-        headers.columns.map((e) => DataColumn(label: Text(e))).toList();
-    if (headers.hasAction) {
-      dataColumns.add(DataColumn(label: Text('Actions')));
-    }
-    final actualLine = rows.actualLine;
-    final totalLines = rows.totalLines;
-    final lastLine = min(actualLine + 10, totalLines);
-    final backButtonDisabled = actualLine == 1;
-    final nextButtonDisabled = totalLines == lastLine;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        DataTable(
-            headingRowColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-              return Colors.deepPurple.shade50;
-            }),
-            headingTextStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-            columns: dataColumns,
-            rows: List<DataRow>.generate(
-              lastLine - actualLine + 1,
-              (i) => DataRow(
-                cells: [
-                  ...rows.rows(i).map((r) => DataCell(Text(r))).toList(),
-                  DataCell(
-                    Row(
-                      children: [
-                        IconButton(
-                          iconSize: 16.0,
-                          splashRadius: 16.0,
-                          onPressed: () => editHook(i),
-                          icon: Icon(Icons.edit),
-                        ),
-                        IconButton(
-                          splashRadius: 16.0,
-                          iconSize: 16.0,
-                          onPressed: () => deleteHook(i),
-                          icon: Icon(Icons.delete),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('$actualLine - $lastLine sur $totalLines'),
-            SizedBox(width: 16.0),
-            IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_left,
-                color: backButtonDisabled ? Colors.grey : Colors.black,
-              ),
-              splashRadius: 16.0,
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_right,
-                color: nextButtonDisabled ? Colors.grey : Colors.black,
-              ),
-              splashRadius: 16.0,
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class _RegionScreenState extends State<RegionScreen> {
   final _controller = TextEditingController();
 
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-        store, widget.config, PaginatedParams('', 1, FieldSort.NameSort)));
+        store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
     _controller.addListener(() {
       Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
           store,
           widget.config,
-          PaginatedParams(_controller.text, 1, FieldSort.NameSort)));
+          PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
     });
   }
 
@@ -210,10 +116,23 @@ class _RegionScreenState extends State<RegionScreen> {
                   editHook: (i) =>
                       editRegion(DialogMode.Edit, paginatedRegions.regions[i]),
                   deleteHook: (i) => removeRegion(
-                      paginatedRegions.regions[i],
-                      PaginatedParams(_controller.text,
-                          paginatedRegions.actualLine, FieldSort.NameSort)),
-                ).build(builder);
+                    paginatedRegions.regions[i],
+                    PaginatedParams(
+                        search: _controller.text,
+                        firstLine: paginatedRegions.actualLine,
+                        sort: FieldSort.NameSort),
+                  ),
+                  moveHook: (i) async => {
+                    await Redux.store.dispatch((store) =>
+                        fetchPaginatedRegionsAction(
+                            store,
+                            widget.config,
+                            PaginatedParams(
+                                firstLine: i,
+                                search: _controller.text,
+                                sort: FieldSort.NameSort)))
+                  },
+                );
               },
             ),
           ],

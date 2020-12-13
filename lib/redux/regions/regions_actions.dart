@@ -5,6 +5,7 @@ import 'package:redux/redux.dart';
 import 'package:flutter_wine_rate/redux/regions/regions_state.dart';
 
 import '../../config.dart';
+import '../../paginated_table.dart';
 
 @immutable
 class SetRegionsStateAction {
