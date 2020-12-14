@@ -14,10 +14,12 @@ class RegionEditDialog extends StatefulWidget {
 
 class _RegionEditDialogState extends State<RegionEditDialog> {
   final _controller = TextEditingController();
+  bool _disabled;
 
   void initState() {
     super.initState();
     _controller.text = widget._region.name;
+    _disabled = widget._region.name.isEmpty;
   }
 
   void dispose() {
@@ -34,8 +36,16 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
       content: Form(
         child: TextFormField(
           controller: _controller,
+          onChanged: (value) {
+            setState(() {
+              _disabled = value.isEmpty;
+            });
+          },
+          autovalidateMode: AutovalidateMode.always,
+          validator: (String value) =>
+              value.isEmpty ? 'Le nom ne peut être vide' : null,
           decoration: InputDecoration(
-            hintText: 'Recherche',
+            hintText: 'Nom',
           ),
         ),
       ),
@@ -44,10 +54,17 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        FlatButton(
-          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Annuler'),
-          onPressed: () => Navigator.of(context)
-              .pop(Region(widget._region.id, _controller.text)),
+        IgnorePointer(
+          ignoring: _disabled,
+          child: FlatButton(
+            textColor: _disabled ? Colors.grey : Theme.of(context).accentColor,
+            child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+            onPressed: () {
+              if (_controller.text.isEmpty) return;
+              Navigator.of(context)
+                  .pop(Region(widget._region.id, _controller.text));
+            },
+          ),
         ),
       ],
     );

@@ -14,11 +14,12 @@ class CriticEditDialog extends StatefulWidget {
 
 class _CriticEditDialogState extends State<CriticEditDialog> {
   final _controller = TextEditingController();
-  bool _disabled = false;
+  bool _disabled;
 
   void initState() {
     super.initState();
     _controller.text = widget._critic.name;
+    _disabled = widget._critic.name.isEmpty;
   }
 
   void dispose() {
@@ -34,13 +35,13 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
           : 'Nouveau critique'),
       content: Form(
         child: TextFormField(
+          controller: _controller,
           onChanged: (value) {
             setState(() {
               _disabled = value.isEmpty;
             });
           },
           autovalidateMode: AutovalidateMode.always,
-          controller: _controller,
           validator: (String value) =>
               value.isEmpty ? 'Le nom ne peut être vide' : null,
           decoration: InputDecoration(
