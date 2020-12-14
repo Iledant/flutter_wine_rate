@@ -14,7 +14,7 @@ class CriticEditDialog extends StatefulWidget {
 
 class _CriticEditDialogState extends State<CriticEditDialog> {
   final _controller = TextEditingController();
-  Color _buttonColor;
+  bool _disabled = false;
 
   void initState() {
     super.initState();
@@ -36,8 +36,7 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
         child: TextFormField(
           onChanged: (value) {
             setState(() {
-              _buttonColor =
-                  value.isEmpty ? Colors.grey : Theme.of(context).accentColor;
+              _disabled = value.isEmpty;
             });
           },
           autovalidateMode: AutovalidateMode.always,
@@ -54,15 +53,18 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        FlatButton(
-          textColor: _buttonColor,
-          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
-          onPressed: () {
-            if (_controller.text.isEmpty) return;
-            Navigator.of(context)
-                .pop(Critic(id: widget._critic.id, name: _controller.text));
-          },
-        ),
+        IgnorePointer(
+          ignoring: _disabled,
+          child: FlatButton(
+            textColor: _disabled ? Colors.grey : Theme.of(context).accentColor,
+            child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+            onPressed: () {
+              if (_controller.text.isEmpty) return;
+              Navigator.of(context)
+                  .pop(Critic(id: widget._critic.id, name: _controller.text));
+            },
+          ),
+        )
       ],
     );
   }
