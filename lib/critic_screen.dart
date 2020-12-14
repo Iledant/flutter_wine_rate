@@ -23,6 +23,7 @@ class CriticScreen extends StatefulWidget {
 
 class _CriticScreenState extends State<CriticScreen> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
 
   void initState() {
     super.initState();
@@ -71,71 +72,75 @@ class _CriticScreenState extends State<CriticScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Wine Rate')),
       drawer: AppDrawer(),
-      body: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            Text('Critiques', style: TextStyle(fontSize: 24.0)),
-            Container(
-              alignment: Alignment.center,
-              width: min(max(300, screenWidth * 0.5), screenWidth),
-              child: TextFormField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.search),
-                  hintText: 'Recherche',
+      body: Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(8.0),
+          controller: _scrollController,
+          child: Column(
+            children: [
+              Text('Critiques', style: TextStyle(fontSize: 24.0)),
+              Container(
+                alignment: Alignment.center,
+                width: min(max(300, screenWidth * 0.5), screenWidth),
+                child: TextFormField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.search),
+                    hintText: 'Recherche',
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 10.0),
-            StoreConnector<AppState, bool>(
-              distinct: true,
-              converter: (store) => store.state.criticsState.isLoading,
-              builder: (context, isLoading) {
-                return isLoading
-                    ? CircularProgressIndicator(value: null)
-                    : SizedBox.shrink();
-              },
-            ),
-            StoreConnector<AppState, bool>(
-              distinct: true,
-              converter: (store) => store.state.criticsState.isError,
-              builder: (context, isError) {
-                return isError
-                    ? Text('Erreur de récupération des critiques')
-                    : SizedBox.shrink();
-              },
-            ),
-            StoreConnector<AppState, PaginatedCritics>(
-              distinct: true,
-              converter: (store) => store.state.criticsState.paginatedCritics,
-              builder: (builder, paginatedCritics) {
-                return PaginatedTable(
-                  headers: TableHeaders(hasAction: true, columns: ['Nom']),
-                  rows: paginatedCritics,
-                  editHook: (i) =>
-                      editCritic(DialogMode.Edit, paginatedCritics.critics[i]),
-                  deleteHook: (i) => removeCritic(
-                    paginatedCritics.critics[i],
-                    PaginatedParams(
-                        search: _controller.text,
-                        firstLine: paginatedCritics.actualLine,
-                        sort: FieldSort.NameSort),
-                  ),
-                  moveHook: (i) async {
-                    await Redux.store.dispatch((store) =>
-                        fetchPaginatedCriticsAction(
-                            store,
-                            widget.config,
-                            PaginatedParams(
-                                firstLine: i,
-                                search: _controller.text,
-                                sort: FieldSort.NameSort)));
-                  },
-                );
-              },
-            ),
-          ],
+              SizedBox(height: 10.0),
+              StoreConnector<AppState, bool>(
+                distinct: true,
+                converter: (store) => store.state.criticsState.isLoading,
+                builder: (context, isLoading) {
+                  return isLoading
+                      ? CircularProgressIndicator(value: null)
+                      : SizedBox.shrink();
+                },
+              ),
+              StoreConnector<AppState, bool>(
+                distinct: true,
+                converter: (store) => store.state.criticsState.isError,
+                builder: (context, isError) {
+                  return isError
+                      ? Text('Erreur de récupération des critiques')
+                      : SizedBox.shrink();
+                },
+              ),
+              StoreConnector<AppState, PaginatedCritics>(
+                distinct: true,
+                converter: (store) => store.state.criticsState.paginatedCritics,
+                builder: (builder, paginatedCritics) {
+                  return PaginatedTable(
+                    headers: TableHeaders(hasAction: true, columns: ['Nom']),
+                    rows: paginatedCritics,
+                    editHook: (i) => editCritic(
+                        DialogMode.Edit, paginatedCritics.critics[i]),
+                    deleteHook: (i) => removeCritic(
+                      paginatedCritics.critics[i],
+                      PaginatedParams(
+                          search: _controller.text,
+                          firstLine: paginatedCritics.actualLine,
+                          sort: FieldSort.NameSort),
+                    ),
+                    moveHook: (i) async {
+                      await Redux.store.dispatch((store) =>
+                          fetchPaginatedCriticsAction(
+                              store,
+                              widget.config,
+                              PaginatedParams(
+                                  firstLine: i,
+                                  search: _controller.text,
+                                  sort: FieldSort.NameSort)));
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
