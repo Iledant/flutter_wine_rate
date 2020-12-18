@@ -48,11 +48,6 @@ class Critic {
     return PaginatedCritics(actualLine, totalLines, critics);
   }
 
-  static Future<List<Critic>> getAllPage(Config config) {
-    return config.query("SELECT id,name FROM critics").then(
-        (results) => results.map((e) => Critic(id: e[0], name: e[1])).toList());
-  }
-
   Future<void> add(Config config) async {
     final results = await config.query(
         "INSERT INTO critics (name) VALUES (@name) RETURNING id",

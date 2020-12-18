@@ -48,11 +48,6 @@ class Region {
     return PaginatedRegions(actualLine, totalLines, regions);
   }
 
-  static Future<List<Region>> getAllPage(Config config) {
-    return config.query("SELECT id,name FROM region").then(
-        (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
-  }
-
   Future<void> add(Config config) async {
     final results = await config.query(
         "INSERT INTO region (name) VALUES (@name) RETURNING id",
