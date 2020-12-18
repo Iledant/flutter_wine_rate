@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 import '../config.dart';
 import '../paginated_table.dart';
 
@@ -18,14 +20,13 @@ class Region {
   String name;
   int id;
 
-  Region(this.id, this.name);
+  Region({@required this.id, @required this.name});
 
-  Region copy() => Region(id, name);
+  Region copy() => Region(id: id, name: name);
 
   static Future<List<Region>> getAll(Config config) {
-    return config
-        .query("SELECT id,name FROM region")
-        .then((results) => results.map((e) => Region(e[0], e[1])).toList());
+    return config.query("SELECT id,name FROM region").then(
+        (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
   }
 
   static Future<PaginatedRegions> getPaginated(
@@ -42,14 +43,14 @@ class Region {
           "sort": sort,
           "offset": actualLine - 1,
           'search': '%${params.search}%'
-        }).then((results) => results.map((e) => Region(e[0], e[1])).toList());
+        }).then(
+        (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
     return PaginatedRegions(actualLine, totalLines, regions);
   }
 
   static Future<List<Region>> getAllPage(Config config) {
-    return config
-        .query("SELECT id,name FROM region")
-        .then((results) => results.map((e) => Region(e[0], e[1])).toList());
+    return config.query("SELECT id,name FROM region").then(
+        (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
   }
 
   Future<void> add(Config config) async {

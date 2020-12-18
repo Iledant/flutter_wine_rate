@@ -44,9 +44,7 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
               value.isEmpty ? 'Le nom ne peut être vide' : null,
-          decoration: InputDecoration(
-            hintText: 'Nom',
-          ),
+          decoration: InputDecoration(hintText: 'Nom'),
         ),
       ),
       actions: [
@@ -62,7 +60,7 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
             onPressed: () {
               if (_controller.text.isEmpty) return;
               Navigator.of(context)
-                  .pop(Region(widget._region.id, _controller.text));
+                  .pop(Region(id: widget._region.id, name: _controller.text));
             },
           ),
         ),

@@ -44,12 +44,11 @@ class _CriticScreenState extends State<CriticScreen> {
 
   void editCritic(DialogMode mode, Critic critic) async {
     final result = await showDialog<Critic>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => CriticEditDialog(mode, critic));
-    if (result == null) {
-      return;
-    }
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CriticEditDialog(mode, critic),
+    );
+    if (result == null) return;
     switch (mode) {
       case DialogMode.Edit:
         await Redux.store.dispatch(
@@ -122,19 +121,22 @@ class _CriticScreenState extends State<CriticScreen> {
                     deleteHook: (i) => removeCritic(
                       paginatedCritics.critics[i],
                       PaginatedParams(
-                          search: _controller.text,
-                          firstLine: paginatedCritics.actualLine,
-                          sort: FieldSort.NameSort),
+                        search: _controller.text,
+                        firstLine: paginatedCritics.actualLine,
+                        sort: FieldSort.NameSort,
+                      ),
                     ),
                     moveHook: (i) async {
-                      await Redux.store.dispatch((store) =>
-                          fetchPaginatedCriticsAction(
-                              store,
-                              widget.config,
-                              PaginatedParams(
+                      await Redux.store
+                          .dispatch((store) => fetchPaginatedCriticsAction(
+                                store,
+                                widget.config,
+                                PaginatedParams(
                                   firstLine: i,
                                   search: _controller.text,
-                                  sort: FieldSort.NameSort)));
+                                  sort: FieldSort.NameSort,
+                                ),
+                              ));
                     },
                   );
                 },
