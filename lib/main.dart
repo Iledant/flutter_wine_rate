@@ -4,6 +4,7 @@ import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/region_screen.dart';
 import 'package:flutter_wine_rate/critic_screen.dart';
 import 'config.dart';
+import 'domain_screen.dart';
 import 'drawer.dart';
 
 void main() async {
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => HomeScreen(),
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) => CriticScreen(config),
+          '/domains': (context) => DomainScreen(config),
         },
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,

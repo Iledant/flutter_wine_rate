@@ -16,9 +16,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Régions'),
           leading: Icon(Icons.map),
-          onTap: () {
-            Navigator.pushNamed(context, '/regions');
-          },
+          onTap: () => Navigator.pushNamed(context, '/regions'),
         ),
         ListTile(
           dense: true,
@@ -29,6 +27,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Domaines'),
           leading: Icon(Icons.home_outlined),
+          onTap: () => Navigator.pushNamed(context, '/domains'),
         ),
         ListTile(
           dense: true,
@@ -44,9 +43,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Critiques'),
           leading: Icon(Icons.account_circle),
-          onTap: () {
-            Navigator.pushNamed(context, '/critics');
-          },
+          onTap: () => Navigator.pushNamed(context, '/critics'),
         ),
       ],
     ));
