@@ -1,11 +1,11 @@
 import 'package:flutter_wine_rate/models/critic.dart';
+import 'package:flutter_wine_rate/models/paginated_params.dart';
 import 'package:flutter_wine_rate/redux/critics/critics_state.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';
 
 import '../../config.dart';
-import '../../paginated_table.dart';
 
 @immutable
 class SetCriticsStateAction {

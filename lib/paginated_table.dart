@@ -1,8 +1,6 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
-enum FieldSort { IdSort, NameSort }
+import 'models/paginated_params.dart';
 
 class TableHeaders {
   bool hasAction;
@@ -11,26 +9,11 @@ class TableHeaders {
   TableHeaders({@required this.hasAction, @required this.columns});
 }
 
-abstract class TableRowText {
-  List<String> rows(int index);
-  int actualLine;
-  int totalLines;
-}
-
-class PaginatedParams {
-  String search;
-  int firstLine;
-  FieldSort sort;
-
-  PaginatedParams(
-      {this.search = '', this.firstLine = 1, this.sort = FieldSort.IdSort});
-}
-
 typedef hookFunction = void Function(int);
 
 class PaginatedTable extends StatelessWidget {
   final TableHeaders headers;
-  final TableRowText rows;
+  final PaginatedRows rows;
   final hookFunction editHook;
   final hookFunction deleteHook;
   final hookFunction moveHook;

@@ -1,11 +1,9 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_wine_rate/models/paginated_params.dart';
 import '../config.dart';
-import '../paginated_table.dart';
 
-class PaginatedCritics extends TableRowText {
+class PaginatedCritics extends PaginatedRows {
   int actualLine;
   int totalLines;
   List<Critic> critics;

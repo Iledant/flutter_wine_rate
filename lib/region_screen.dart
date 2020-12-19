@@ -10,6 +10,7 @@ import 'package:flutter_wine_rate/region_edit_dialog.dart';
 
 import 'config.dart';
 import 'drawer.dart';
+import 'models/paginated_params.dart';
 import 'models/region.dart';
 
 class RegionScreen extends StatefulWidget {

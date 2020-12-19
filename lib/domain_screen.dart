@@ -11,6 +11,7 @@ import 'package:flutter_wine_rate/domain_edit_dialog.dart';
 import 'config.dart';
 import 'drawer.dart';
 import 'models/domain.dart';
+import 'models/paginated_params.dart';
 
 class DomainScreen extends StatefulWidget {
   final Config config;
