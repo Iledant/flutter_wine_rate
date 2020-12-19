@@ -1,5 +1,5 @@
 import 'package:flutter_wine_rate/models/domain.dart';
-import 'package:flutter_wine_rate/models/paginated_params.dart';
+import 'package:flutter_wine_rate/models/pagination.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';

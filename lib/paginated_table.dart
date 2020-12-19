@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'models/paginated_params.dart';
+import 'models/pagination.dart';
 
 class TableHeaders {
   bool hasAction;
