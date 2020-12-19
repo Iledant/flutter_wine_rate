@@ -72,7 +72,7 @@ Future<void> addDomainAction(
 
   try {
     await domain.add(config);
-    final actualPaginatedDomains = store.state.domainsState.paginatedDomains;
+    final actualPaginatedDomains = store.state.domains.paginatedDomains;
     final newDomains = [...actualPaginatedDomains.domains, domain];
     final newPaginatedDomains = PaginatedDomains(
         actualPaginatedDomains.actualLine,
@@ -91,7 +91,7 @@ Future<void> updateDomainAction(
 
   try {
     await domain.update(config);
-    final actualPaginatedDomains = store.state.domainsState.paginatedDomains;
+    final actualPaginatedDomains = store.state.domains.paginatedDomains;
     final newDomains = actualPaginatedDomains.domains
         .map((e) => e.id == domain.id ? domain : e)
         .toList();
