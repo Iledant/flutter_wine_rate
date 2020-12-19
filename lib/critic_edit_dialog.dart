@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/constant.dart';
+import 'package:flutter_wine_rate/disable_flat_button.dart';
 import 'package:flutter_wine_rate/models/critic.dart';
 
 class CriticEditDialog extends StatefulWidget {
@@ -37,9 +38,7 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
         child: TextFormField(
           controller: _controller,
           onChanged: (value) {
-            setState(() {
-              _disabled = value.isEmpty;
-            });
+            setState(() => _disabled = value.isEmpty);
           },
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
@@ -52,18 +51,12 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        IgnorePointer(
-          ignoring: _disabled,
-          child: FlatButton(
-            textColor: _disabled ? Colors.grey : Theme.of(context).accentColor,
-            child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
-            onPressed: () {
-              if (_controller.text.isEmpty) return;
-              Navigator.of(context)
-                  .pop(Critic(id: widget._critic.id, name: _controller.text));
-            },
-          ),
-        )
+        DisableFlatButton(
+          disabled: _disabled,
+          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
+          onPressed: () => Navigator.of(context)
+              .pop(Critic(id: widget._critic.id, name: _controller.text)),
+        ),
       ],
     );
   }

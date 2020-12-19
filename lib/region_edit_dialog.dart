@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/constant.dart';
 import 'package:flutter_wine_rate/models/region.dart';
+import 'disable_flat_button.dart';
 
 class RegionEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -37,9 +38,7 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
         child: TextFormField(
           controller: _controller,
           onChanged: (value) {
-            setState(() {
-              _disabled = value.isEmpty;
-            });
+            setState(() => _disabled = value.isEmpty);
           },
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
@@ -52,17 +51,11 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        IgnorePointer(
-          ignoring: _disabled,
-          child: FlatButton(
-            textColor: _disabled ? Colors.grey : Theme.of(context).accentColor,
-            child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
-            onPressed: () {
-              if (_controller.text.isEmpty) return;
-              Navigator.of(context)
-                  .pop(Region(id: widget._region.id, name: _controller.text));
-            },
-          ),
+        DisableFlatButton(
+          disabled: _disabled,
+          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
+          onPressed: () => Navigator.of(context)
+              .pop(Region(id: widget._region.id, name: _controller.text)),
         ),
       ],
     );
