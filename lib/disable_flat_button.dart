@@ -9,7 +9,7 @@ class DisableFlatButton extends StatelessWidget {
       {@required this.disabled,
       @required this.text,
       @required this.onPressed,
-      key})
+      Key key})
       : super(key: key);
 
   @override
