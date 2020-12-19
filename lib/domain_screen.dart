@@ -88,7 +88,7 @@ class _DomainScreenState extends State<DomainScreen> {
           SizedBox(height: 10.0),
           StoreConnector<AppState, bool>(
             distinct: true,
-            converter: (store) => store.state.domainsState.isLoading,
+            converter: (store) => store.state.domains.isLoading,
             builder: (context, isLoading) {
               return isLoading
                   ? CircularProgressIndicator(value: null)
@@ -97,7 +97,7 @@ class _DomainScreenState extends State<DomainScreen> {
           ),
           StoreConnector<AppState, bool>(
             distinct: true,
-            converter: (store) => store.state.domainsState.isError,
+            converter: (store) => store.state.domains.isError,
             builder: (context, isError) {
               return isError
                   ? Text('Erreur de récupération des domaines')
@@ -106,7 +106,7 @@ class _DomainScreenState extends State<DomainScreen> {
           ),
           StoreConnector<AppState, PaginatedDomains>(
             distinct: true,
-            converter: (store) => store.state.domainsState.paginatedDomains,
+            converter: (store) => store.state.domains.paginatedDomains,
             builder: (builder, paginatedDomains) {
               return Center(
                 child: PaginatedTable(
