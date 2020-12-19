@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/paginated_table.dart';
-import 'package:flutter_wine_rate/redux/regions/regions_actions.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:flutter_wine_rate/region_edit_dialog.dart';
 
+import 'constant.dart';
+import 'paginated_table.dart';
+import 'redux/store.dart';
+import 'redux/regions_state.dart';
+import 'region_edit_dialog.dart';
 import 'config.dart';
 import 'drawer.dart';
 import 'models/pagination.dart';
@@ -91,7 +91,7 @@ class _RegionScreenState extends State<RegionScreen> {
             SizedBox(height: 10.0),
             StoreConnector<AppState, bool>(
               distinct: true,
-              converter: (store) => store.state.regionsState.isLoading,
+              converter: (store) => store.state.regions.isLoading,
               builder: (context, isLoading) {
                 return isLoading
                     ? CircularProgressIndicator(value: null)
@@ -100,7 +100,7 @@ class _RegionScreenState extends State<RegionScreen> {
             ),
             StoreConnector<AppState, bool>(
               distinct: true,
-              converter: (store) => store.state.regionsState.isError,
+              converter: (store) => store.state.regions.isError,
               builder: (context, isError) {
                 return isError
                     ? Text('Erreur de récupération des régions')
@@ -109,7 +109,7 @@ class _RegionScreenState extends State<RegionScreen> {
             ),
             StoreConnector<AppState, PaginatedRegions>(
               distinct: true,
-              converter: (store) => store.state.regionsState.paginatedRegions,
+              converter: (store) => store.state.regions.paginatedRegions,
               builder: (builder, paginatedRegions) {
                 return PaginatedTable(
                   headers: TableHeaders(hasAction: true, columns: ['Nom']),

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_wine_rate/constant.dart';
 import 'package:flutter_wine_rate/paginated_table.dart';
-import 'package:flutter_wine_rate/redux/domains/domains_actions.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/domain_edit_dialog.dart';
 
 import 'config.dart';
 import 'drawer.dart';
+import 'redux/domains_state.dart';
 import 'models/domain.dart';
 import 'models/pagination.dart';
 

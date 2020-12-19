@@ -1,11 +1,39 @@
-import 'package:flutter_wine_rate/models/domain.dart';
-import 'package:flutter_wine_rate/models/pagination.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 import 'package:redux/redux.dart';
-import 'package:flutter_wine_rate/redux/domains/domains_state.dart';
 
-import '../../config.dart';
+import '../config.dart';
+import 'store.dart';
+import '../models/pagination.dart';
+import '../models/domain.dart';
+
+@immutable
+class DomainsState {
+  final bool isError;
+  final bool isLoading;
+  final List<Domain> domains;
+  final PaginatedDomains paginatedDomains;
+
+  DomainsState(
+      {this.isError, this.isLoading, this.domains, this.paginatedDomains});
+
+  factory DomainsState.initial() => DomainsState(
+      isLoading: false,
+      isError: false,
+      domains: const [],
+      paginatedDomains: PaginatedDomains(1, 0, []));
+
+  DomainsState copyWith(
+      {@required bool isError,
+      @required bool isLoading,
+      @required List<Domain> domains,
+      @required PaginatedDomains paginatedDomains}) {
+    return DomainsState(
+        isError: isError ?? this.isError,
+        isLoading: isLoading ?? this.isLoading,
+        domains: domains ?? this.domains,
+        paginatedDomains: paginatedDomains ?? this.paginatedDomains);
+  }
+}
 
 @immutable
 class SetDomainsStateAction {
@@ -88,4 +116,13 @@ Future<void> removeDomainAction(Store<AppState> store, Config config,
   } catch (error) {
     store.dispatch(SetDomainsStateAction(DomainsState(isLoading: false)));
   }
+}
+
+domainsReducer(DomainsState prevState, SetDomainsStateAction action) {
+  final payload = action.domainsState;
+  return prevState.copyWith(
+      isError: payload.isError,
+      isLoading: payload.isLoading,
+      domains: payload.domains,
+      paginatedDomains: payload.paginatedDomains);
 }

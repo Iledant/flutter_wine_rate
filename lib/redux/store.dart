@@ -1,24 +1,19 @@
 import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';
-import 'package:flutter_wine_rate/redux/regions/regions_actions.dart';
-import 'package:flutter_wine_rate/redux/regions/regions_reducer.dart';
-import 'package:flutter_wine_rate/redux/regions/regions_state.dart';
-import 'package:flutter_wine_rate/redux/critics/critics_actions.dart';
-import 'package:flutter_wine_rate/redux/critics/critics_reducer.dart';
-import 'package:flutter_wine_rate/redux/critics/critics_state.dart';
-import 'package:flutter_wine_rate/redux/domains/domains_actions.dart';
-import 'package:flutter_wine_rate/redux/domains/domains_reducer.dart';
-import 'package:flutter_wine_rate/redux/domains/domains_state.dart';
 import 'package:redux_thunk/redux_thunk.dart';
+
+import 'critics_state.dart';
+import 'regions_state.dart';
+import 'domains_state.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   if (action is SetRegionsStateAction) {
-    final nextRegionsState = regionsReducer(state.regionsState, action);
+    final nextRegionsState = regionsReducer(state.regions, action);
 
-    return state.copyWith(regionsState: nextRegionsState);
+    return state.copyWith(regions: nextRegionsState);
   }
   if (action is SetCriticsStateAction) {
-    final nextCriticsState = criticsReducer(state.criticsState, action);
+    final nextCriticsState = criticsReducer(state.critics, action);
 
     return state.copyWith(criticsState: nextCriticsState);
   }
@@ -32,22 +27,22 @@ AppState appReducer(AppState state, dynamic action) {
 
 @immutable
 class AppState {
-  final RegionsState regionsState;
-  final CriticsState criticsState;
+  final RegionsState regions;
+  final CriticsState critics;
   final DomainsState domainsState;
 
   AppState(
-      {@required this.regionsState,
-      @required this.criticsState,
+      {@required this.regions,
+      @required this.critics,
       @required this.domainsState});
 
   AppState copyWith(
-      {RegionsState regionsState,
+      {RegionsState regions,
       CriticsState criticsState,
       DomainsState domainsState}) {
     return AppState(
-      regionsState: regionsState ?? this.regionsState,
-      criticsState: criticsState ?? this.criticsState,
+      regions: regions ?? this.regions,
+      critics: criticsState ?? this.critics,
       domainsState: domainsState ?? this.domainsState,
     );
   }
@@ -73,8 +68,8 @@ class Redux {
       appReducer,
       middleware: [thunkMiddleware],
       initialState: AppState(
-        regionsState: regionsStateInital,
-        criticsState: criticsStateInital,
+        regions: regionsStateInital,
+        critics: criticsStateInital,
         domainsState: domainsStateInitial,
       ),
     );

@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/paginated_table.dart';
-import 'package:flutter_wine_rate/redux/critics/critics_actions.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:flutter_wine_rate/critic_edit_dialog.dart';
+import 'package:flutter_wine_rate/redux/critics_state.dart';
 
+import 'constant.dart';
+import 'paginated_table.dart';
+import 'redux/store.dart';
+import 'critic_edit_dialog.dart';
 import 'config.dart';
 import 'drawer.dart';
 import 'models/critic.dart';
@@ -94,7 +94,7 @@ class _CriticScreenState extends State<CriticScreen> {
               SizedBox(height: 10.0),
               StoreConnector<AppState, bool>(
                 distinct: true,
-                converter: (store) => store.state.criticsState.isLoading,
+                converter: (store) => store.state.critics.isLoading,
                 builder: (context, isLoading) {
                   return isLoading
                       ? CircularProgressIndicator(value: null)
@@ -103,7 +103,7 @@ class _CriticScreenState extends State<CriticScreen> {
               ),
               StoreConnector<AppState, bool>(
                 distinct: true,
-                converter: (store) => store.state.criticsState.isError,
+                converter: (store) => store.state.critics.isError,
                 builder: (context, isError) {
                   return isError
                       ? Text('Erreur de récupération des critiques')
@@ -112,7 +112,7 @@ class _CriticScreenState extends State<CriticScreen> {
               ),
               StoreConnector<AppState, PaginatedCritics>(
                 distinct: true,
-                converter: (store) => store.state.criticsState.paginatedCritics,
+                converter: (store) => store.state.critics.paginatedCritics,
                 builder: (builder, paginatedCritics) {
                   return PaginatedTable(
                     headers: TableHeaders(hasAction: true, columns: ['Nom']),

@@ -1,11 +1,48 @@
-import 'package:flutter_wine_rate/models/critic.dart';
-import 'package:flutter_wine_rate/models/pagination.dart';
-import 'package:flutter_wine_rate/redux/critics/critics_state.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 
-import '../../config.dart';
+import '../models/critic.dart';
+import '../models/pagination.dart';
+import '../config.dart';
+import 'store.dart';
+
+@immutable
+class CriticsState {
+  final bool isError;
+  final bool isLoading;
+  final List<Critic> critics;
+  final PaginatedCritics paginatedCritics;
+
+  CriticsState(
+      {this.isError, this.isLoading, this.critics, this.paginatedCritics});
+
+  factory CriticsState.initial() => CriticsState(
+      isLoading: false,
+      isError: false,
+      critics: const [],
+      paginatedCritics: PaginatedCritics(1, 0, []));
+
+  CriticsState copyWith(
+      {@required bool isError,
+      @required bool isLoading,
+      @required List<Critic> critics,
+      @required PaginatedCritics paginatedCritics}) {
+    return CriticsState(
+        isError: isError ?? this.isError,
+        isLoading: isLoading ?? this.isLoading,
+        critics: critics ?? this.critics,
+        paginatedCritics: paginatedCritics ?? this.paginatedCritics);
+  }
+}
+
+criticsReducer(CriticsState prevState, SetCriticsStateAction action) {
+  final payload = action.criticsState;
+  return prevState.copyWith(
+      isError: payload.isError,
+      isLoading: payload.isLoading,
+      critics: payload.critics,
+      paginatedCritics: payload.paginatedCritics);
+}
 
 @immutable
 class SetCriticsStateAction {
@@ -44,7 +81,7 @@ Future<void> addCriticAction(
 
   try {
     await region.add(config);
-    final actualPaginatedCritics = store.state.criticsState.paginatedCritics;
+    final actualPaginatedCritics = store.state.critics.paginatedCritics;
     final newCritics = [...actualPaginatedCritics.critics, region];
     final newPaginatedCritics = PaginatedCritics(
         actualPaginatedCritics.actualLine,
@@ -63,7 +100,7 @@ Future<void> updateCriticAction(
 
   try {
     await region.update(config);
-    final actualPaginatedCritics = store.state.criticsState.paginatedCritics;
+    final actualPaginatedCritics = store.state.critics.paginatedCritics;
     final newCritics = actualPaginatedCritics.critics
         .map((e) => e.id == region.id ? region : e)
         .toList();
