@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_wine_rate/redux/critics_state.dart';
@@ -68,83 +66,81 @@ class _CriticScreenState extends State<CriticScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(title: Text('Wine Rate')),
       drawer: AppDrawer(),
-      body: Scrollbar(
+      body: ListView(
+        padding: EdgeInsets.all(8.0),
         controller: _scrollController,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(8.0),
-          controller: _scrollController,
-          child: Column(
-            children: [
-              Text('Critiques', style: TextStyle(fontSize: 24.0)),
-              Container(
-                alignment: Alignment.center,
-                width: min(max(300, screenWidth * 0.5), screenWidth),
-                child: TextFormField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.search),
-                    hintText: 'Recherche',
-                  ),
+        children: [
+          Text('Critiques', style: TextStyle(fontSize: 24.0)),
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 300),
+              child: TextFormField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search),
+                  hintText: 'Recherche',
                 ),
               ),
-              SizedBox(height: 10.0),
-              StoreConnector<AppState, bool>(
-                distinct: true,
-                converter: (store) => store.state.critics.isLoading,
-                builder: (context, isLoading) {
-                  return isLoading
-                      ? CircularProgressIndicator(value: null)
-                      : SizedBox.shrink();
-                },
-              ),
-              StoreConnector<AppState, bool>(
-                distinct: true,
-                converter: (store) => store.state.critics.isError,
-                builder: (context, isError) {
-                  return isError
-                      ? Text('Erreur de récupération des critiques')
-                      : SizedBox.shrink();
-                },
-              ),
-              StoreConnector<AppState, PaginatedCritics>(
-                distinct: true,
-                converter: (store) => store.state.critics.paginatedCritics,
-                builder: (builder, paginatedCritics) {
-                  return PaginatedTable(
-                    headers: TableHeaders(hasAction: true, columns: ['Nom']),
-                    rows: paginatedCritics,
-                    editHook: (i) => editCritic(
-                        DialogMode.Edit, paginatedCritics.critics[i]),
-                    deleteHook: (i) => removeCritic(
-                      paginatedCritics.critics[i],
-                      PaginatedParams(
-                        search: _controller.text,
-                        firstLine: paginatedCritics.actualLine,
-                        sort: FieldSort.NameSort,
-                      ),
-                    ),
-                    moveHook: (i) async {
-                      await Redux.store
-                          .dispatch((store) => fetchPaginatedCriticsAction(
-                                store,
-                                widget.config,
-                                PaginatedParams(
-                                  firstLine: i,
-                                  search: _controller.text,
-                                  sort: FieldSort.NameSort,
-                                ),
-                              ));
-                    },
-                  );
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+          SizedBox(height: 10.0),
+          StoreConnector<AppState, bool>(
+            distinct: true,
+            converter: (store) => store.state.critics.isLoading,
+            builder: (context, isLoading) {
+              return isLoading
+                  ? CircularProgressIndicator(value: null)
+                  : SizedBox.shrink();
+            },
+          ),
+          StoreConnector<AppState, bool>(
+            distinct: true,
+            converter: (store) => store.state.critics.isError,
+            builder: (context, isError) {
+              return isError
+                  ? Text('Erreur de récupération des critiques')
+                  : SizedBox.shrink();
+            },
+          ),
+          StoreConnector<AppState, PaginatedCritics>(
+            distinct: true,
+            converter: (store) => store.state.critics.paginatedCritics,
+            builder: (builder, paginatedCritics) {
+              return Center(
+                child: PaginatedTable(
+                  headers: TableHeaders(hasAction: true, columns: ['Nom']),
+                  rows: paginatedCritics,
+                  editHook: (i) =>
+                      editCritic(DialogMode.Edit, paginatedCritics.critics[i]),
+                  deleteHook: (i) => removeCritic(
+                    paginatedCritics.critics[i],
+                    PaginatedParams(
+                      search: _controller.text,
+                      firstLine: paginatedCritics.actualLine,
+                      sort: FieldSort.NameSort,
+                    ),
+                  ),
+                  moveHook: (i) async {
+                    await Redux.store.dispatch(
+                      (store) => fetchPaginatedCriticsAction(
+                        store,
+                        widget.config,
+                        PaginatedParams(
+                          firstLine: i,
+                          search: _controller.text,
+                          sort: FieldSort.NameSort,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

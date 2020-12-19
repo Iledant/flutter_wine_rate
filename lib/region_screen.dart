@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
@@ -24,6 +22,7 @@ class RegionScreen extends StatefulWidget {
 
 class _RegionScreenState extends State<RegionScreen> {
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
 
   void initState() {
     super.initState();
@@ -47,9 +46,7 @@ class _RegionScreenState extends State<RegionScreen> {
         context: context,
         barrierDismissible: false,
         builder: (context) => RegionEditDialog(mode, region));
-    if (result == null) {
-      return;
-    }
+    if (result == null) return;
     switch (mode) {
       case DialogMode.Edit:
         await Redux.store.dispatch(
@@ -68,18 +65,17 @@ class _RegionScreenState extends State<RegionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(title: Text('Wine Rate')),
       drawer: AppDrawer(),
-      body: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          children: [
-            Text(' Régions', style: TextStyle(fontSize: 24.0)),
-            Container(
-              alignment: Alignment.center,
-              width: min(max(300, screenWidth * 0.5), screenWidth),
+      body: ListView(
+        padding: EdgeInsets.all(8.0),
+        controller: _scrollController,
+        children: [
+          Text(' Régions', style: TextStyle(fontSize: 24.0)),
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _controller,
                 decoration: InputDecoration(
@@ -88,30 +84,32 @@ class _RegionScreenState extends State<RegionScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 10.0),
-            StoreConnector<AppState, bool>(
-              distinct: true,
-              converter: (store) => store.state.regions.isLoading,
-              builder: (context, isLoading) {
-                return isLoading
-                    ? CircularProgressIndicator(value: null)
-                    : SizedBox.shrink();
-              },
-            ),
-            StoreConnector<AppState, bool>(
-              distinct: true,
-              converter: (store) => store.state.regions.isError,
-              builder: (context, isError) {
-                return isError
-                    ? Text('Erreur de récupération des régions')
-                    : SizedBox.shrink();
-              },
-            ),
-            StoreConnector<AppState, PaginatedRegions>(
-              distinct: true,
-              converter: (store) => store.state.regions.paginatedRegions,
-              builder: (builder, paginatedRegions) {
-                return PaginatedTable(
+          ),
+          SizedBox(height: 10.0),
+          StoreConnector<AppState, bool>(
+            distinct: true,
+            converter: (store) => store.state.regions.isLoading,
+            builder: (context, isLoading) {
+              return isLoading
+                  ? CircularProgressIndicator(value: null)
+                  : SizedBox.shrink();
+            },
+          ),
+          StoreConnector<AppState, bool>(
+            distinct: true,
+            converter: (store) => store.state.regions.isError,
+            builder: (context, isError) {
+              return isError
+                  ? Text('Erreur de récupération des régions')
+                  : SizedBox.shrink();
+            },
+          ),
+          StoreConnector<AppState, PaginatedRegions>(
+            distinct: true,
+            converter: (store) => store.state.regions.paginatedRegions,
+            builder: (builder, paginatedRegions) {
+              return Center(
+                child: PaginatedTable(
                   headers: TableHeaders(hasAction: true, columns: ['Nom']),
                   rows: paginatedRegions,
                   editHook: (i) =>
@@ -119,25 +117,28 @@ class _RegionScreenState extends State<RegionScreen> {
                   deleteHook: (i) => removeRegion(
                     paginatedRegions.regions[i],
                     PaginatedParams(
-                        search: _controller.text,
-                        firstLine: paginatedRegions.actualLine,
-                        sort: FieldSort.NameSort),
+                      search: _controller.text,
+                      firstLine: paginatedRegions.actualLine,
+                      sort: FieldSort.NameSort,
+                    ),
                   ),
                   moveHook: (i) async => {
-                    await Redux.store.dispatch((store) =>
-                        fetchPaginatedRegionsAction(
-                            store,
-                            widget.config,
-                            PaginatedParams(
-                                firstLine: i,
-                                search: _controller.text,
-                                sort: FieldSort.NameSort)))
+                    await Redux.store.dispatch(
+                      (store) => fetchPaginatedRegionsAction(
+                        store,
+                        widget.config,
+                        PaginatedParams(
+                            firstLine: i,
+                            search: _controller.text,
+                            sort: FieldSort.NameSort),
+                      ),
+                    )
                   },
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
