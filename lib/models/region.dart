@@ -12,6 +12,9 @@ class PaginatedRegions extends PaginatedRows {
 
   @override
   List<String> rows(int index) => [regions[index].name];
+
+  @override
+  List<String> headers() => ['Nom'];
 }
 
 class Region {

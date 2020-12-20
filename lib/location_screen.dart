@@ -1,35 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_wine_rate/constant.dart';
+import 'package:flutter_wine_rate/paginated_table.dart';
+import 'package:flutter_wine_rate/redux/store.dart';
+import 'package:flutter_wine_rate/location_edit_dialog.dart';
 
-import 'constant.dart';
-import 'paginated_table.dart';
-import 'redux/store.dart';
-import 'redux/regions_state.dart';
-import 'region_edit_dialog.dart';
 import 'config.dart';
 import 'drawer.dart';
+import 'redux/locations_state.dart';
+import 'models/location.dart';
 import 'models/pagination.dart';
-import 'models/region.dart';
 
-class RegionScreen extends StatefulWidget {
+class LocationScreen extends StatefulWidget {
   final Config config;
 
-  RegionScreen(this.config, {Key key}) : super(key: key);
+  LocationScreen(this.config, {Key key}) : super(key: key);
 
   @override
-  _RegionScreenState createState() => _RegionScreenState();
+  _LocationScreenState createState() => _LocationScreenState();
 }
 
-class _RegionScreenState extends State<RegionScreen> {
+class _LocationScreenState extends State<LocationScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
 
   void initState() {
     super.initState();
-    Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
+    Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
         store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
     _controller.addListener(() {
-      Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
+      Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
           store,
           widget.config,
           PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
@@ -41,26 +41,26 @@ class _RegionScreenState extends State<RegionScreen> {
     super.dispose();
   }
 
-  void editRegion(DialogMode mode, Region region) async {
-    final result = await showDialog<Region>(
+  void editLocation(DialogMode mode, Location location) async {
+    final result = await showDialog<Location>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => RegionEditDialog(mode, region));
+        builder: (context) => LocationEditDialog(mode, location));
     if (result == null) return;
     switch (mode) {
       case DialogMode.Edit:
         await Redux.store.dispatch(
-            (store) => updateRegionAction(store, widget.config, result));
+            (store) => updateLocationAction(store, widget.config, result));
         break;
       default:
-        await Redux.store
-            .dispatch((store) => addRegionAction(store, widget.config, result));
+        await Redux.store.dispatch(
+            (store) => addLocationAction(store, widget.config, result));
     }
   }
 
-  void removeRegion(Region region, PaginatedParams params) async {
-    await Redux.store.dispatch(
-        (store) => removeRegionAction(store, widget.config, region, params));
+  void removeLocation(Location location, PaginatedParams params) async {
+    await Redux.store.dispatch((store) =>
+        removeLocationAction(store, widget.config, location, params));
   }
 
   @override
@@ -72,7 +72,7 @@ class _RegionScreenState extends State<RegionScreen> {
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Text(' Régions', style: TextStyle(fontSize: 24.0)),
+          Text(' Appellations', style: TextStyle(fontSize: 24.0)),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
@@ -88,7 +88,7 @@ class _RegionScreenState extends State<RegionScreen> {
           SizedBox(height: 10.0),
           StoreConnector<AppState, bool>(
             distinct: true,
-            converter: (store) => store.state.regions.isLoading,
+            converter: (store) => store.state.locations.isLoading,
             builder: (context, isLoading) {
               return isLoading
                   ? CircularProgressIndicator(value: null)
@@ -97,40 +97,41 @@ class _RegionScreenState extends State<RegionScreen> {
           ),
           StoreConnector<AppState, bool>(
             distinct: true,
-            converter: (store) => store.state.regions.isError,
+            converter: (store) => store.state.locations.isError,
             builder: (context, isError) {
               return isError
-                  ? Text('Erreur de récupération des régions')
+                  ? Text('Erreur de récupération des appellations')
                   : SizedBox.shrink();
             },
           ),
-          StoreConnector<AppState, PaginatedRegions>(
+          StoreConnector<AppState, PaginatedLocations>(
             distinct: true,
-            converter: (store) => store.state.regions.paginatedRegions,
-            builder: (builder, paginatedRegions) {
+            converter: (store) => store.state.locations.paginatedLocations,
+            builder: (builder, paginatedLocations) {
               return Center(
                 child: PaginatedTable(
                   hasAction: true,
-                  rows: paginatedRegions,
-                  editHook: (i) =>
-                      editRegion(DialogMode.Edit, paginatedRegions.regions[i]),
-                  deleteHook: (i) => removeRegion(
-                    paginatedRegions.regions[i],
+                  rows: paginatedLocations,
+                  editHook: (i) => editLocation(
+                      DialogMode.Edit, paginatedLocations.locations[i]),
+                  deleteHook: (i) => removeLocation(
+                    paginatedLocations.locations[i],
                     PaginatedParams(
                       search: _controller.text,
-                      firstLine: paginatedRegions.actualLine,
+                      firstLine: paginatedLocations.actualLine,
                       sort: FieldSort.NameSort,
                     ),
                   ),
                   moveHook: (i) async => {
                     await Redux.store.dispatch(
-                      (store) => fetchPaginatedRegionsAction(
+                      (store) => fetchPaginatedLocationsAction(
                         store,
                         widget.config,
                         PaginatedParams(
-                            firstLine: i,
-                            search: _controller.text,
-                            sort: FieldSort.NameSort),
+                          firstLine: i,
+                          search: _controller.text,
+                          sort: FieldSort.NameSort,
+                        ),
                       ),
                     )
                   },

@@ -11,8 +11,10 @@ class TableHeaders {
 
 typedef hookFunction = void Function(int);
 
+// TODO replace headers with rows function
+
 class PaginatedTable extends StatelessWidget {
-  final TableHeaders headers;
+  final bool hasAction;
   final PaginatedRows rows;
   final hookFunction editHook;
   final hookFunction deleteHook;
@@ -21,7 +23,7 @@ class PaginatedTable extends StatelessWidget {
   static void _defaultHook(int i) {}
 
   PaginatedTable(
-      {@required this.headers,
+      {@required this.hasAction,
       @required this.rows,
       this.editHook = _defaultHook,
       this.deleteHook = _defaultHook,
@@ -32,8 +34,8 @@ class PaginatedTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<DataColumn> dataColumns =
-        headers.columns.map((e) => DataColumn(label: Text(e))).toList();
-    if (headers.hasAction) {
+        rows.headers().map((e) => DataColumn(label: Text(e))).toList();
+    if (hasAction) {
       dataColumns.add(DataColumn(label: Text('Actions')));
     }
     final actualLine = rows.actualLine;

@@ -12,6 +12,9 @@ class PaginatedCritics extends PaginatedRows {
 
   @override
   List<String> rows(int index) => [critics[index].name];
+
+  @override
+  List<String> headers() => ['Nom'];
 }
 
 class Critic {

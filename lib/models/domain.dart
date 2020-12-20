@@ -12,6 +12,9 @@ class PaginatedDomains extends PaginatedRows {
 
   @override
   List<String> rows(int index) => [domains[index].name];
+
+  @override
+  List<String> headers() => ['Nom'];
 }
 
 class Domain {

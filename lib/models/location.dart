@@ -11,7 +11,11 @@ class PaginatedLocations extends PaginatedRows {
   PaginatedLocations(this.actualLine, this.totalLines, this.locations);
 
   @override
-  List<String> rows(int index) => [locations[index].name];
+  List<String> rows(int index) =>
+      [locations[index].name, locations[index].region];
+
+  @override
+  List<String> headers() => ['Nom', 'Région'];
 }
 
 class Location {

@@ -111,7 +111,7 @@ class _CriticScreenState extends State<CriticScreen> {
             builder: (builder, paginatedCritics) {
               return Center(
                 child: PaginatedTable(
-                  headers: TableHeaders(hasAction: true, columns: ['Nom']),
+                  hasAction: true,
                   rows: paginatedCritics,
                   editHook: (i) =>
                       editCritic(DialogMode.Edit, paginatedCritics.critics[i]),

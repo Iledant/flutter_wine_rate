@@ -110,7 +110,7 @@ class _DomainScreenState extends State<DomainScreen> {
             builder: (builder, paginatedDomains) {
               return Center(
                 child: PaginatedTable(
-                  headers: TableHeaders(hasAction: true, columns: ['Nom']),
+                  hasAction: true,
                   rows: paginatedDomains,
                   editHook: (i) =>
                       editDomain(DialogMode.Edit, paginatedDomains.domains[i]),
