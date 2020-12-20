@@ -11,6 +11,7 @@ class PaginatedParams {
 
 abstract class PaginatedRows {
   List<String> rows(int index);
+  List<String> headers();
   int actualLine;
   int totalLines;
 }
