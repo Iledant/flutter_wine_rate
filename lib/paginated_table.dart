@@ -2,13 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'models/pagination.dart';
 
-class TableHeaders {
-  bool hasAction;
-  List<String> columns;
-
-  TableHeaders({@required this.hasAction, @required this.columns});
-}
-
 typedef hookFunction = void Function(int);
 
 // TODO replace headers with rows function
