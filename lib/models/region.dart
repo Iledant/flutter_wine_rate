@@ -30,6 +30,15 @@ class Region {
         (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
   }
 
+  static Future<List<Region>> getFirstFive(Config config, String pattern) {
+    return config.query(
+        "SELECT id,name FROM region WHERE name ILIKE @search ORDER BY 2 LIMIT 5",
+        values: {
+          "search": '%$pattern%',
+        }).then(
+        (results) => results.map((e) => Region(id: e[0], name: e[1])).toList());
+  }
+
   static Future<PaginatedRegions> getPaginated(
       Config config, PaginatedParams params) async {
     final courtResults = await config.query(
