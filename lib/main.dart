@@ -6,6 +6,7 @@ import 'package:flutter_wine_rate/critic_screen.dart';
 import 'config.dart';
 import 'domain_screen.dart';
 import 'drawer.dart';
+import 'location_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) => CriticScreen(config),
           '/domains': (context) => DomainScreen(config),
+          '/locations': (context) => LocationScreen(config),
         },
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,

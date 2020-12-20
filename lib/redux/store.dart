@@ -16,17 +16,17 @@ AppState appReducer(AppState state, dynamic action) {
   if (action is SetCriticsStateAction) {
     final nextCriticsState = criticsReducer(state.critics, action);
 
-    return state.copyWith(criticsState: nextCriticsState);
+    return state.copyWith(critics: nextCriticsState);
   }
   if (action is SetDomainsStateAction) {
     final nextDomainsState = domainsReducer(state.domains, action);
 
-    return state.copyWith(domainsState: nextDomainsState);
+    return state.copyWith(domains: nextDomainsState);
   }
   if (action is SetLocationsStateAction) {
-    final nextDomainsState = locationsReducer(state.locations, action);
+    final nextLocationsState = locationsReducer(state.locations, action);
 
-    return state.copyWith(domainsState: nextDomainsState);
+    return state.copyWith(locations: nextLocationsState);
   }
   return state;
 }
@@ -47,12 +47,13 @@ class AppState {
 
   AppState copyWith(
       {RegionsState regions,
-      CriticsState criticsState,
-      DomainsState domainsState}) {
+      CriticsState critics,
+      DomainsState domains,
+      LocationsState locations}) {
     return AppState(
       regions: regions ?? this.regions,
-      critics: criticsState ?? this.critics,
-      domains: domainsState ?? this.domains,
+      critics: critics ?? this.critics,
+      domains: domains ?? this.domains,
       locations: locations ?? this.locations,
     );
   }

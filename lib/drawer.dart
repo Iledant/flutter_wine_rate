@@ -22,6 +22,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Appellation'),
           leading: Icon(Icons.location_on),
+          onTap: () => Navigator.pushNamed(context, '/locations'),
         ),
         ListTile(
           dense: true,

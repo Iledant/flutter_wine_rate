@@ -4,8 +4,6 @@ import 'models/pagination.dart';
 
 typedef hookFunction = void Function(int);
 
-// TODO replace headers with rows function
-
 class PaginatedTable extends StatelessWidget {
   final bool hasAction;
   final PaginatedRows rows;

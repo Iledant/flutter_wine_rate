@@ -54,8 +54,7 @@ class Location {
       Config config, PaginatedParams params) async {
     final courtResults = await config.query("""SELECT count(1) FROM location l 
         JOIN region r ON l.region_id=r.id 
-        WHERE l.name ILIKE @search OR r.name ILIKE @search
-        ORDER BY @sort LIMIT 10 OFFSET @offset""",
+        WHERE l.name ILIKE @search OR r.name ILIKE @search""",
         values: {"search": '%${params.search}%'});
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
