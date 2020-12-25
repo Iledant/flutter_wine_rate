@@ -54,6 +54,19 @@ Future<void> fetchRegionsAction(Store<AppState> store, Config config) async {
   }
 }
 
+Future<void> fetchFirstFiveRegionsAction(
+    Store<AppState> store, Config config, String pattern) async {
+  store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));
+
+  try {
+    final regions = await Region.getFirstFive(config, pattern);
+    store.dispatch(SetRegionsStateAction(
+        RegionsState(isLoading: false, regions: regions)));
+  } catch (error) {
+    store.dispatch(SetRegionsStateAction(RegionsState(isLoading: false)));
+  }
+}
+
 Future<void> fetchPaginatedRegionsAction(
     Store<AppState> store, Config config, PaginatedParams params) async {
   store.dispatch(SetRegionsStateAction(RegionsState(isLoading: true)));

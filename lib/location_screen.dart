@@ -45,7 +45,8 @@ class _LocationScreenState extends State<LocationScreen> {
     final result = await showDialog<Location>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => LocationEditDialog(mode, location));
+        builder: (context) =>
+            LocationEditDialog(mode, location, widget.config));
     if (result == null) return;
     switch (mode) {
       case DialogMode.Edit:
