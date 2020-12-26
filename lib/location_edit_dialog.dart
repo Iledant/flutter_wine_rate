@@ -26,6 +26,7 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
   final _nameController = TextEditingController();
   final _regionController = TextEditingController();
   bool _disabled;
+  bool _showSuggestions;
   Region _region;
   Timer _debounce;
 
@@ -35,9 +36,9 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
     _disabled = widget._location.name.isEmpty;
     _region =
         Region(id: widget._location.regionId, name: widget._location.region);
-    _regionController.text = _region.name;
-    Redux.store.dispatch((store) => fetchFirstFiveRegionsAction(
-        store, widget._config, widget._location.region));
+    Redux.store.dispatch(
+        (store) => fetchFirstFiveRegionsAction(store, widget._config, ''));
+    _showSuggestions = false;
   }
 
   void dispose() {
@@ -50,6 +51,7 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
     if (_debounce?.isActive ?? false) _debounce.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       setState(() {
+        _showSuggestions = true;
         Redux.store.dispatch((store) =>
             fetchFirstFiveRegionsAction(store, widget._config, pattern));
       });
@@ -64,6 +66,7 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
           : 'Nouvelle région'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Form(
             child: TextFormField(
@@ -77,43 +80,54 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
               decoration: InputDecoration(hintText: 'Appellation'),
             ),
           ),
-          Form(
-            child: TextFormField(
-              controller: _regionController,
-              onChanged: (value) => _debounceSearch(value),
-              autovalidateMode: AutovalidateMode.always,
-              validator: (_) => _region == null ? 'Région à préciser' : null,
-              decoration: InputDecoration(
-                labelText: 'Région : ' + (_region != null ? _region.name : '-'),
-                icon: Icon(Icons.filter_alt_outlined),
-              ),
-            ),
-          ),
-          StoreConnector<AppState, List<Region>>(
-            distinct: true,
-            converter: (store) => store.state.regions.regions,
-            builder: (context, regions) {
-              if (regions.length == 0) return SizedBox.shrink();
-              return Card(
-                child: Column(
-                  children: regions
-                      .map(
-                        (r) => InkWell(
-                          onTap: () => setState(() {
-                            _region = r;
-                          }),
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.all(4.0),
-                            child: Text(r.name),
-                          ),
-                        ),
-                      )
-                      .toList(),
+          SizedBox(height: 16.0),
+          Text('Région : ' + (_region != null ? _region.name : '-')),
+          Container(
+            padding: EdgeInsets.all(8.0),
+            color: Colors.grey[100],
+            child: Column(
+              children: [
+                TextField(
+                  controller: _regionController,
+                  onChanged: (value) => _debounceSearch(value),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    icon: Icon(
+                      Icons.filter_alt_outlined,
+                      size: 16.0,
+                    ),
+                  ),
                 ),
-                elevation: 2.0,
-              );
-            },
+                StoreConnector<AppState, List<Region>>(
+                  distinct: true,
+                  converter: (store) => store.state.regions.regions,
+                  builder: (context, regions) {
+                    if (regions.length == 0 || !_showSuggestions)
+                      return SizedBox.shrink();
+                    return Card(
+                      child: Column(
+                        children: regions
+                            .map(
+                              (r) => InkWell(
+                                onTap: () => setState(() {
+                                  _region = r;
+                                  _showSuggestions = false;
+                                }),
+                                child: Container(
+                                  alignment: Alignment.centerLeft,
+                                  padding: EdgeInsets.all(4.0),
+                                  child: Text(r.name),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      elevation: 2.0,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
