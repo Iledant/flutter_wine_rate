@@ -23,17 +23,13 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  FieldSort _fieldSort = FieldSort.NameSort;
 
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
         store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
-    _controller.addListener(() {
-      Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
-          store,
-          widget.config,
-          PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
-    });
+    _controller.addListener(() => fetchElements());
   }
 
   void dispose() {
@@ -63,6 +59,13 @@ class _LocationScreenState extends State<LocationScreen> {
         removeLocationAction(store, widget.config, location, params));
   }
 
+  void fetchElements() {
+    Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
+        store,
+        widget.config,
+        PaginatedParams(search: _controller.text, sort: _fieldSort)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
@@ -84,7 +87,7 @@ class _LocationScreenState extends State<LocationScreen> {
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
-              child: TextFormField(
+              child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
                     icon: Icon(Icons.search), hintText: 'Recherche'),
@@ -120,6 +123,10 @@ class _LocationScreenState extends State<LocationScreen> {
                         DialogMode.Edit, paginatedLocations.locations[i]),
                     addHook: () => addOrModify(
                         DialogMode.Create, Location(id: 0, name: '')),
+                    sortHook: (fieldSort) {
+                      _fieldSort = fieldSort;
+                      fetchElements();
+                    },
                     deleteHook: (i) => remove(
                       paginatedLocations.locations[i],
                       PaginatedParams(
