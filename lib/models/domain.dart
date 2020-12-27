@@ -14,7 +14,8 @@ class PaginatedDomains extends PaginatedRows {
   List<String> rows(int index) => [domains[index].name];
 
   @override
-  List<String> headers() => ['Nom'];
+  List<PaginatedHeader> headers() =>
+      [PaginatedHeader('Nom', FieldSort.NameSort)];
 }
 
 class Domain {

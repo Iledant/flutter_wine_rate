@@ -14,7 +14,8 @@ class PaginatedRegions extends PaginatedRows {
   List<String> rows(int index) => [regions[index].name];
 
   @override
-  List<String> headers() => ['Nom'];
+  List<PaginatedHeader> headers() =>
+      [PaginatedHeader('Nom', FieldSort.NameSort)];
 }
 
 class Region {

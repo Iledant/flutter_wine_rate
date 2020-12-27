@@ -1,4 +1,4 @@
-enum FieldSort { IdSort, NameSort }
+enum FieldSort { IdSort, NameSort, RegionSort }
 
 class PaginatedParams {
   String search;
@@ -9,9 +9,16 @@ class PaginatedParams {
       {this.search = '', this.firstLine = 1, this.sort = FieldSort.IdSort});
 }
 
+class PaginatedHeader {
+  String label;
+  FieldSort fieldSort;
+
+  PaginatedHeader(this.label, this.fieldSort);
+}
+
 abstract class PaginatedRows {
   List<String> rows(int index);
-  List<String> headers();
+  List<PaginatedHeader> headers();
   int actualLine;
   int totalLines;
 }

@@ -42,20 +42,19 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   void editLocation(DialogMode mode, Location location) async {
+    final config = widget.config;
     final result = await showDialog<Location>(
         context: context,
         barrierDismissible: false,
-        builder: (context) =>
-            LocationEditDialog(mode, location, widget.config));
+        builder: (_) => LocationEditDialog(mode, location, config));
     if (result == null) return;
-    switch (mode) {
-      case DialogMode.Edit:
-        await Redux.store.dispatch(
-            (store) => updateLocationAction(store, widget.config, result));
-        break;
-      default:
-        await Redux.store.dispatch(
-            (store) => addLocationAction(store, widget.config, result));
+
+    if (mode == DialogMode.Edit) {
+      await Redux.store
+          .dispatch((store) => updateLocationAction(store, config, result));
+    } else {
+      await Redux.store
+          .dispatch((store) => addLocationAction(store, config, result));
     }
   }
 
@@ -88,9 +87,7 @@ class _LocationScreenState extends State<LocationScreen> {
               child: TextFormField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.search),
-                  hintText: 'Recherche',
-                ),
+                    icon: Icon(Icons.search), hintText: 'Recherche'),
               ),
             ),
           ),
@@ -98,20 +95,16 @@ class _LocationScreenState extends State<LocationScreen> {
           StoreConnector<AppState, bool>(
             distinct: true,
             converter: (store) => store.state.locations.isLoading,
-            builder: (context, isLoading) {
-              return isLoading
-                  ? CircularProgressIndicator(value: null)
-                  : SizedBox.shrink();
-            },
+            builder: (_, isLoading) => isLoading
+                ? CircularProgressIndicator(value: null)
+                : SizedBox.shrink(),
           ),
           StoreConnector<AppState, bool>(
             distinct: true,
             converter: (store) => store.state.locations.isError,
-            builder: (context, isError) {
-              return isError
-                  ? Text('Erreur de récupération des appellations')
-                  : SizedBox.shrink();
-            },
+            builder: (_, isError) => isError
+                ? Text('Erreur de récupération des appellations')
+                : SizedBox.shrink(),
           ),
           StoreConnector<AppState, PaginatedLocations>(
             distinct: true,
@@ -119,6 +112,7 @@ class _LocationScreenState extends State<LocationScreen> {
             builder: (builder, paginatedLocations) {
               return Center(
                 child: Card(
+                  color: Colors.deepPurple.shade50,
                   child: PaginatedTable(
                     hasAction: true,
                     rows: paginatedLocations,

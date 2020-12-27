@@ -14,7 +14,8 @@ class PaginatedCritics extends PaginatedRows {
   List<String> rows(int index) => [critics[index].name];
 
   @override
-  List<String> headers() => ['Nom'];
+  List<PaginatedHeader> headers() =>
+      [PaginatedHeader('Nom', FieldSort.NameSort)];
 }
 
 class Critic {
