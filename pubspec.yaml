@@ -30,7 +30,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   # cupertino_icons: ^1.0.0
   yaml: ^2.2.1
-  postgres: ^2.0.0
+  postgres: ^2.2.0
 
 dev_dependencies:
   flutter_test:
