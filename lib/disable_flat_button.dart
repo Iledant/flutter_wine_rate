@@ -19,7 +19,7 @@ class DisableFlatButton extends StatelessWidget {
       child: FlatButton(
         textColor: disabled ? Colors.grey : Theme.of(context).accentColor,
         child: Text(text),
-        onPressed: () => disabled ? {} : onPressed,
+        onPressed: onPressed,
       ),
     );
   }
