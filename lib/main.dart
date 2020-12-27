@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_wine_rate/common_scaffold.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/region_screen.dart';
 import 'package:flutter_wine_rate/critic_screen.dart';
 import 'config.dart';
 import 'domain_screen.dart';
-import 'drawer.dart';
 import 'location_screen.dart';
 
 void main() async {
@@ -28,34 +28,18 @@ class MyApp extends StatelessWidget {
         title: 'Wine Rate',
         initialRoute: '/',
         routes: {
-          '/': (context) => HomeScreen(),
+          '/': (context) => CommonScaffold(
+                  body: Center(
+                child: Text('Wine Rate',
+                    style: Theme.of(context).textTheme.headline1),
+              )),
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) => CriticScreen(config),
           '/domains': (context) => DomainScreen(config),
           '/locations': (context) => LocationScreen(config: config),
         },
         theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
-        ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Wine Rate'),
-      ),
-      drawer: AppDrawer(),
-      body: Center(
-        child: Text(
-          'Wine Rate',
-          style: TextStyle(
-            fontSize: 32.0,
-          ),
+          primarySwatch: Colors.purple,
         ),
       ),
     );

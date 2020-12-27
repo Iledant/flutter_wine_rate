@@ -10,7 +10,7 @@ class AppDrawer extends StatelessWidget {
             height: 64.0,
             child: DrawerHeader(
               child: Text('Menu', style: TextStyle(color: Colors.white)),
-              decoration: BoxDecoration(color: Colors.deepPurple),
+              decoration: BoxDecoration(color: Colors.purple.shade900),
             )),
         ListTile(
           dense: true,

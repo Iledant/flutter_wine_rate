@@ -5,8 +5,8 @@ import 'package:flutter_wine_rate/paginated_table.dart';
 import 'package:flutter_wine_rate/redux/store.dart';
 import 'package:flutter_wine_rate/location_edit_dialog.dart';
 
+import 'common_scaffold.dart';
 import 'config.dart';
-import 'drawer.dart';
 import 'redux/locations_state.dart';
 import 'models/location.dart';
 import 'models/pagination.dart';
@@ -69,9 +69,7 @@ class _LocationScreenState extends State<LocationScreen> {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
-    return Scaffold(
-      appBar: AppBar(title: Text('Wine Rate')),
-      drawer: AppDrawer(),
+    return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
