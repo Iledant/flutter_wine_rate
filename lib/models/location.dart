@@ -27,8 +27,8 @@ class Location {
   Location({
     @required this.id,
     @required this.name,
-    @required this.regionId,
-    @required this.region,
+    this.regionId,
+    this.region,
   });
 
   Location copy() => Location(
