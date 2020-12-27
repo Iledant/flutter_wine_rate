@@ -53,6 +53,12 @@ class Location {
         .toList());
   }
 
+  static int _getSortField(FieldSort fieldSort) {
+    if (fieldSort == FieldSort.IdSort) return 1;
+    if (fieldSort == FieldSort.NameSort) return 2;
+    return 4;
+  }
+
   static Future<PaginatedLocations> getPaginated(
       Config config, PaginatedParams params) async {
     final courtResults = await config.query("""SELECT count(1) FROM location l 
@@ -61,23 +67,21 @@ class Location {
         values: {"search": '%${params.search}%'});
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = params.sort == FieldSort.NameSort ? 2 : 1;
-    final locations = await config
-        .query("""SELECT l.id,l.name,r.id,r.name FROM location l 
-        JOIN region r ON l.region_id=r.id 
-        WHERE l.name ILIKE @search OR r.name ILIKE @search
-        ORDER BY @sort LIMIT 10 OFFSET @offset""", values: {
-      "sort": sort,
-      "offset": actualLine - 1,
-      'search': '%${params.search}%'
-    }).then((results) => results
-            .map((e) => Location(
-                  id: e[0],
-                  name: e[1],
-                  regionId: e[2],
-                  region: e[3],
-                ))
-            .toList());
+    final int sort = _getSortField(params.sort);
+    var results =
+        await config.query("""SELECT l.id,l.name,r.id,r.name FROM location l
+          JOIN region r ON l.region_id=r.id 
+          WHERE l.name ILIKE '%${params.search}%' OR r.name ILIKE '%${params.search}%'
+          ORDER BY $sort
+          LIMIT 10 OFFSET ${actualLine - 1}""");
+    final locations = results
+        .map((e) => Location(
+              id: e[0],
+              name: e[1],
+              regionId: e[2],
+              region: e[3],
+            ))
+        .toList();
     return PaginatedLocations(actualLine, totalLines, locations);
   }
 
