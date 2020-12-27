@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_wine_rate/filtered_menu.dart';
 import 'package:flutter_wine_rate/redux/regions_state.dart';
 import 'config.dart';
 import 'constant.dart';
@@ -24,46 +22,34 @@ class LocationEditDialog extends StatefulWidget {
 
 class _LocationEditDialogState extends State<LocationEditDialog> {
   final _nameController = TextEditingController();
-  final _regionController = TextEditingController();
   bool _disabled;
-  bool _showSuggestions;
   Region _region;
-  Timer _debounce;
 
   void initState() {
     super.initState();
-    _nameController.text = widget._location.name;
-    _disabled = widget._location.name.isEmpty;
-    _region =
-        Region(id: widget._location.regionId, name: widget._location.region);
-    Redux.store.dispatch(
-        (store) => fetchFirstFiveRegionsAction(store, widget._config, ''));
-    _showSuggestions = false;
+    final Location location = widget._location;
+    _nameController.text = location.name;
+    _region = location.region != null
+        ? Region(id: location.regionId, name: location.region)
+        : null;
+    _handleDisabled(location.name);
   }
 
   void dispose() {
     _nameController.dispose();
-    _regionController.dispose();
     super.dispose();
   }
 
-  void _debounceSearch(String pattern) {
-    if (_debounce?.isActive ?? false) _debounce.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        _showSuggestions = true;
-        Redux.store.dispatch((store) =>
-            fetchFirstFiveRegionsAction(store, widget._config, pattern));
-      });
-    });
+  void _handleDisabled(String nameValue) {
+    _disabled = nameValue.isEmpty || _region == null;
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(widget._mode == DialogMode.Edit
-          ? 'Modifier la Région'
-          : 'Nouvelle région'),
+          ? "Modifier l'appellation"
+          : 'Nouvelle appellation'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,64 +57,42 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
           Form(
             child: TextFormField(
               controller: _nameController,
-              onChanged: (value) {
-                setState(() => _disabled = value.isEmpty);
-              },
+              onChanged: (value) => setState(() => _handleDisabled(value)),
               autovalidateMode: AutovalidateMode.always,
               validator: (String value) =>
                   value.isEmpty ? 'Le nom ne peut être vide' : null,
-              decoration: InputDecoration(hintText: 'Appellation'),
+              decoration: InputDecoration(labelText: "Nom de l'appellation"),
             ),
           ),
           SizedBox(height: 16.0),
-          Text('Région : ' + (_region != null ? _region.name : '-')),
-          Container(
-            padding: EdgeInsets.all(8.0),
-            color: Colors.grey[100],
-            child: Column(
-              children: [
-                TextField(
-                  controller: _regionController,
-                  onChanged: (value) => _debounceSearch(value),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    icon: Icon(
-                      Icons.filter_alt_outlined,
-                      size: 16.0,
-                    ),
-                  ),
-                ),
-                StoreConnector<AppState, List<Region>>(
-                  distinct: true,
-                  converter: (store) => store.state.regions.regions,
-                  builder: (context, regions) {
-                    if (regions.length == 0 || !_showSuggestions)
-                      return SizedBox.shrink();
-                    return Card(
-                      child: Column(
-                        children: regions
-                            .map(
-                              (r) => InkWell(
-                                onTap: () => setState(() {
-                                  _region = r;
-                                  _showSuggestions = false;
-                                }),
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  padding: EdgeInsets.all(4.0),
-                                  child: Text(r.name),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      elevation: 2.0,
-                    );
-                  },
-                ),
-              ],
-            ),
+          Text(
+            _region == null
+                ? 'La région ne peut pas être vide'
+                : "Région d'appartenance",
+            style: TextStyle(
+                color: _region != null
+                    ? Theme.of(context).textTheme.caption.color
+                    : Theme.of(context).errorColor,
+                fontSize: Theme.of(context).textTheme.caption.fontSize),
           ),
+          Text(
+            (_region != null ? _region.name : '-'),
+            style:
+                TextStyle(color: _region != null ? Colors.black : Colors.red),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+            child: FilteredMenu(
+                fetchHook: (pattern) => Redux.store.dispatch((store) =>
+                    fetchFirstFiveRegionsAction(
+                        store, widget._config, pattern)),
+                converter: (store) => store.state.regions.regions,
+                onChanged: (region) => setState(() {
+                      _region = region;
+                      _handleDisabled(_nameController.text);
+                    }),
+                valueDisplay: (region) => region.name),
+          )
         ],
       ),
       actions: [
