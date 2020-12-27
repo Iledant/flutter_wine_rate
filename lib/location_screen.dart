@@ -119,6 +119,7 @@ class _LocationScreenState extends State<LocationScreen> {
                   child: PaginatedTable(
                     hasAction: true,
                     rows: paginatedLocations,
+                    fieldSort: _fieldSort,
                     editHook: (i) => addOrModify(
                         DialogMode.Edit, paginatedLocations.locations[i]),
                     addHook: () => addOrModify(
@@ -132,7 +133,7 @@ class _LocationScreenState extends State<LocationScreen> {
                       PaginatedParams(
                         search: _controller.text,
                         firstLine: paginatedLocations.actualLine,
-                        sort: FieldSort.NameSort,
+                        sort: _fieldSort,
                       ),
                     ),
                     moveHook: (i) async => {
@@ -143,7 +144,7 @@ class _LocationScreenState extends State<LocationScreen> {
                           PaginatedParams(
                             firstLine: i,
                             search: _controller.text,
-                            sort: FieldSort.NameSort,
+                            sort: _fieldSort,
                           ),
                         ),
                       )

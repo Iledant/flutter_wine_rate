@@ -12,6 +12,7 @@ class PaginatedTable extends StatelessWidget {
   final void Function(int) moveHook;
   final void Function() addHook;
   final void Function(FieldSort) sortHook;
+  final FieldSort fieldSort;
 
   PaginatedTable(
       {@required this.hasAction,
@@ -21,6 +22,7 @@ class PaginatedTable extends StatelessWidget {
       this.moveHook,
       this.addHook,
       this.sortHook,
+      this.fieldSort,
       Key key})
       : super(key: key);
 
@@ -29,7 +31,12 @@ class PaginatedTable extends StatelessWidget {
     final List<DataColumn> headings = rows
         .headers()
         .map((e) => DataColumn(
-            label: Text(e.label),
+            label: fieldSort == e.fieldSort
+                ? Row(children: [
+                    Text(e.label),
+                    Icon(Icons.arrow_downward, size: 16.0)
+                  ])
+                : Text(e.label),
             onSort: (index, _) => sortHook?.call(e.fieldSort)))
         .toList();
     if (hasAction) headings.add(DataColumn(label: Text('Actions')));
