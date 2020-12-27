@@ -124,6 +124,8 @@ class _LocationScreenState extends State<LocationScreen> {
                     rows: paginatedLocations,
                     editHook: (i) => editLocation(
                         DialogMode.Edit, paginatedLocations.locations[i]),
+                    addHook: () => editLocation(
+                        DialogMode.Create, Location(id: 0, name: '')),
                     deleteHook: (i) => removeLocation(
                       paginatedLocations.locations[i],
                       PaginatedParams(
