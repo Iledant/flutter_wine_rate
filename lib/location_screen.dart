@@ -14,7 +14,7 @@ import 'models/pagination.dart';
 class LocationScreen extends StatefulWidget {
   final Config config;
 
-  LocationScreen(this.config, {Key key}) : super(key: key);
+  LocationScreen({@required this.config, Key key}) : super(key: key);
 
   @override
   _LocationScreenState createState() => _LocationScreenState();
@@ -66,6 +66,7 @@ class _LocationScreenState extends State<LocationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final titleStyle = Theme.of(context).textTheme.headline4;
     return Scaffold(
       appBar: AppBar(title: Text('Wine Rate')),
       drawer: AppDrawer(),
@@ -73,7 +74,14 @@ class _LocationScreenState extends State<LocationScreen> {
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Text(' Appellations', style: TextStyle(fontSize: 24.0)),
+          Row(children: [
+            Icon(
+              Icons.location_on,
+              size: titleStyle.fontSize,
+              color: titleStyle.color,
+            ),
+            Text(' Appellations', style: titleStyle),
+          ]),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
@@ -110,32 +118,34 @@ class _LocationScreenState extends State<LocationScreen> {
             converter: (store) => store.state.locations.paginatedLocations,
             builder: (builder, paginatedLocations) {
               return Center(
-                child: PaginatedTable(
-                  hasAction: true,
-                  rows: paginatedLocations,
-                  editHook: (i) => editLocation(
-                      DialogMode.Edit, paginatedLocations.locations[i]),
-                  deleteHook: (i) => removeLocation(
-                    paginatedLocations.locations[i],
-                    PaginatedParams(
-                      search: _controller.text,
-                      firstLine: paginatedLocations.actualLine,
-                      sort: FieldSort.NameSort,
-                    ),
-                  ),
-                  moveHook: (i) async => {
-                    await Redux.store.dispatch(
-                      (store) => fetchPaginatedLocationsAction(
-                        store,
-                        widget.config,
-                        PaginatedParams(
-                          firstLine: i,
-                          search: _controller.text,
-                          sort: FieldSort.NameSort,
-                        ),
+                child: Card(
+                  child: PaginatedTable(
+                    hasAction: true,
+                    rows: paginatedLocations,
+                    editHook: (i) => editLocation(
+                        DialogMode.Edit, paginatedLocations.locations[i]),
+                    deleteHook: (i) => removeLocation(
+                      paginatedLocations.locations[i],
+                      PaginatedParams(
+                        search: _controller.text,
+                        firstLine: paginatedLocations.actualLine,
+                        sort: FieldSort.NameSort,
                       ),
-                    )
-                  },
+                    ),
+                    moveHook: (i) async => {
+                      await Redux.store.dispatch(
+                        (store) => fetchPaginatedLocationsAction(
+                          store,
+                          widget.config,
+                          PaginatedParams(
+                            firstLine: i,
+                            search: _controller.text,
+                            sort: FieldSort.NameSort,
+                          ),
+                        ),
+                      )
+                    },
+                  ),
                 ),
               );
             },

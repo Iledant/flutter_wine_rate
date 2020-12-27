@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) => CriticScreen(config),
           '/domains': (context) => DomainScreen(config),
-          '/locations': (context) => LocationScreen(config),
+          '/locations': (context) => LocationScreen(config: config),
         },
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
