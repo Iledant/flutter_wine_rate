@@ -41,7 +41,7 @@ class _LocationScreenState extends State<LocationScreen> {
     super.dispose();
   }
 
-  void editLocation(DialogMode mode, Location location) async {
+  void addOrModify(DialogMode mode, Location location) async {
     final config = widget.config;
     final result = await showDialog<Location>(
         context: context,
@@ -58,7 +58,7 @@ class _LocationScreenState extends State<LocationScreen> {
     }
   }
 
-  void removeLocation(Location location, PaginatedParams params) async {
+  void remove(Location location, PaginatedParams params) async {
     await Redux.store.dispatch((store) =>
         removeLocationAction(store, widget.config, location, params));
   }
@@ -116,11 +116,11 @@ class _LocationScreenState extends State<LocationScreen> {
                   child: PaginatedTable(
                     hasAction: true,
                     rows: paginatedLocations,
-                    editHook: (i) => editLocation(
+                    editHook: (i) => addOrModify(
                         DialogMode.Edit, paginatedLocations.locations[i]),
-                    addHook: () => editLocation(
+                    addHook: () => addOrModify(
                         DialogMode.Create, Location(id: 0, name: '')),
-                    deleteHook: (i) => removeLocation(
+                    deleteHook: (i) => remove(
                       paginatedLocations.locations[i],
                       PaginatedParams(
                         search: _controller.text,
