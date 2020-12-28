@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
+import 'common_scaffold.dart';
 import 'constant.dart';
 import 'paginated_table.dart';
 import 'redux/store.dart';
 import 'redux/regions_state.dart';
 import 'region_edit_dialog.dart';
 import 'config.dart';
-import 'drawer.dart';
 import 'models/pagination.dart';
 import 'models/region.dart';
 
@@ -28,12 +28,7 @@ class _RegionScreenState extends State<RegionScreen> {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
         store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
-    _controller.addListener(() {
-      Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-          store,
-          widget.config,
-          PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
-    });
+    _controller.addListener(() => fetchElements());
   }
 
   void dispose() {
@@ -41,7 +36,7 @@ class _RegionScreenState extends State<RegionScreen> {
     super.dispose();
   }
 
-  void editRegion(DialogMode mode, Region region) async {
+  void addOrModify(DialogMode mode, Region region) async {
     final result = await showDialog<Region>(
         context: context,
         barrierDismissible: false,
@@ -56,6 +51,7 @@ class _RegionScreenState extends State<RegionScreen> {
         await Redux.store
             .dispatch((store) => addRegionAction(store, widget.config, result));
     }
+    fetchElements();
   }
 
   void removeRegion(Region region, PaginatedParams params) async {
@@ -63,16 +59,29 @@ class _RegionScreenState extends State<RegionScreen> {
         (store) => removeRegionAction(store, widget.config, region, params));
   }
 
+  void fetchElements() {
+    Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
+        store,
+        widget.config,
+        PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Wine Rate')),
-      drawer: AppDrawer(),
+    final titleStyle = Theme.of(context).textTheme.headline4;
+    return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Text(' Régions', style: TextStyle(fontSize: 24.0)),
+          Row(children: [
+            Icon(
+              Icons.map,
+              size: titleStyle.fontSize,
+              color: titleStyle.color,
+            ),
+            Text(' Régions', style: titleStyle),
+          ]),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
@@ -114,7 +123,9 @@ class _RegionScreenState extends State<RegionScreen> {
                   hasAction: true,
                   rows: paginatedRegions,
                   editHook: (i) =>
-                      editRegion(DialogMode.Edit, paginatedRegions.regions[i]),
+                      addOrModify(DialogMode.Edit, paginatedRegions.regions[i]),
+                  addHook: () =>
+                      addOrModify(DialogMode.Create, Region(id: 0, name: '')),
                   deleteHook: (i) => removeRegion(
                     paginatedRegions.regions[i],
                     PaginatedParams(
