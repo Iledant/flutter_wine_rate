@@ -107,15 +107,17 @@ class PaginatedTable extends StatelessWidget {
                   splashRadius: 16.0,
                   color: Theme.of(context).primaryColor,
                 ),
-              SizedBox(width: 24.0),
-              Text('$actualLine - $lastLine sur $totalLines'),
-              SizedBox(width: 16.0),
+              SizedBox(width: 12.0),
+              Text('$actualLine-$lastLine sur $totalLines'),
+              SizedBox(width: 12.0),
               IconButton(
                 icon: Icon(
                   Icons.keyboard_arrow_left,
                   color: backButtonDisabled ? Colors.grey : Colors.black,
                 ),
-                splashRadius: 16.0,
+                splashRadius: 12.0,
+                padding: EdgeInsets.all(4.0),
+                constraints: BoxConstraints(maxWidth: 30.0),
                 onPressed: () {
                   if (backButtonDisabled) return;
                   moveHook?.call(actualLine - 10);
@@ -126,12 +128,15 @@ class PaginatedTable extends StatelessWidget {
                   Icons.keyboard_arrow_right,
                   color: nextButtonDisabled ? Colors.grey : Colors.black,
                 ),
-                splashRadius: 16.0,
+                splashRadius: 12.0,
+                padding: EdgeInsets.all(4.0),
+                constraints: BoxConstraints(maxWidth: 30.0),
                 onPressed: () {
                   if (nextButtonDisabled) return;
                   moveHook?.call(actualLine + 10);
                 },
               ),
+              SizedBox(width: 8.0),
             ],
           ),
         ],
