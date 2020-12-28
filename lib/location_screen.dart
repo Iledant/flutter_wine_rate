@@ -52,6 +52,7 @@ class _LocationScreenState extends State<LocationScreen> {
       await Redux.store
           .dispatch((store) => addLocationAction(store, config, result));
     }
+    fetchElements();
   }
 
   void remove(Location location, PaginatedParams params) async {
@@ -88,7 +89,7 @@ class _LocationScreenState extends State<LocationScreen> {
               child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                    icon: Icon(Icons.search), hintText: 'Recherche'),
+                    prefixIcon: Icon(Icons.search), hintText: 'Recherche'),
               ),
             ),
           ),
