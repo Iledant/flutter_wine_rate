@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/paginated_table.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:flutter_wine_rate/domain_edit_dialog.dart';
 
+import 'constant.dart';
+import 'paginated_table.dart';
+import 'redux/store.dart';
+import 'domain_edit_dialog.dart';
+import 'common_scaffold.dart';
 import 'config.dart';
-import 'drawer.dart';
 import 'redux/domains_state.dart';
 import 'models/domain.dart';
 import 'models/pagination.dart';
@@ -28,12 +28,7 @@ class _DomainScreenState extends State<DomainScreen> {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedDomainsAction(
         store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
-    _controller.addListener(() {
-      Redux.store.dispatch((store) => fetchPaginatedDomainsAction(
-          store,
-          widget.config,
-          PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
-    });
+    _controller.addListener(() => fetchElements());
   }
 
   void dispose() {
@@ -41,7 +36,7 @@ class _DomainScreenState extends State<DomainScreen> {
     super.dispose();
   }
 
-  void editDomain(DialogMode mode, Domain domain) async {
+  void addOrModify(DialogMode mode, Domain domain) async {
     final result = await showDialog<Domain>(
         context: context,
         barrierDismissible: false,
@@ -56,6 +51,14 @@ class _DomainScreenState extends State<DomainScreen> {
         await Redux.store
             .dispatch((store) => addDomainAction(store, widget.config, result));
     }
+    fetchElements();
+  }
+
+  void fetchElements() {
+    Redux.store.dispatch((store) => fetchPaginatedDomainsAction(
+        store,
+        widget.config,
+        PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
   }
 
   void removeDomain(Domain domain, PaginatedParams params) async {
@@ -65,21 +68,27 @@ class _DomainScreenState extends State<DomainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Wine Rate')),
-      drawer: AppDrawer(),
+    final titleStyle = Theme.of(context).textTheme.headline4;
+    return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Text(' Domaines', style: TextStyle(fontSize: 24.0)),
+          Row(children: [
+            Icon(
+              Icons.home_outlined,
+              size: titleStyle.fontSize,
+              color: titleStyle.color,
+            ),
+            Text(' Domaines', style: titleStyle),
+          ]),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
@@ -114,7 +123,9 @@ class _DomainScreenState extends State<DomainScreen> {
                   hasAction: true,
                   rows: paginatedDomains,
                   editHook: (i) =>
-                      editDomain(DialogMode.Edit, paginatedDomains.domains[i]),
+                      addOrModify(DialogMode.Edit, paginatedDomains.domains[i]),
+                  addHook: () =>
+                      addOrModify(DialogMode.Create, Domain(id: 0, name: '')),
                   deleteHook: (i) => removeDomain(
                     paginatedDomains.domains[i],
                     PaginatedParams(
