@@ -111,6 +111,7 @@ class _CriticScreenState extends State<CriticScreen> {
             builder: (builder, paginatedCritics) {
               return Center(
                 child: PaginatedTable(
+                  color: Colors.deepPurple.shade50,
                   hasAction: true,
                   rows: paginatedCritics,
                   editHook: (i) =>

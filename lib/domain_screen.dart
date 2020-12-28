@@ -110,6 +110,7 @@ class _DomainScreenState extends State<DomainScreen> {
             builder: (builder, paginatedDomains) {
               return Center(
                 child: PaginatedTable(
+                  color: Colors.deepPurple.shade50,
                   hasAction: true,
                   rows: paginatedDomains,
                   editHook: (i) =>

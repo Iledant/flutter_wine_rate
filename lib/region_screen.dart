@@ -110,6 +110,7 @@ class _RegionScreenState extends State<RegionScreen> {
             builder: (builder, paginatedRegions) {
               return Center(
                 child: PaginatedTable(
+                  color: Colors.deepPurple.shade50,
                   hasAction: true,
                   rows: paginatedRegions,
                   editHook: (i) =>

@@ -13,6 +13,7 @@ class PaginatedTable extends StatelessWidget {
   final void Function() addHook;
   final void Function(FieldSort) sortHook;
   final FieldSort fieldSort;
+  final Color color;
 
   PaginatedTable(
       {@required this.hasAction,
@@ -23,6 +24,7 @@ class PaginatedTable extends StatelessWidget {
       this.addHook,
       this.sortHook,
       this.fieldSort,
+      @required this.color,
       Key key})
       : super(key: key);
 
@@ -78,59 +80,62 @@ class PaginatedTable extends StatelessWidget {
       ),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        DataTable(
-          headingTextStyle:
-              TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
-          columns: headings,
-          horizontalMargin: 12.0,
-          columnSpacing: 12.0,
-          dataRowHeight: 30.0,
-          headingRowHeight: 30.0,
-          showBottomBorder: true,
-          rows: datas,
-        ),
-        SizedBox(height: 8.0),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (addHook != null)
+    return Card(
+      color: color,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          DataTable(
+            headingTextStyle:
+                TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+            columns: headings,
+            horizontalMargin: 12.0,
+            columnSpacing: 12.0,
+            dataRowHeight: 30.0,
+            headingRowHeight: 30.0,
+            showBottomBorder: true,
+            rows: datas,
+          ),
+          SizedBox(height: 8.0),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (addHook != null)
+                IconButton(
+                  onPressed: addHook,
+                  icon: Icon(Icons.add),
+                  splashRadius: 16.0,
+                  color: Theme.of(context).primaryColor,
+                ),
+              SizedBox(width: 24.0),
+              Text('$actualLine - $lastLine sur $totalLines'),
+              SizedBox(width: 16.0),
               IconButton(
-                onPressed: addHook,
-                icon: Icon(Icons.add),
+                icon: Icon(
+                  Icons.keyboard_arrow_left,
+                  color: backButtonDisabled ? Colors.grey : Colors.black,
+                ),
                 splashRadius: 16.0,
-                color: Theme.of(context).primaryColor,
+                onPressed: () {
+                  if (backButtonDisabled) return;
+                  moveHook?.call(actualLine - 10);
+                },
               ),
-            SizedBox(width: 24.0),
-            Text('$actualLine - $lastLine sur $totalLines'),
-            SizedBox(width: 16.0),
-            IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_left,
-                color: backButtonDisabled ? Colors.grey : Colors.black,
+              IconButton(
+                icon: Icon(
+                  Icons.keyboard_arrow_right,
+                  color: nextButtonDisabled ? Colors.grey : Colors.black,
+                ),
+                splashRadius: 16.0,
+                onPressed: () {
+                  if (nextButtonDisabled) return;
+                  moveHook?.call(actualLine + 10);
+                },
               ),
-              splashRadius: 16.0,
-              onPressed: () {
-                if (backButtonDisabled) return;
-                moveHook?.call(actualLine - 10);
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_right,
-                color: nextButtonDisabled ? Colors.grey : Colors.black,
-              ),
-              splashRadius: 16.0,
-              onPressed: () {
-                if (nextButtonDisabled) return;
-                moveHook?.call(actualLine + 10);
-              },
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

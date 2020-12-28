@@ -112,42 +112,40 @@ class _LocationScreenState extends State<LocationScreen> {
             converter: (store) => store.state.locations.paginatedLocations,
             builder: (builder, paginatedLocations) {
               return Center(
-                child: Card(
+                child: PaginatedTable(
                   color: Colors.deepPurple.shade50,
-                  child: PaginatedTable(
-                    hasAction: true,
-                    rows: paginatedLocations,
-                    fieldSort: _fieldSort,
-                    editHook: (i) => addOrModify(
-                        DialogMode.Edit, paginatedLocations.locations[i]),
-                    addHook: () => addOrModify(
-                        DialogMode.Create, Location(id: 0, name: '')),
-                    sortHook: (fieldSort) {
-                      _fieldSort = fieldSort;
-                      fetchElements();
-                    },
-                    deleteHook: (i) => remove(
-                      paginatedLocations.locations[i],
-                      PaginatedParams(
-                        search: _controller.text,
-                        firstLine: paginatedLocations.actualLine,
-                        sort: _fieldSort,
-                      ),
+                  hasAction: true,
+                  rows: paginatedLocations,
+                  fieldSort: _fieldSort,
+                  editHook: (i) => addOrModify(
+                      DialogMode.Edit, paginatedLocations.locations[i]),
+                  addHook: () =>
+                      addOrModify(DialogMode.Create, Location(id: 0, name: '')),
+                  sortHook: (fieldSort) {
+                    _fieldSort = fieldSort;
+                    fetchElements();
+                  },
+                  deleteHook: (i) => remove(
+                    paginatedLocations.locations[i],
+                    PaginatedParams(
+                      search: _controller.text,
+                      firstLine: paginatedLocations.actualLine,
+                      sort: _fieldSort,
                     ),
-                    moveHook: (i) async => {
-                      await Redux.store.dispatch(
-                        (store) => fetchPaginatedLocationsAction(
-                          store,
-                          widget.config,
-                          PaginatedParams(
-                            firstLine: i,
-                            search: _controller.text,
-                            sort: _fieldSort,
-                          ),
-                        ),
-                      )
-                    },
                   ),
+                  moveHook: (i) async => {
+                    await Redux.store.dispatch(
+                      (store) => fetchPaginatedLocationsAction(
+                        store,
+                        widget.config,
+                        PaginatedParams(
+                          firstLine: i,
+                          search: _controller.text,
+                          sort: _fieldSort,
+                        ),
+                      ),
+                    )
+                  },
                 ),
               );
             },
