@@ -88,7 +88,7 @@ class _RegionScreenState extends State<RegionScreen> {
               child: TextFormField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
