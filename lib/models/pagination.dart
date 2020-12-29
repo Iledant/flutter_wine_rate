@@ -1,4 +1,12 @@
-enum FieldSort { IdSort, NameSort, RegionSort }
+enum FieldSort {
+  IdSort,
+  NameSort,
+  RegionSort,
+  LocationSort,
+  DomainSort,
+  ClassificationSort,
+  CommentSort,
+}
 
 class PaginatedParams {
   String search;
