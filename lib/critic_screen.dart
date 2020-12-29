@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_wine_rate/redux/critics_state.dart';
 
+import 'common_scaffold.dart';
 import 'constant.dart';
 import 'paginated_table.dart';
 import 'redux/store.dart';
 import 'critic_edit_dialog.dart';
 import 'config.dart';
-import 'drawer.dart';
 import 'models/critic.dart';
 import 'models/pagination.dart';
 
@@ -66,21 +66,29 @@ class _CriticScreenState extends State<CriticScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Wine Rate')),
-      drawer: AppDrawer(),
+    final titleStyle = Theme.of(context).textTheme.headline4;
+    return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Text('Critiques', style: TextStyle(fontSize: 24.0)),
+          Row(
+            children: [
+              Icon(
+                Icons.account_circle,
+                size: titleStyle.fontSize,
+                color: titleStyle.color,
+              ),
+              Text(' Critiques', style: titleStyle),
+            ],
+          ),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  icon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
