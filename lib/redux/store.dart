@@ -6,6 +6,7 @@ import 'critics_state.dart';
 import 'regions_state.dart';
 import 'domains_state.dart';
 import 'locations_state.dart';
+import 'wine_state.dart';
 
 AppState appReducer(AppState state, dynamic action) {
   if (action is SetRegionsStateAction) {
@@ -28,6 +29,11 @@ AppState appReducer(AppState state, dynamic action) {
 
     return state.copyWith(locations: nextLocationsState);
   }
+  if (action is SetWinesStateAction) {
+    final nextWinesState = winesReducer(state.wines, action);
+
+    return state.copyWith(locations: nextWinesState);
+  }
   return state;
 }
 
@@ -37,24 +43,28 @@ class AppState {
   final CriticsState critics;
   final DomainsState domains;
   final LocationsState locations;
+  final WinesState wines;
 
   AppState({
     @required this.regions,
     @required this.critics,
     @required this.domains,
     @required this.locations,
+    @required this.wines,
   });
 
   AppState copyWith(
       {RegionsState regions,
       CriticsState critics,
       DomainsState domains,
-      LocationsState locations}) {
+      LocationsState locations,
+      WinesState wines}) {
     return AppState(
       regions: regions ?? this.regions,
       critics: critics ?? this.critics,
       domains: domains ?? this.domains,
       locations: locations ?? this.locations,
+      wines: wines ?? this.wines,
     );
   }
 }
@@ -75,6 +85,7 @@ class Redux {
     final criticsStateInital = CriticsState.initial();
     final domainsStateInitial = DomainsState.initial();
     final locationsStateInitial = LocationsState.initial();
+    final winesStateInitial = WinesState.initial();
 
     _store = Store<AppState>(
       appReducer,
@@ -84,6 +95,7 @@ class Redux {
         critics: criticsStateInital,
         domains: domainsStateInitial,
         locations: locationsStateInitial,
+        wines: winesStateInitial,
       ),
     );
   }
