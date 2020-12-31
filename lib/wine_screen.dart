@@ -124,8 +124,17 @@ class _WineScreenState extends State<WineScreen> {
                   rows: paginatedWines,
                   editHook: (i) =>
                       addOrModify(DialogMode.Edit, paginatedWines.wines[i]),
-                  addHook: () =>
-                      addOrModify(DialogMode.Create, Wine(id: 0, name: '')),
+                  addHook: () => addOrModify(
+                      DialogMode.Create,
+                      Wine(
+                          id: 0,
+                          name: '',
+                          comment: null,
+                          classification: null,
+                          locationId: 0,
+                          location: null,
+                          domainId: 0,
+                          domain: null)),
                   deleteHook: (i) => removeWine(
                     paginatedWines.wines[i],
                     PaginatedParams(

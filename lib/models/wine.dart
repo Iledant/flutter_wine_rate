@@ -137,7 +137,7 @@ class Wine {
   }
 
   Future<void> update(Config config) async {
-    final results = await config
+    await config
         .query("""UPDATE wine SET name=@name,classification=@classification,
           comment=@comment,domain_id=@domain_id,location_id=@location_id
           WHERE id=@id""", values: {
