@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/models/pagination.dart';
 import '../config.dart';
 
-class PaginatedRegions extends PaginatedRows {
+class PaginatedRegions extends PaginatedRows<Region> {
   int actualLine;
   int totalLines;
   List<Region> regions;
@@ -11,7 +11,7 @@ class PaginatedRegions extends PaginatedRows {
   PaginatedRegions(this.actualLine, this.totalLines, this.regions);
 
   @override
-  List<String> rows(int index) => [regions[index].name];
+  List<String> rowCells(int index) => [regions[index].name];
 
   @override
   List<PaginatedHeader> headers() =>

@@ -35,6 +35,8 @@ class Config {
     }
   }
 
+  PostgreSQLConnection get db => _db;
+
   connect(dynamic config) async {
     String host = config['db_config']['host'];
     int port = config['db_config']['port'];

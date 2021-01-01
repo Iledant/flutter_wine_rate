@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/models/pagination.dart';
 import '../config.dart';
 
-class PaginatedWines extends PaginatedRows {
+class PaginatedWines extends PaginatedRows<Wine> {
   int actualLine;
   int totalLines;
   List<Wine> wines;
@@ -11,7 +11,7 @@ class PaginatedWines extends PaginatedRows {
   PaginatedWines(this.actualLine, this.totalLines, this.wines);
 
   @override
-  List<String> rows(int index) => [wines[index].name, wines[index].region];
+  List<String> rowCells(int index) => [wines[index].name, wines[index].region];
 
   @override
   List<PaginatedHeader> headers() => [
@@ -81,28 +81,23 @@ class Wine {
 
   static Future<PaginatedWines> getPaginated(
       Config config, PaginatedParams params) async {
-    final courtResults = await config.query("""SELECT count(1) FROM wine w
+    final commonQuery = """FROM wine w
           JOIN domain d ON w.domain_id=d.id
           JOIN location l ON w.location_id=l.id
           JOIN region r ON l.region_id=r.id
           WHERE w.name ILIKE '%${params.search}%' OR r.name ILIKE '%${params.search}%'
             OR l.name ILIKE '%${params.search}%' OR d.name ILIKE '%${params.search}%'
             OR w.classification ILIKE '%${params.search}%'
-            OR w.comment ILIKE '%${params.search}%'""",
-        values: {"search": '%${params.search}%'});
+            OR w.comment ILIKE '%${params.search}%' """;
+    final courtResults = await config.query('SELECT count(1) ' + commonQuery);
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
     final int sort = _getSortField(params.sort);
     var results =
         await config.query("""SELECT w.id,w.name,w.classification,w.comment,
-          d.id,d.name,l.id,l.name,r.id,r.name FROM wine w
-          JOIN domain d ON w.domain_id=d.id
-          JOIN location l ON w.location_id=l.id
-          JOIN region r ON l.region_id=r.id
-          WHERE w.name ILIKE '%${params.search}%' OR r.name ILIKE '%${params.search}%'
-            OR l.name ILIKE '%${params.search}%' OR d.name ILIKE '%${params.search}%'
-            OR w.classification ILIKE '%${params.search}%'
-            OR w.comment ILIKE '%${params.search}%'
+          d.id,d.name,l.id,l.name,r.id,r.name """ +
+            commonQuery +
+            """OR w.comment ILIKE '%${params.search}%'
           ORDER BY $sort
           LIMIT 10 OFFSET ${actualLine - 1}""");
     final wines = results

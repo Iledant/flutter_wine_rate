@@ -53,7 +53,7 @@ class PaginatedTable extends StatelessWidget {
       lastLine - actualLine + 1,
       (i) => DataRow(
         cells: [
-          ...rows.rows(i).map((r) => DataCell(Text(r))).toList(),
+          ...rows.rowCells(i).map((r) => DataCell(Text(r))).toList(),
           if (hasAction)
             DataCell(
               Row(

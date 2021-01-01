@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/models/pagination.dart';
 import '../config.dart';
 
-class PaginatedDomains extends PaginatedRows {
+class PaginatedDomains extends PaginatedRows<Domain> {
   int actualLine;
   int totalLines;
   List<Domain> domains;
@@ -11,7 +11,7 @@ class PaginatedDomains extends PaginatedRows {
   PaginatedDomains(this.actualLine, this.totalLines, this.domains);
 
   @override
-  List<String> rows(int index) => [domains[index].name];
+  List<String> rowCells(int index) => [domains[index].name];
 
   @override
   List<PaginatedHeader> headers() =>

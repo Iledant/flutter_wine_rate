@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 enum FieldSort {
   IdSort,
   NameSort,
@@ -24,9 +26,16 @@ class PaginatedHeader {
   PaginatedHeader(this.label, this.fieldSort);
 }
 
-abstract class PaginatedRows {
-  List<String> rows(int index);
+abstract class PaginatedRows<T> {
+  final int actualLine;
+  final int totalLines;
+  final List<T> lines;
+
+  List<String> rowCells(int index);
   List<PaginatedHeader> headers();
-  int actualLine;
-  int totalLines;
+
+  const PaginatedRows(
+      {@required this.actualLine,
+      @required this.totalLines,
+      @required this.lines});
 }

@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
 
-import 'critics_state.dart';
 import 'regions_state.dart';
 import 'domains_state.dart';
 import 'locations_state.dart';
@@ -13,11 +12,6 @@ AppState appReducer(AppState state, dynamic action) {
     final nextRegionsState = regionsReducer(state.regions, action);
 
     return state.copyWith(regions: nextRegionsState);
-  }
-  if (action is SetCriticsStateAction) {
-    final nextCriticsState = criticsReducer(state.critics, action);
-
-    return state.copyWith(critics: nextCriticsState);
   }
   if (action is SetDomainsStateAction) {
     final nextDomainsState = domainsReducer(state.domains, action);
@@ -40,14 +34,12 @@ AppState appReducer(AppState state, dynamic action) {
 @immutable
 class AppState {
   final RegionsState regions;
-  final CriticsState critics;
   final DomainsState domains;
   final LocationsState locations;
   final WinesState wines;
 
   AppState({
     @required this.regions,
-    @required this.critics,
     @required this.domains,
     @required this.locations,
     @required this.wines,
@@ -55,13 +47,11 @@ class AppState {
 
   AppState copyWith(
       {RegionsState regions,
-      CriticsState critics,
       DomainsState domains,
       LocationsState locations,
       WinesState wines}) {
     return AppState(
       regions: regions ?? this.regions,
-      critics: critics ?? this.critics,
       domains: domains ?? this.domains,
       locations: locations ?? this.locations,
       wines: wines ?? this.wines,
@@ -82,7 +72,6 @@ class Redux {
 
   static Future<void> init() async {
     final regionsStateInital = RegionsState.initial();
-    final criticsStateInital = CriticsState.initial();
     final domainsStateInitial = DomainsState.initial();
     final locationsStateInitial = LocationsState.initial();
     final winesStateInitial = WinesState.initial();
@@ -92,7 +81,6 @@ class Redux {
       middleware: [thunkMiddleware],
       initialState: AppState(
         regions: regionsStateInital,
-        critics: criticsStateInital,
         domains: domainsStateInitial,
         locations: locationsStateInitial,
         wines: winesStateInitial,
