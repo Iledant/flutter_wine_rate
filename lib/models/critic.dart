@@ -17,15 +17,4 @@ class Critic extends Equatable {
   String toString() {
     return 'Critics { id: $id, name: $name }';
   }
-
-  // CriticEntity toEntity() {
-  //   return CriticEntity(id, name);
-  // }
-
-  // static Critic fromEntity(CriticEntity entity) {
-  //   return Critic(
-  //     name: name,
-  //     id: entity.id ?? Uuid().generateV4(),
-  //   );
-  // }
 }
