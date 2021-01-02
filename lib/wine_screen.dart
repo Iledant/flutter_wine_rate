@@ -27,7 +27,7 @@ class _WineScreenState extends State<WineScreen> {
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedWinesAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
+        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
     _controller.addListener(() => fetchElements());
   }
 
@@ -58,7 +58,7 @@ class _WineScreenState extends State<WineScreen> {
     Redux.store.dispatch((store) => fetchPaginatedWinesAction(
         store,
         widget.config,
-        PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
+        PaginatedParams(search: _controller.text, sort: FieldSort.Name)));
   }
 
   void removeWine(Wine wine, PaginatedParams params) async {
@@ -140,7 +140,7 @@ class _WineScreenState extends State<WineScreen> {
                     PaginatedParams(
                       search: _controller.text,
                       firstLine: paginatedWines.actualLine,
-                      sort: FieldSort.NameSort,
+                      sort: FieldSort.Name,
                     ),
                   ),
                   moveHook: (i) async => {
@@ -151,7 +151,7 @@ class _WineScreenState extends State<WineScreen> {
                         PaginatedParams(
                           firstLine: i,
                           search: _controller.text,
-                          sort: FieldSort.NameSort,
+                          sort: FieldSort.Name,
                         ),
                       ),
                     )

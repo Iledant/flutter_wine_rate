@@ -13,8 +13,7 @@ class PaginatedCritics extends PaginatedRows<Critic> {
   List<String> rowCells(int index) => [lines[index].name];
 
   @override
-  List<PaginatedHeader> headers() =>
-      [PaginatedHeader('Nom', FieldSort.NameSort)];
+  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
 }
 
 class CriticRepository {
@@ -29,14 +28,13 @@ class CriticRepository {
 
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = params.sort == FieldSort.NameSort ? 2 : 1;
+    final int sort = params.sort == FieldSort.Name ? 2 : 1;
 
     final results = await db.query(
         "SELECT id,name" +
             commonQuery +
-            "ORDER BY @sort LIMIT 10 OFFSET @offset",
+            "ORDER BY $sort LIMIT 10 OFFSET @offset",
         substitutionValues: {
-          "sort": sort,
           "offset": actualLine - 1,
           'search': '%${params.search}%'
         });

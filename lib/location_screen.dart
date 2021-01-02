@@ -23,12 +23,12 @@ class LocationScreen extends StatefulWidget {
 class _LocationScreenState extends State<LocationScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
-  FieldSort _fieldSort = FieldSort.NameSort;
+  FieldSort _fieldSort = FieldSort.Name;
 
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
+        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
     _controller.addListener(() => fetchElements());
   }
 

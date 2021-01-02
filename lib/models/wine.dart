@@ -15,8 +15,8 @@ class PaginatedWines extends PaginatedRows<Wine> {
 
   @override
   List<PaginatedHeader> headers() => [
-        PaginatedHeader('Nom', FieldSort.NameSort),
-        PaginatedHeader('Région', FieldSort.RegionSort)
+        PaginatedHeader('Nom', FieldSort.Name),
+        PaginatedHeader('Région', FieldSort.Region)
       ];
 }
 
@@ -60,19 +60,19 @@ class Wine {
 
   static int _getSortField(FieldSort fieldSort) {
     switch (fieldSort) {
-      case FieldSort.NameSort:
+      case FieldSort.Name:
         return 2;
-      case FieldSort.ClassificationSort:
+      case FieldSort.Classification:
         return 3;
-      case FieldSort.CommentSort:
+      case FieldSort.Comment:
         return 3;
-      case FieldSort.NameSort:
+      case FieldSort.Name:
         return 2;
-      case FieldSort.DomainSort:
+      case FieldSort.Domain:
         return 6;
-      case FieldSort.LocationSort:
+      case FieldSort.Location:
         return 8;
-      case FieldSort.RegionSort:
+      case FieldSort.Region:
         return 10;
       default:
         return 1;

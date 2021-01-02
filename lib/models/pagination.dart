@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
 enum FieldSort {
-  IdSort,
-  NameSort,
-  RegionSort,
-  LocationSort,
-  DomainSort,
-  ClassificationSort,
-  CommentSort,
+  Id,
+  Name,
+  Region,
+  Location,
+  Domain,
+  Classification,
+  Comment,
 }
 
 class PaginatedParams {
@@ -16,7 +16,7 @@ class PaginatedParams {
   FieldSort sort;
 
   PaginatedParams(
-      {this.search = '', this.firstLine = 1, this.sort = FieldSort.IdSort});
+      {this.search = '', this.firstLine = 1, this.sort = FieldSort.Id});
 }
 
 class PaginatedHeader {

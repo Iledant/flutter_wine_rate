@@ -14,8 +14,7 @@ class PaginatedRegions extends PaginatedRows<Region> {
   List<String> rowCells(int index) => [regions[index].name];
 
   @override
-  List<PaginatedHeader> headers() =>
-      [PaginatedHeader('Nom', FieldSort.NameSort)];
+  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
 }
 
 class Region {
@@ -47,7 +46,7 @@ class Region {
         values: {"search": '%${params.search}%'});
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = params.sort == FieldSort.NameSort ? 2 : 1;
+    final int sort = params.sort == FieldSort.Name ? 2 : 1;
     final regions = await config.query(
         "select id,name FROM region WHERE name ILIKE @search order by @sort LIMIT 10 OFFSET @offset",
         values: {

@@ -14,8 +14,7 @@ class PaginatedDomains extends PaginatedRows<Domain> {
   List<String> rowCells(int index) => [domains[index].name];
 
   @override
-  List<PaginatedHeader> headers() =>
-      [PaginatedHeader('Nom', FieldSort.NameSort)];
+  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
 }
 
 class Domain {
@@ -38,7 +37,7 @@ class Domain {
         values: {"search": '%${params.search}%'});
     final int totalLines = courtResults[0][0];
     final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = params.sort == FieldSort.NameSort ? 2 : 1;
+    final int sort = params.sort == FieldSort.Name ? 2 : 1;
     final domains = await config.query(
         "SELECT id,name FROM domain WHERE name ILIKE @search ORDER BY @sort LIMIT 10 OFFSET @offset",
         values: {

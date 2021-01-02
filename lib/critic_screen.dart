@@ -10,11 +10,11 @@ import 'models/critic.dart';
 import 'models/pagination.dart';
 
 class CriticScreen extends StatelessWidget {
-  final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  final _nameController = TextEditingController();
   CriticScreen({Key key}) : super(key: key);
 
-  void editCritic(DialogMode mode, BuildContext context, Critic critic) async {
+  void _editCritic(DialogMode mode, BuildContext context, Critic critic) async {
     final result = await showDialog<Critic>(
       context: context,
       barrierDismissible: false,
@@ -23,36 +23,37 @@ class CriticScreen extends StatelessWidget {
     if (result == null) return;
     switch (mode) {
       case DialogMode.Edit:
-        BlocProvider.of<CriticsBloc>(context).add(
-            CriticAdded(critic, PaginatedParams(search: _controller.text)));
+        BlocProvider.of<CriticsBloc>(context).add(CriticUpdated(
+            result, PaginatedParams(search: _nameController.text)));
         break;
       default:
         BlocProvider.of<CriticsBloc>(context).add(
-            CriticUpdated(critic, PaginatedParams(search: _controller.text)));
+            CriticAdded(result, PaginatedParams(search: _nameController.text)));
         break;
     }
   }
 
-  void removeCritic(Critic critic, PaginatedParams params) async {}
+  void _removeCritic(Critic critic, PaginatedParams params) async {}
+
+  Widget _progressIndicator() =>
+      CommonScaffold(body: Center(child: CircularProgressIndicator()));
+
+  Widget _errorWidget() => CommonScaffold(
+        body: Center(
+          child: Container(
+            color: Colors.red,
+            padding: EdgeInsets.all(8.0),
+            child: Text('Erreur de chargement'),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
     return BlocBuilder<CriticsBloc, CriticsState>(builder: (context, state) {
-      if (state is CriticsLoadInProgress) {
-        return CommonScaffold(body: Center(child: CircularProgressIndicator()));
-      }
-      if (state is CriticsLoadFailure) {
-        return CommonScaffold(
-          body: Center(
-            child: Container(
-              color: Colors.red,
-              padding: EdgeInsets.all(8.0),
-              child: Text('Erreur de chargement'),
-            ),
-          ),
-        );
-      }
+      if (state is CriticsLoadInProgress) return _progressIndicator();
+      if (state is CriticsLoadFailure) return _errorWidget();
       final critics = (state as CriticsLoadSuccess).critics;
       return CommonScaffold(
         body: ListView(
@@ -73,7 +74,14 @@ class CriticScreen extends StatelessWidget {
               child: Container(
                 constraints: BoxConstraints(maxWidth: 300),
                 child: TextFormField(
-                  controller: _controller,
+                  controller: _nameController,
+                  onChanged: (value) =>
+                      BlocProvider.of<CriticsBloc>(context).add(
+                    CriticsLoadSuccessed(
+                      PaginatedParams(
+                          search: _nameController.text, sort: FieldSort.Name),
+                    ),
+                  ),
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.search),
                     hintText: 'Recherche',
@@ -88,26 +96,26 @@ class CriticScreen extends StatelessWidget {
                 hasAction: true,
                 rows: critics,
                 editHook: (i) =>
-                    editCritic(DialogMode.Edit, context, critics.lines[i]),
-                deleteHook: (i) => removeCritic(
+                    _editCritic(DialogMode.Edit, context, critics.lines[i]),
+                addHook: () => _editCritic(
+                    DialogMode.Create, context, Critic(id: 0, name: '')),
+                deleteHook: (i) => _removeCritic(
                   critics.lines[i],
                   PaginatedParams(
-                    search: _controller.text,
+                    search: _nameController.text,
                     firstLine: critics.actualLine,
-                    sort: FieldSort.NameSort,
+                    sort: FieldSort.Name,
                   ),
                 ),
-                moveHook: (i) {
-                  BlocProvider.of<CriticsBloc>(context).add(
-                    CriticsLoadSuccessed(
-                      PaginatedParams(
-                        firstLine: i,
-                        search: _controller.text,
-                        sort: FieldSort.NameSort,
-                      ),
+                moveHook: (i) => BlocProvider.of<CriticsBloc>(context).add(
+                  CriticsLoadSuccessed(
+                    PaginatedParams(
+                      firstLine: i,
+                      search: _nameController.text,
+                      sort: FieldSort.Name,
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ],

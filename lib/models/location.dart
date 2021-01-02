@@ -16,8 +16,8 @@ class PaginatedLocations extends PaginatedRows<Location> {
 
   @override
   List<PaginatedHeader> headers() => [
-        PaginatedHeader('Nom', FieldSort.NameSort),
-        PaginatedHeader('Région', FieldSort.RegionSort)
+        PaginatedHeader('Nom', FieldSort.Name),
+        PaginatedHeader('Région', FieldSort.Region)
       ];
 }
 
@@ -54,8 +54,8 @@ class Location {
   }
 
   static int _getSortField(FieldSort fieldSort) {
-    if (fieldSort == FieldSort.IdSort) return 1;
-    if (fieldSort == FieldSort.NameSort) return 2;
+    if (fieldSort == FieldSort.Id) return 1;
+    if (fieldSort == FieldSort.Name) return 2;
     return 4;
   }
 

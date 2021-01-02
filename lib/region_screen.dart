@@ -27,7 +27,7 @@ class _RegionScreenState extends State<RegionScreen> {
   void initState() {
     super.initState();
     Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.NameSort)));
+        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
     _controller.addListener(() => fetchElements());
   }
 
@@ -63,7 +63,7 @@ class _RegionScreenState extends State<RegionScreen> {
     Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
         store,
         widget.config,
-        PaginatedParams(search: _controller.text, sort: FieldSort.NameSort)));
+        PaginatedParams(search: _controller.text, sort: FieldSort.Name)));
   }
 
   @override
@@ -131,7 +131,7 @@ class _RegionScreenState extends State<RegionScreen> {
                     PaginatedParams(
                       search: _controller.text,
                       firstLine: paginatedRegions.actualLine,
-                      sort: FieldSort.NameSort,
+                      sort: FieldSort.Name,
                     ),
                   ),
                   moveHook: (i) async => {
@@ -142,7 +142,7 @@ class _RegionScreenState extends State<RegionScreen> {
                         PaginatedParams(
                             firstLine: i,
                             search: _controller.text,
-                            sort: FieldSort.NameSort),
+                            sort: FieldSort.Name),
                       ),
                     )
                   },
