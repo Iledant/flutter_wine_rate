@@ -8,6 +8,8 @@ abstract class CriticsState extends Equatable {
   List<Object> get props => [];
 }
 
+class CriticsEmpty extends CriticsState {}
+
 class CriticsLoadInProgress extends CriticsState {}
 
 class CriticsLoadSuccess extends CriticsState {

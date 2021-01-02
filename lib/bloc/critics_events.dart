@@ -13,6 +13,12 @@ class CriticsLoaded extends CriticsEvent {
   final PaginatedParams params;
 
   const CriticsLoaded(this.params);
+
+  @override
+  List<Object> get props => [params];
+
+  @override
+  String toString() => 'CriticsLoaded { params: $params}';
 }
 
 class CriticAdded extends CriticsEvent {
@@ -22,10 +28,10 @@ class CriticAdded extends CriticsEvent {
   const CriticAdded(this.critic, this.params);
 
   @override
-  List<Object> get props => [critic];
+  List<Object> get props => [critic, params];
 
   @override
-  String toString() => 'CriticsAdded { critic : $critic }';
+  String toString() => 'CriticUpdated { critic: $critic params: $params}';
 }
 
 class CriticUpdated extends CriticsEvent {
@@ -35,10 +41,10 @@ class CriticUpdated extends CriticsEvent {
   const CriticUpdated(this.critic, this.params);
 
   @override
-  List<Object> get props => [critic];
+  List<Object> get props => [critic, params];
 
   @override
-  String toString() => 'CriticUpdated { critic: $critic }';
+  String toString() => 'CriticUpdated { critic: $critic params: $params}';
 }
 
 class CriticDeleted extends CriticsEvent {
@@ -48,8 +54,8 @@ class CriticDeleted extends CriticsEvent {
   const CriticDeleted(this.critic, this.params);
 
   @override
-  List<Object> get props => [critic];
+  List<Object> get props => [critic, params];
 
   @override
-  String toString() => 'CriticDeleted { critic: $critic }';
+  String toString() => 'CriticUpdated { critic: $critic params: $params}';
 }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_wine_rate/bloc/critics.dart';
-import 'package:flutter_wine_rate/common_scaffold.dart';
-import 'package:flutter_wine_rate/models/pagination.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:flutter_wine_rate/region_screen.dart';
-import 'package:flutter_wine_rate/critic_screen.dart';
-import 'repo/critic_repo.dart';
 import 'config.dart';
+import 'common_scaffold.dart';
+import 'redux/store.dart';
+import 'bloc/critics.dart';
+import 'repo/critic_repo.dart';
+import 'critic_screen.dart';
+import 'region_screen.dart';
 import 'domain_screen.dart';
 import 'location_screen.dart';
 
@@ -42,11 +41,7 @@ class MyApp extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline1),
               )),
           '/regions': (context) => RegionScreen(config),
-          '/critics': (context) {
-            BlocProvider.of<CriticsBloc>(context)
-                .add(CriticsLoaded(PaginatedParams(sort: FieldSort.Name)));
-            return CriticScreen();
-          },
+          '/critics': (context) => CriticScreen(),
           '/domains': (context) => DomainScreen(config),
           '/locations': (context) => LocationScreen(config: config),
         },

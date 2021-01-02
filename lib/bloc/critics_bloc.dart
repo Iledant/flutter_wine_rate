@@ -9,8 +9,7 @@ import './critics.dart';
 class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
   final CriticRepository criticRepository;
 
-  CriticsBloc({@required this.criticRepository})
-      : super(CriticsLoadInProgress());
+  CriticsBloc({@required this.criticRepository}) : super(CriticsEmpty());
 
   @override
   Stream<CriticsState> mapEventToState(CriticsEvent event) async* {
@@ -27,6 +26,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
 
   Stream<CriticsState> _mapCriticsLoadedToState(PaginatedParams params) async* {
     try {
+      yield CriticsLoadInProgress();
       final critics = await this.criticRepository.getPaginated(params);
       yield CriticsLoadSuccess(critics);
     } catch (_) {
@@ -37,6 +37,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
   Stream<CriticsState> _mapCriticAddedToState(CriticAdded event) async* {
     if (state is CriticsLoadSuccess) {
       try {
+        yield CriticsLoadInProgress();
         await this.criticRepository.add(event.critic);
         final critics = await this.criticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);
@@ -49,6 +50,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
   Stream<CriticsState> _mapCriticUpdatedToState(CriticUpdated event) async* {
     if (state is CriticsLoadSuccess) {
       try {
+        yield CriticsLoadInProgress();
         await this.criticRepository.update(event.critic);
         final critics = await this.criticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);
@@ -61,6 +63,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
   Stream<CriticsState> _mapCriticDeletedToState(CriticDeleted event) async* {
     if (state is CriticsLoadSuccess) {
       try {
+        yield CriticsLoadInProgress();
         await this.criticRepository.remove(event.critic);
         final critics = await this.criticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);

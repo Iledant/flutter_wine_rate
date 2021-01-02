@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/disable_flat_button.dart';
-import 'package:flutter_wine_rate/models/critic.dart';
+
+import 'constant.dart';
+import 'disable_flat_button.dart';
+import 'models/critic.dart';
 
 class CriticEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -60,4 +61,12 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
       ],
     );
   }
+}
+
+Future<Critic> showEditCriticDialog(
+    BuildContext context, Critic critic, DialogMode mode) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CriticEditDialog(mode, critic));
 }
