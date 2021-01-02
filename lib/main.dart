@@ -43,8 +43,8 @@ class MyApp extends StatelessWidget {
               )),
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) {
-            BlocProvider.of<CriticsBloc>(context).add(
-                CriticsLoadSuccessed(PaginatedParams(sort: FieldSort.Name)));
+            BlocProvider.of<CriticsBloc>(context)
+                .add(CriticsLoaded(PaginatedParams(sort: FieldSort.Name)));
             return CriticScreen();
           },
           '/domains': (context) => DomainScreen(config),

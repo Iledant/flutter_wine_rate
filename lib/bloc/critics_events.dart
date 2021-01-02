@@ -9,10 +9,10 @@ abstract class CriticsEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class CriticsLoadSuccessed extends CriticsEvent {
+class CriticsLoaded extends CriticsEvent {
   final PaginatedParams params;
 
-  const CriticsLoadSuccessed(this.params);
+  const CriticsLoaded(this.params);
 }
 
 class CriticAdded extends CriticsEvent {

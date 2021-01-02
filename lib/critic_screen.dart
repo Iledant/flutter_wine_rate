@@ -77,7 +77,7 @@ class CriticScreen extends StatelessWidget {
                   controller: _nameController,
                   onChanged: (value) =>
                       BlocProvider.of<CriticsBloc>(context).add(
-                    CriticsLoadSuccessed(
+                    CriticsLoaded(
                       PaginatedParams(
                           search: _nameController.text, sort: FieldSort.Name),
                     ),
@@ -108,7 +108,7 @@ class CriticScreen extends StatelessWidget {
                   ),
                 ),
                 moveHook: (i) => BlocProvider.of<CriticsBloc>(context).add(
-                  CriticsLoadSuccessed(
+                  CriticsLoaded(
                     PaginatedParams(
                       firstLine: i,
                       search: _nameController.text,

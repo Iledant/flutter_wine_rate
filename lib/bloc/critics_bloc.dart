@@ -14,7 +14,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
 
   @override
   Stream<CriticsState> mapEventToState(CriticsEvent event) async* {
-    if (event is CriticsLoadSuccessed) {
+    if (event is CriticsLoaded) {
       yield* _mapCriticsLoadedToState(event.params);
     } else if (event is CriticAdded) {
       yield* _mapCriticAddedToState(event);
