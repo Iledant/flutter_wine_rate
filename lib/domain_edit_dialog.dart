@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/models/domain.dart';
+
+import 'constant.dart';
+import 'models/domain.dart';
 import 'disable_flat_button.dart';
 
 class DomainEditDialog extends StatefulWidget {
@@ -60,4 +61,12 @@ class _DomainEditDialogState extends State<DomainEditDialog> {
       ],
     );
   }
+}
+
+Future<Domain> showEditDomainDialog(
+    BuildContext context, Domain domain, DialogMode mode) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => DomainEditDialog(mode, domain));
 }

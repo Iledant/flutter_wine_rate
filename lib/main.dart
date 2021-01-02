@@ -5,6 +5,8 @@ import 'common_scaffold.dart';
 import 'redux/store.dart';
 import 'bloc/critics.dart';
 import 'repo/critic_repo.dart';
+import 'bloc/domains.dart';
+import 'repo/domain_repo.dart';
 import 'critic_screen.dart';
 import 'region_screen.dart';
 import 'domain_screen.dart';
@@ -29,7 +31,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<CriticsBloc>(
           create: (context) =>
               CriticsBloc(criticRepository: CriticRepository(db: config.db)),
-        )
+        ),
+        BlocProvider<DomainsBloc>(
+          create: (context) =>
+              DomainsBloc(domainRepository: DomainRepository(db: config.db)),
+        ),
       ],
       child: MaterialApp(
         title: 'Wine Rate',
@@ -42,7 +48,7 @@ class MyApp extends StatelessWidget {
               )),
           '/regions': (context) => RegionScreen(config),
           '/critics': (context) => CriticScreen(),
-          '/domains': (context) => DomainScreen(config),
+          '/domains': (context) => DomainScreen(),
           '/locations': (context) => LocationScreen(config: config),
         },
         theme: ThemeData(

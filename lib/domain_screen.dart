@@ -1,70 +1,102 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'constant.dart';
-import 'paginated_table.dart';
-import 'redux/store.dart';
-import 'domain_edit_dialog.dart';
+import 'bloc/domains.dart';
 import 'common_scaffold.dart';
-import 'config.dart';
-import 'redux/domains_state.dart';
+import 'constant.dart';
+import 'delete_dialog.dart';
+import 'paginated_table.dart';
+import 'domain_edit_dialog.dart';
 import 'models/domain.dart';
 import 'models/pagination.dart';
+import 'repo/domain_repo.dart';
 
-class DomainScreen extends StatefulWidget {
-  final Config config;
-
-  DomainScreen(this.config, {Key key}) : super(key: key);
-
-  @override
-  _DomainScreenState createState() => _DomainScreenState();
-}
-
-class _DomainScreenState extends State<DomainScreen> {
-  final _controller = TextEditingController();
+class DomainScreen extends StatelessWidget {
   final _scrollController = ScrollController();
+  final _nameController = TextEditingController();
+  DomainScreen({Key key}) : super(key: key);
 
-  void initState() {
-    super.initState();
-    Redux.store.dispatch((store) => fetchPaginatedDomainsAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
-    _controller.addListener(() => fetchElements());
-  }
-
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void addOrModify(DialogMode mode, Domain domain) async {
-    final result = await showDialog<Domain>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => DomainEditDialog(mode, domain));
+  void _addOrModify(
+      DialogMode mode, BuildContext context, Domain domain) async {
+    final result = await showEditDomainDialog(context, domain, mode);
     if (result == null) return;
+    final params =
+        PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
     switch (mode) {
       case DialogMode.Edit:
-        await Redux.store.dispatch(
-            (store) => updateDomainAction(store, widget.config, result));
+        BlocProvider.of<DomainsBloc>(context)
+            .add(DomainUpdated(result, params));
         break;
       default:
-        await Redux.store
-            .dispatch((store) => addDomainAction(store, widget.config, result));
+        BlocProvider.of<DomainsBloc>(context).add(DomainAdded(result, params));
+        break;
     }
-    fetchElements();
   }
 
-  void fetchElements() {
-    Redux.store.dispatch((store) => fetchPaginatedDomainsAction(
-        store,
-        widget.config,
-        PaginatedParams(search: _controller.text, sort: FieldSort.Name)));
+  void _remove(
+      Domain domain, BuildContext context, PaginatedParams params) async {
+    final confirm = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) =>
+            DeleteDialog(objectKind: 'le domaine ', objectName: domain.name));
+    if (!confirm) return;
+    BlocProvider.of<DomainsBloc>(context).add(DomainDeleted(domain, params));
   }
 
-  void removeDomain(Domain domain, PaginatedParams params) async {
-    await Redux.store.dispatch(
-        (store) => removeDomainAction(store, widget.config, domain, params));
+  Widget _emptyWidget(BuildContext context) {
+    BlocProvider.of<DomainsBloc>(context).add(
+      DomainsLoaded(
+        PaginatedParams(
+          search: _nameController.text,
+          sort: FieldSort.Name,
+        ),
+      ),
+    );
+    return SizedBox.shrink();
   }
+
+  Widget _progressWidget() =>
+      Center(child: CircularProgressIndicator(value: null));
+
+  Widget _errorWidget() => Center(
+        child: Container(
+          color: Colors.red,
+          padding: EdgeInsets.all(8.0),
+          child: Text('Erreur de chargement'),
+        ),
+      );
+
+  Widget _loadedWidget(BuildContext context, PaginatedDomains domains) =>
+      Center(
+        child: PaginatedTable(
+          color: Colors.deepPurple.shade50,
+          hasAction: true,
+          rows: domains,
+          editHook: (i) =>
+              _addOrModify(DialogMode.Edit, context, domains.lines[i]),
+          addHook: () =>
+              _addOrModify(DialogMode.Create, context, Domain(id: 0, name: '')),
+          deleteHook: (i) => _remove(
+            domains.lines[i],
+            context,
+            PaginatedParams(
+              search: _nameController.text,
+              firstLine: domains.actualLine,
+              sort: FieldSort.Name,
+            ),
+          ),
+          moveHook: (i) => BlocProvider.of<DomainsBloc>(context).add(
+            DomainsLoaded(
+              PaginatedParams(
+                firstLine: i,
+                search: _nameController.text,
+                sort: FieldSort.Name,
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -74,19 +106,29 @@ class _DomainScreenState extends State<DomainScreen> {
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Row(children: [
-            Icon(
-              Icons.home_outlined,
-              size: titleStyle.fontSize,
-              color: titleStyle.color,
-            ),
-            Text(' Domaines', style: titleStyle),
-          ]),
+          Row(
+            children: [
+              Icon(
+                Icons.home_outlined,
+                size: titleStyle.fontSize,
+                color: titleStyle.color,
+              ),
+              Text(' Domaines', style: titleStyle),
+            ],
+          ),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
-                controller: _controller,
+                controller: _nameController,
+                onChanged: (value) => BlocProvider.of<DomainsBloc>(context).add(
+                  DomainsLoaded(
+                    PaginatedParams(
+                      search: _nameController.text,
+                      sort: FieldSort.Name,
+                    ),
+                  ),
+                ),
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
@@ -95,62 +137,13 @@ class _DomainScreenState extends State<DomainScreen> {
             ),
           ),
           SizedBox(height: 10.0),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.domains.isLoading,
-            builder: (context, isLoading) {
-              return isLoading
-                  ? CircularProgressIndicator(value: null)
-                  : SizedBox.shrink();
-            },
-          ),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.domains.isError,
-            builder: (context, isError) {
-              return isError
-                  ? Text('Erreur de récupération des domaines')
-                  : SizedBox.shrink();
-            },
-          ),
-          StoreConnector<AppState, PaginatedDomains>(
-            distinct: true,
-            converter: (store) => store.state.domains.paginatedDomains,
-            builder: (builder, paginatedDomains) {
-              return Center(
-                child: PaginatedTable(
-                  color: Colors.deepPurple.shade50,
-                  hasAction: true,
-                  rows: paginatedDomains,
-                  editHook: (i) =>
-                      addOrModify(DialogMode.Edit, paginatedDomains.domains[i]),
-                  addHook: () =>
-                      addOrModify(DialogMode.Create, Domain(id: 0, name: '')),
-                  deleteHook: (i) => removeDomain(
-                    paginatedDomains.domains[i],
-                    PaginatedParams(
-                      search: _controller.text,
-                      firstLine: paginatedDomains.actualLine,
-                      sort: FieldSort.Name,
-                    ),
-                  ),
-                  moveHook: (i) async => {
-                    await Redux.store.dispatch(
-                      (store) => fetchPaginatedDomainsAction(
-                        store,
-                        widget.config,
-                        PaginatedParams(
-                          firstLine: i,
-                          search: _controller.text,
-                          sort: FieldSort.Name,
-                        ),
-                      ),
-                    )
-                  },
-                ),
-              );
-            },
-          ),
+          BlocBuilder<DomainsBloc, DomainsState>(builder: (context, state) {
+            if (state is DomainsEmpty) return _emptyWidget(context);
+            if (state is DomainsLoadInProgress) return _progressWidget();
+            if (state is DomainsLoadFailure) return _errorWidget();
+            final domains = (state as DomainsLoadSuccess).domains;
+            return _loadedWidget(context, domains);
+          }),
         ],
       ),
     );

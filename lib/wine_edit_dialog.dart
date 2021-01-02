@@ -106,7 +106,7 @@ class _WineEditDialogState extends State<WineEditDialog> {
                 fetchHook: (pattern) => Redux.store.dispatch((store) =>
                     fetchFirstFiveRegionsAction(
                         store, widget._config, pattern)),
-                converter: (store) => store.state.domains.domains,
+                // converter: (store) => store.state.domains.domains,
                 onChanged: (domain) => setState(() {
                       _domain = domain;
                       _handleDisabled(_nameController.text);
