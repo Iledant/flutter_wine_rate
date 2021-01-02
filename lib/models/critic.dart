@@ -15,6 +15,6 @@ class Critic extends Equatable {
 
   @override
   String toString() {
-    return 'Critics { id: $id, name: $name }';
+    return 'Critic { id: $id, name: $name }';
   }
 }
