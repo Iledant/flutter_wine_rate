@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import '../models/domain.dart';
-import '../repo/domain_repo.dart';
 
 abstract class PickDomainsState extends Equatable {
   const PickDomainsState();
