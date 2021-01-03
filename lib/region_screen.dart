@@ -1,70 +1,102 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'bloc/regions.dart';
 import 'common_scaffold.dart';
 import 'constant.dart';
+import 'delete_dialog.dart';
 import 'paginated_table.dart';
-import 'redux/store.dart';
-import 'redux/regions_state.dart';
 import 'region_edit_dialog.dart';
-import 'config.dart';
-import 'models/pagination.dart';
 import 'models/region.dart';
+import 'models/pagination.dart';
+import 'repo/region_repo.dart';
 
-class RegionScreen extends StatefulWidget {
-  final Config config;
-
-  RegionScreen(this.config, {Key key}) : super(key: key);
-
-  @override
-  _RegionScreenState createState() => _RegionScreenState();
-}
-
-class _RegionScreenState extends State<RegionScreen> {
-  final _controller = TextEditingController();
+class RegionScreen extends StatelessWidget {
   final _scrollController = ScrollController();
+  final _nameController = TextEditingController();
+  RegionScreen({Key key}) : super(key: key);
 
-  void initState() {
-    super.initState();
-    Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
-    _controller.addListener(() => fetchElements());
-  }
-
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void addOrModify(DialogMode mode, Region region) async {
-    final result = await showDialog<Region>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => RegionEditDialog(mode, region));
+  void _addOrModify(
+      DialogMode mode, BuildContext context, Region region) async {
+    final result = await showEditRegionDialog(context, region, mode);
     if (result == null) return;
+    final params =
+        PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
     switch (mode) {
       case DialogMode.Edit:
-        await Redux.store.dispatch(
-            (store) => updateRegionAction(store, widget.config, result));
+        BlocProvider.of<RegionsBloc>(context)
+            .add(RegionUpdated(result, params));
         break;
       default:
-        await Redux.store
-            .dispatch((store) => addRegionAction(store, widget.config, result));
+        BlocProvider.of<RegionsBloc>(context).add(RegionAdded(result, params));
+        break;
     }
-    fetchElements();
   }
 
-  void removeRegion(Region region, PaginatedParams params) async {
-    await Redux.store.dispatch(
-        (store) => removeRegionAction(store, widget.config, region, params));
+  void _remove(
+      Region region, BuildContext context, PaginatedParams params) async {
+    final confirm = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) =>
+            DeleteDialog(objectKind: 'le domaine ', objectName: region.name));
+    if (!confirm) return;
+    BlocProvider.of<RegionsBloc>(context).add(RegionDeleted(region, params));
   }
 
-  void fetchElements() {
-    Redux.store.dispatch((store) => fetchPaginatedRegionsAction(
-        store,
-        widget.config,
-        PaginatedParams(search: _controller.text, sort: FieldSort.Name)));
+  Widget _emptyWidget(BuildContext context) {
+    BlocProvider.of<RegionsBloc>(context).add(
+      RegionsLoaded(
+        PaginatedParams(
+          search: _nameController.text,
+          sort: FieldSort.Name,
+        ),
+      ),
+    );
+    return SizedBox.shrink();
   }
+
+  Widget _progressWidget() =>
+      Center(child: CircularProgressIndicator(value: null));
+
+  Widget _errorWidget() => Center(
+        child: Container(
+          color: Colors.red,
+          padding: EdgeInsets.all(8.0),
+          child: Text('Erreur de chargement'),
+        ),
+      );
+
+  Widget _loadedWidget(BuildContext context, PaginatedRegions regions) =>
+      Center(
+        child: PaginatedTable(
+          color: Colors.deepPurple.shade50,
+          hasAction: true,
+          rows: regions,
+          editHook: (i) =>
+              _addOrModify(DialogMode.Edit, context, regions.lines[i]),
+          addHook: () =>
+              _addOrModify(DialogMode.Create, context, Region(id: 0, name: '')),
+          deleteHook: (i) => _remove(
+            regions.lines[i],
+            context,
+            PaginatedParams(
+              search: _nameController.text,
+              firstLine: regions.actualLine,
+              sort: FieldSort.Name,
+            ),
+          ),
+          moveHook: (i) => BlocProvider.of<RegionsBloc>(context).add(
+            RegionsLoaded(
+              PaginatedParams(
+                firstLine: i,
+                search: _nameController.text,
+                sort: FieldSort.Name,
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -74,19 +106,29 @@ class _RegionScreenState extends State<RegionScreen> {
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Row(children: [
-            Icon(
-              Icons.map,
-              size: titleStyle.fontSize,
-              color: titleStyle.color,
-            ),
-            Text(' Régions', style: titleStyle),
-          ]),
+          Row(
+            children: [
+              Icon(
+                Icons.map,
+                size: titleStyle.fontSize,
+                color: titleStyle.color,
+              ),
+              Text(' Régions', style: titleStyle),
+            ],
+          ),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
-                controller: _controller,
+                controller: _nameController,
+                onChanged: (value) => BlocProvider.of<RegionsBloc>(context).add(
+                  RegionsLoaded(
+                    PaginatedParams(
+                      search: _nameController.text,
+                      sort: FieldSort.Name,
+                    ),
+                  ),
+                ),
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
@@ -95,61 +137,13 @@ class _RegionScreenState extends State<RegionScreen> {
             ),
           ),
           SizedBox(height: 10.0),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.regions.isLoading,
-            builder: (context, isLoading) {
-              return isLoading
-                  ? CircularProgressIndicator(value: null)
-                  : SizedBox.shrink();
-            },
-          ),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.regions.isError,
-            builder: (context, isError) {
-              return isError
-                  ? Text('Erreur de récupération des régions')
-                  : SizedBox.shrink();
-            },
-          ),
-          StoreConnector<AppState, PaginatedRegions>(
-            distinct: true,
-            converter: (store) => store.state.regions.paginatedRegions,
-            builder: (builder, paginatedRegions) {
-              return Center(
-                child: PaginatedTable(
-                  color: Colors.deepPurple.shade50,
-                  hasAction: true,
-                  rows: paginatedRegions,
-                  editHook: (i) =>
-                      addOrModify(DialogMode.Edit, paginatedRegions.regions[i]),
-                  addHook: () =>
-                      addOrModify(DialogMode.Create, Region(id: 0, name: '')),
-                  deleteHook: (i) => removeRegion(
-                    paginatedRegions.regions[i],
-                    PaginatedParams(
-                      search: _controller.text,
-                      firstLine: paginatedRegions.actualLine,
-                      sort: FieldSort.Name,
-                    ),
-                  ),
-                  moveHook: (i) async => {
-                    await Redux.store.dispatch(
-                      (store) => fetchPaginatedRegionsAction(
-                        store,
-                        widget.config,
-                        PaginatedParams(
-                            firstLine: i,
-                            search: _controller.text,
-                            sort: FieldSort.Name),
-                      ),
-                    )
-                  },
-                ),
-              );
-            },
-          ),
+          BlocBuilder<RegionsBloc, RegionsState>(builder: (context, state) {
+            if (state is RegionsEmpty) return _emptyWidget(context);
+            if (state is RegionsLoadInProgress) return _progressWidget();
+            if (state is RegionsLoadFailure) return _errorWidget();
+            final regions = (state as RegionsLoadSuccess).regions;
+            return _loadedWidget(context, regions);
+          }),
         ],
       ),
     );

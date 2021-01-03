@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/models/region.dart';
+
+import 'constant.dart';
+import 'models/region.dart';
 import 'disable_flat_button.dart';
 
 class RegionEditDialog extends StatefulWidget {
@@ -60,4 +61,12 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
       ],
     );
   }
+}
+
+Future<Region> showEditRegionDialog(
+    BuildContext context, Region domain, DialogMode mode) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => RegionEditDialog(mode, domain));
 }
