@@ -1,71 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_wine_rate/constant.dart';
-import 'package:flutter_wine_rate/paginated_table.dart';
-import 'package:flutter_wine_rate/redux/store.dart';
-import 'package:flutter_wine_rate/location_edit_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'bloc/locations.dart';
 import 'common_scaffold.dart';
-import 'config.dart';
-import 'redux/locations_state.dart';
+import 'constant.dart';
+import 'delete_dialog.dart';
+import 'paginated_table.dart';
+import 'location_edit_dialog.dart';
 import 'models/location.dart';
 import 'models/pagination.dart';
+import 'repo/location_repo.dart';
 
-class LocationScreen extends StatefulWidget {
-  final Config config;
-
-  LocationScreen({@required this.config, Key key}) : super(key: key);
-
-  @override
-  _LocationScreenState createState() => _LocationScreenState();
-}
-
-class _LocationScreenState extends State<LocationScreen> {
-  final _controller = TextEditingController();
+class LocationScreen extends StatelessWidget {
   final _scrollController = ScrollController();
-  FieldSort _fieldSort = FieldSort.Name;
+  final _nameController = TextEditingController();
+  LocationScreen({Key key}) : super(key: key);
 
-  void initState() {
-    super.initState();
-    Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
-        store, widget.config, PaginatedParams(sort: FieldSort.Name)));
-    _controller.addListener(() => fetchElements());
+  void _addOrModify(
+      DialogMode mode, BuildContext context, Location location) async {
+    final result = await showEditLocationDialog(context, location, mode);
+    if (result == null) return;
+    final params =
+        PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
+    switch (mode) {
+      case DialogMode.Edit:
+        BlocProvider.of<LocationsBloc>(context)
+            .add(LocationUpdated(result, params));
+        break;
+      default:
+        BlocProvider.of<LocationsBloc>(context)
+            .add(LocationAdded(result, params));
+        break;
+    }
   }
 
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void addOrModify(DialogMode mode, Location location) async {
-    final config = widget.config;
-    final result = await showDialog<Location>(
+  void _remove(
+      Location location, BuildContext context, PaginatedParams params) async {
+    final confirm = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (_) => LocationEditDialog(mode, location, config));
-    if (result == null) return;
-
-    if (mode == DialogMode.Edit) {
-      await Redux.store
-          .dispatch((store) => updateLocationAction(store, config, result));
-    } else {
-      await Redux.store
-          .dispatch((store) => addLocationAction(store, config, result));
-    }
-    fetchElements();
+        builder: (context) => DeleteDialog(
+            objectKind: "l'appellation ", objectName: location.name));
+    if (!confirm) return;
+    BlocProvider.of<LocationsBloc>(context)
+        .add(LocationDeleted(location, params));
   }
 
-  void remove(Location location, PaginatedParams params) async {
-    await Redux.store.dispatch((store) =>
-        removeLocationAction(store, widget.config, location, params));
+  Widget _emptyWidget(BuildContext context) {
+    BlocProvider.of<LocationsBloc>(context).add(
+      LocationsLoaded(
+        PaginatedParams(
+          search: _nameController.text,
+          sort: FieldSort.Name,
+        ),
+      ),
+    );
+    return SizedBox.shrink();
   }
 
-  void fetchElements() {
-    Redux.store.dispatch((store) => fetchPaginatedLocationsAction(
-        store,
-        widget.config,
-        PaginatedParams(search: _controller.text, sort: _fieldSort)));
-  }
+  Widget _progressWidget() =>
+      Center(child: CircularProgressIndicator(value: null));
+
+  Widget _errorWidget() => Center(
+        child: Container(
+          color: Colors.red,
+          padding: EdgeInsets.all(8.0),
+          child: Text('Erreur de chargement'),
+        ),
+      );
+
+  Widget _loadedWidget(BuildContext context, PaginatedLocations locations) =>
+      Center(
+        child: PaginatedTable(
+          color: Colors.deepPurple.shade50,
+          hasAction: true,
+          rows: locations,
+          editHook: (i) =>
+              _addOrModify(DialogMode.Edit, context, locations.lines[i]),
+          addHook: () => _addOrModify(DialogMode.Create, context,
+              Location(id: 0, name: '', regionId: 0, region: '')),
+          deleteHook: (i) => _remove(
+            locations.lines[i],
+            context,
+            PaginatedParams(
+              search: _nameController.text,
+              firstLine: locations.actualLine,
+              sort: FieldSort.Name,
+            ),
+          ),
+          moveHook: (i) => BlocProvider.of<LocationsBloc>(context).add(
+            LocationsLoaded(
+              PaginatedParams(
+                firstLine: i,
+                search: _nameController.text,
+                sort: FieldSort.Name,
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -75,82 +108,45 @@ class _LocationScreenState extends State<LocationScreen> {
         padding: EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Row(children: [
-            Icon(
-              Icons.location_on,
-              size: titleStyle.fontSize,
-              color: titleStyle.color,
-            ),
-            Text(' Appellations', style: titleStyle),
-          ]),
+          Row(
+            children: [
+              Icon(
+                Icons.home_outlined,
+                size: titleStyle.fontSize,
+                color: titleStyle.color,
+              ),
+              Text(' Appellations', style: titleStyle),
+            ],
+          ),
           Center(
             child: Container(
               constraints: BoxConstraints(maxWidth: 300),
-              child: TextField(
-                controller: _controller,
+              child: TextFormField(
+                controller: _nameController,
+                onChanged: (value) =>
+                    BlocProvider.of<LocationsBloc>(context).add(
+                  LocationsLoaded(
+                    PaginatedParams(
+                      search: _nameController.text,
+                      sort: FieldSort.Name,
+                    ),
+                  ),
+                ),
                 decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search), hintText: 'Recherche'),
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Recherche',
+                ),
               ),
             ),
           ),
           SizedBox(height: 10.0),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.locations.isLoading,
-            builder: (_, isLoading) => isLoading
-                ? CircularProgressIndicator(value: null)
-                : SizedBox.shrink(),
-          ),
-          StoreConnector<AppState, bool>(
-            distinct: true,
-            converter: (store) => store.state.locations.isError,
-            builder: (_, isError) => isError
-                ? Text('Erreur de récupération des appellations')
-                : SizedBox.shrink(),
-          ),
-          StoreConnector<AppState, PaginatedLocations>(
-            distinct: true,
-            converter: (store) => store.state.locations.paginatedLocations,
-            builder: (builder, paginatedLocations) {
-              return Center(
-                child: PaginatedTable(
-                  color: Colors.deepPurple.shade50,
-                  hasAction: true,
-                  rows: paginatedLocations,
-                  fieldSort: _fieldSort,
-                  editHook: (i) => addOrModify(
-                      DialogMode.Edit, paginatedLocations.locations[i]),
-                  addHook: () =>
-                      addOrModify(DialogMode.Create, Location(id: 0, name: '')),
-                  sortHook: (fieldSort) {
-                    _fieldSort = fieldSort;
-                    fetchElements();
-                  },
-                  deleteHook: (i) => remove(
-                    paginatedLocations.locations[i],
-                    PaginatedParams(
-                      search: _controller.text,
-                      firstLine: paginatedLocations.actualLine,
-                      sort: _fieldSort,
-                    ),
-                  ),
-                  moveHook: (i) async => {
-                    await Redux.store.dispatch(
-                      (store) => fetchPaginatedLocationsAction(
-                        store,
-                        widget.config,
-                        PaginatedParams(
-                          firstLine: i,
-                          search: _controller.text,
-                          sort: _fieldSort,
-                        ),
-                      ),
-                    )
-                  },
-                ),
-              );
-            },
-          ),
+          BlocBuilder<LocationsBloc, LocationsState>(builder: (context, state) {
+            if (state is LocationsEmpty) return _emptyWidget(context);
+            if (state is LocationsLoadInProgress) return _progressWidget();
+            if (state is LocationsLoadFailure) return _errorWidget();
+            final locations = (state as LocationsLoadSuccess).locations;
+            return _loadedWidget(context, locations);
+          }),
         ],
       ),
     );

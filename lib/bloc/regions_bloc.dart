@@ -29,8 +29,7 @@ class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
       yield RegionsLoadInProgress();
       final regions = await this.regionRepository.getPaginated(params);
       yield RegionsLoadSuccess(regions);
-    } catch (e) {
-      print('Loaded error : $e');
+    } catch (_) {
       yield RegionsLoadFailure();
     }
   }

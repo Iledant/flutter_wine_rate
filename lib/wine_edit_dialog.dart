@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wine_rate/filtered_menu.dart';
-import 'package:flutter_wine_rate/redux/regions_state.dart';
 import 'config.dart';
 import 'constant.dart';
 import 'models/domain.dart';
@@ -100,19 +99,19 @@ class _WineEditDialogState extends State<WineEditDialog> {
             style:
                 TextStyle(color: _domain != null ? Colors.black : Colors.red),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: FilteredMenu(
-                fetchHook: (pattern) => Redux.store.dispatch((store) =>
-                    fetchFirstFiveRegionsAction(
-                        store, widget._config, pattern)),
-                // converter: (store) => store.state.domains.domains,
-                onChanged: (domain) => setState(() {
-                      _domain = domain;
-                      _handleDisabled(_nameController.text);
-                    }),
-                valueDisplay: (domain) => domain.name),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+          //   child: FilteredMenu(
+          //       fetchHook: (pattern) => Redux.store.dispatch((store) =>
+          //           fetchFirstFiveRegionsAction(
+          //               store, widget._config, pattern)),
+          //       // converter: (store) => store.state.domains.domains,
+          //       onChanged: (domain) => setState(() {
+          //             _domain = domain;
+          //             _handleDisabled(_nameController.text);
+          //           }),
+          //       valueDisplay: (domain) => domain.name),
+          // ),
           SizedBox(height: 16.0),
           Text(
             _domain == null ? "L'appellation est obligatoire" : "Appellation",
@@ -127,19 +126,19 @@ class _WineEditDialogState extends State<WineEditDialog> {
             style:
                 TextStyle(color: _location != null ? Colors.black : Colors.red),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: FilteredMenu(
-                fetchHook: (pattern) => Redux.store.dispatch((store) =>
-                    fetchFirstFiveRegionsAction(
-                        store, widget._config, pattern)),
-                converter: (store) => store.state.locations.locations,
-                onChanged: (location) => setState(() {
-                      _location = location;
-                      _handleDisabled(_nameController.text);
-                    }),
-                valueDisplay: (location) => location.name),
-          )
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+          //   child: FilteredMenu(
+          //       fetchHook: (pattern) => Redux.store.dispatch((store) =>
+          //           fetchFirstFiveRegionsAction(
+          //               store, widget._config, pattern)),
+          //       converter: (store) => store.state.locations.locations,
+          //       onChanged: (location) => setState(() {
+          //             _location = location;
+          //             _handleDisabled(_nameController.text);
+          //           }),
+          //       valueDisplay: (location) => location.name),
+          // )
         ],
       ),
       actions: [

@@ -29,8 +29,7 @@ class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
       yield DomainsLoadInProgress();
       final domains = await this.domainRepository.getPaginated(params);
       yield DomainsLoadSuccess(domains);
-    } catch (e) {
-      print('Loaded error : $e');
+    } catch (_) {
       yield DomainsLoadFailure();
     }
   }

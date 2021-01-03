@@ -23,8 +23,7 @@ class PickDomainsBloc extends Bloc<PickDomainsEvent, PickDomainsState> {
       yield PickDomainsLoadInProgress();
       final domains = await this.domainRepository.getFirstFive(pattern);
       yield PickDomainsLoadSuccess(domains);
-    } catch (e) {
-      print('Loaded error : $e');
+    } catch (_) {
       yield PickDomainsLoadFailure();
     }
   }

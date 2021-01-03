@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/filtered_menu.dart';
-import 'package:flutter_wine_rate/redux/regions_state.dart';
-import 'config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_wine_rate/bloc/pick_regions.dart';
+import 'package:flutter_wine_rate/bloc/pick_regions_bloc.dart';
 import 'constant.dart';
 import 'models/location.dart';
 import 'models/region.dart';
 import 'disable_flat_button.dart';
-import 'redux/store.dart';
 
 class LocationEditDialog extends StatefulWidget {
   final DialogMode _mode;
   final Location _location;
-  final Config _config;
 
-  LocationEditDialog(this._mode, this._location, this._config, {Key key})
-      : super(key: key);
+  LocationEditDialog(this._mode, this._location, {Key key}) : super(key: key);
 
   @override
   _LocationEditDialogState createState() => _LocationEditDialogState();
@@ -22,6 +19,7 @@ class LocationEditDialog extends StatefulWidget {
 
 class _LocationEditDialogState extends State<LocationEditDialog> {
   final _nameController = TextEditingController();
+  final _regionController = TextEditingController();
   bool _disabled;
   Region _region;
 
@@ -37,6 +35,7 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
 
   void dispose() {
     _nameController.dispose();
+    _regionController.dispose();
     super.dispose();
   }
 
@@ -82,17 +81,50 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: FilteredMenu(
-                fetchHook: (pattern) => Redux.store.dispatch((store) =>
-                    fetchFirstFiveRegionsAction(
-                        store, widget._config, pattern)),
-                converter: (store) => store.state.regions.regions,
-                onChanged: (region) => setState(() {
-                      _region = region;
-                      _handleDisabled(_nameController.text);
-                    }),
-                valueDisplay: (region) => region.name),
-          )
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              color: Colors.deepPurple[50],
+              child: Column(children: [
+                TextField(
+                  controller: _regionController,
+                  onChanged: (value) =>
+                      BlocProvider.of<PickRegionsBloc>(context)
+                          .add(PickRegionsLoaded(value)),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
+                  ),
+                ),
+                BlocBuilder<PickRegionsBloc, PickRegionsState>(
+                    builder: (context, state) {
+                  if (state is PickRegionsLoadFailure ||
+                      state is PickRegionsLoadInProgress ||
+                      state is PickRegionsEmpty) return SizedBox.shrink();
+                  final regions = (state as PickRegionsLoadSuccess).regions;
+                  return Card(
+                    child: Column(
+                      children: regions
+                          .map(
+                            (r) => InkWell(
+                              onTap: () => setState(() {
+                                _region = r;
+                                _regionController.text = '';
+                              }),
+                              child: Container(
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.all(4.0),
+                                child: Text(r.name),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    elevation: 2.0,
+                  );
+                }),
+              ]),
+            ),
+          ),
         ],
       ),
       actions: [
@@ -113,4 +145,12 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
       ],
     );
   }
+}
+
+Future<Location> showEditLocationDialog(
+    BuildContext context, Location location, DialogMode mode) {
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LocationEditDialog(mode, location));
 }
