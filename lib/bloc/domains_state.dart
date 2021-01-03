@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import '../models/domain.dart';
 import '../repo/domain_repo.dart';
 
 abstract class DomainsState extends Equatable {
@@ -15,19 +14,16 @@ class DomainsLoadInProgress extends DomainsState {}
 
 class DomainsLoadSuccess extends DomainsState {
   final PaginatedDomains domains;
-  final List<Domain> firstFiveDomains;
 
   const DomainsLoadSuccess(
-      [this.domains =
-          const PaginatedDomains(actualLine: 1, totalLines: 0, lines: const []),
-      this.firstFiveDomains = const []]);
+      [this.domains = const PaginatedDomains(
+          actualLine: 1, totalLines: 0, lines: const [])]);
 
   @override
-  List<Object> get props => [domains, firstFiveDomains];
+  List<Object> get props => [domains];
 
   @override
-  String toString() =>
-      'DomainsLoadSuccess { domains: $domains, firstFiveDomains: $firstFiveDomains }';
+  String toString() => 'DomainsLoadSuccess { domains: $domains }';
 }
 
 class DomainsLoadFailure extends DomainsState {}
