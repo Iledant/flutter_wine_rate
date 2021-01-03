@@ -7,6 +7,8 @@ import 'bloc/critics.dart';
 import 'repo/critic_repo.dart';
 import 'bloc/domains.dart';
 import 'repo/domain_repo.dart';
+import 'bloc/regions.dart';
+import 'repo/region_repo.dart';
 import 'critic_screen.dart';
 import 'region_screen.dart';
 import 'domain_screen.dart';
@@ -36,6 +38,10 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               DomainsBloc(domainRepository: DomainRepository(db: config.db)),
         ),
+        BlocProvider<RegionsBloc>(
+          create: (context) =>
+              RegionsBloc(regionRepository: RegionRepository(db: config.db)),
+        ),
       ],
       child: MaterialApp(
         title: 'Wine Rate',
@@ -46,7 +52,7 @@ class MyApp extends StatelessWidget {
                 child: Text('Wine Rate',
                     style: Theme.of(context).textTheme.headline1),
               )),
-          '/regions': (context) => RegionScreen(config),
+          '/regions': (context) => RegionScreen(),
           '/critics': (context) => CriticScreen(),
           '/domains': (context) => DomainScreen(),
           '/locations': (context) => LocationScreen(config: config),
