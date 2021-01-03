@@ -18,7 +18,7 @@ class DomainsLoaded extends DomainsEvent {
   List<Object> get props => [params];
 
   @override
-  String toString() => 'DomainsLoaded { params: $params}';
+  String toString() => 'DomainsLoaded { params: $params }';
 }
 
 class DomainAdded extends DomainsEvent {

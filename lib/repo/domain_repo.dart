@@ -45,6 +45,13 @@ class DomainRepository {
         actualLine: actualLine, totalLines: totalLines, lines: lines);
   }
 
+  Future<List<Domain>> getFirstFive(String pattern) async {
+    final results = await db
+        .query("""SELECT id,name FROM domain WHERE name ILIKE '%$pattern%' 
+          ORDER BY name LIMIT 5""");
+    return results.map((e) => Domain(id: e[0], name: e[1])).toList();
+  }
+
   Future<Domain> add(Domain domain) async {
     final results = await db.query(
         "INSERT INTO domain (name) VALUES (@name) RETURNING id",

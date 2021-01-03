@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_wine_rate/repo/domain_repo.dart';
+import '../models/domain.dart';
+import '../repo/domain_repo.dart';
 
 abstract class DomainsState extends Equatable {
   const DomainsState();
@@ -14,16 +15,19 @@ class DomainsLoadInProgress extends DomainsState {}
 
 class DomainsLoadSuccess extends DomainsState {
   final PaginatedDomains domains;
+  final List<Domain> firstFiveDomains;
 
   const DomainsLoadSuccess(
-      [this.domains = const PaginatedDomains(
-          actualLine: 1, totalLines: 0, lines: const [])]);
+      [this.domains =
+          const PaginatedDomains(actualLine: 1, totalLines: 0, lines: const []),
+      this.firstFiveDomains = const []]);
 
   @override
-  List<Object> get props => [domains];
+  List<Object> get props => [domains, firstFiveDomains];
 
   @override
-  String toString() => 'DomainsLoadSuccess { domains: $domains }';
+  String toString() =>
+      'DomainsLoadSuccess { domains: $domains, firstFiveDomains: $firstFiveDomains }';
 }
 
 class DomainsLoadFailure extends DomainsState {}
