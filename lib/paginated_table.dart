@@ -46,8 +46,10 @@ class PaginatedTable extends StatelessWidget {
     final actualLine = rows.actualLine;
     final totalLines = rows.totalLines;
     final lastLine = min(actualLine + 9, totalLines);
-    final backButtonDisabled = actualLine == 1;
-    final nextButtonDisabled = totalLines == lastLine;
+    final nextPressed =
+        (totalLines == lastLine) ? null : () => moveHook?.call(actualLine + 10);
+    final backPressed =
+        (actualLine == 1) ? null : () => moveHook?.call(actualLine - 10);
 
     final List<DataRow> datas = List<DataRow>.generate(
       lastLine - actualLine + 1,
@@ -86,8 +88,10 @@ class PaginatedTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           DataTable(
-            headingTextStyle:
-                TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+            headingTextStyle: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
             columns: headings,
             horizontalMargin: 12.0,
             columnSpacing: 12.0,
@@ -113,28 +117,18 @@ class PaginatedTable extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.keyboard_arrow_left,
-                  color: backButtonDisabled ? Colors.grey : Colors.black,
                 ),
                 splashRadius: 12.0,
                 padding: EdgeInsets.all(4.0),
                 constraints: BoxConstraints(maxWidth: 30.0),
-                onPressed: () {
-                  if (backButtonDisabled) return;
-                  moveHook?.call(actualLine - 10);
-                },
+                onPressed: backPressed,
               ),
               IconButton(
-                icon: Icon(
-                  Icons.keyboard_arrow_right,
-                  color: nextButtonDisabled ? Colors.grey : Colors.black,
-                ),
+                icon: Icon(Icons.keyboard_arrow_right),
                 splashRadius: 12.0,
                 padding: EdgeInsets.all(4.0),
                 constraints: BoxConstraints(maxWidth: 30.0),
-                onPressed: () {
-                  if (nextButtonDisabled) return;
-                  moveHook?.call(actualLine + 10);
-                },
+                onPressed: nextPressed,
               ),
               SizedBox(width: 8.0),
             ],
