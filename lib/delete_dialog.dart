@@ -10,8 +10,7 @@ class DeleteDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Supprimer $objectKind ?'),
-      content: Text("Le critique supprimé serait '$objectName'"),
+      title: Text("Supprimer $objectKind '$objectName' ?"),
       actions: [
         FlatButton(
           child: Text('Non'),
@@ -24,4 +23,16 @@ class DeleteDialog extends StatelessWidget {
       ],
     );
   }
+}
+
+Future<bool> showDeleteDialog(
+    BuildContext context, String objectKind, objectName) async {
+  return await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => DeleteDialog(
+      objectKind: objectKind,
+      objectName: objectName,
+    ),
+  );
 }

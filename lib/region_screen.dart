@@ -35,11 +35,7 @@ class RegionScreen extends StatelessWidget {
 
   void _remove(
       Region region, BuildContext context, PaginatedParams params) async {
-    final confirm = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) =>
-            DeleteDialog(objectKind: 'le domaine ', objectName: region.name));
+    final confirm = await showDeleteDialog(context, 'la région ', region.name);
     if (!confirm) return;
     BlocProvider.of<RegionsBloc>(context).add(RegionDeleted(region, params));
   }

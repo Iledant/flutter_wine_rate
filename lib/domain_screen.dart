@@ -35,11 +35,7 @@ class DomainScreen extends StatelessWidget {
 
   void _remove(
       Domain domain, BuildContext context, PaginatedParams params) async {
-    final confirm = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) =>
-            DeleteDialog(objectKind: 'le domaine ', objectName: domain.name));
+    final confirm = await showDeleteDialog(context, 'le domaine ', domain.name);
     if (!confirm) return;
     BlocProvider.of<DomainsBloc>(context).add(DomainDeleted(domain, params));
   }

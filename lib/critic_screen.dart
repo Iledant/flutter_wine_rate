@@ -35,11 +35,8 @@ class CriticScreen extends StatelessWidget {
 
   void _remove(
       Critic critic, BuildContext context, PaginatedParams params) async {
-    final confirm = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) =>
-            DeleteDialog(objectKind: 'le critique ', objectName: critic.name));
+    final confirm =
+        await showDeleteDialog(context, 'le critique ', critic.name);
     if (!confirm) return;
     BlocProvider.of<CriticsBloc>(context).add(CriticDeleted(critic, params));
   }

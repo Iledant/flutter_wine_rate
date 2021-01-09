@@ -36,11 +36,8 @@ class LocationScreen extends StatelessWidget {
 
   void _remove(
       Location location, BuildContext context, PaginatedParams params) async {
-    final confirm = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => DeleteDialog(
-            objectKind: "l'appellation ", objectName: location.name));
+    final confirm =
+        await showDeleteDialog(context, "l'appellation ", location.name);
     if (!confirm) return;
     BlocProvider.of<LocationsBloc>(context)
         .add(LocationDeleted(location, params));
