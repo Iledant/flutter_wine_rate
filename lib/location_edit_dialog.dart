@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_wine_rate/bloc/pick_regions.dart';
-import 'package:flutter_wine_rate/bloc/pick_regions_bloc.dart';
 import 'constant.dart';
 import 'models/location.dart';
 import 'models/region.dart';

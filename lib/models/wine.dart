@@ -1,151 +1,67 @@
-import 'dart:math';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/models/pagination.dart';
-import '../config.dart';
 
-class PaginatedWines extends PaginatedRows<Wine> {
-  int actualLine;
-  int totalLines;
-  List<Wine> wines;
+class Wine extends Equatable {
+  final int id;
+  final String name;
+  final String classification;
+  final String comment;
+  final int domainId;
+  final String domain;
+  final int locationId;
+  final String location;
+  final int regionId;
+  final String region;
 
-  PaginatedWines(this.actualLine, this.totalLines, this.wines);
-
-  @override
-  List<String> rowCells(int index) => [wines[index].name, wines[index].region];
-
-  @override
-  List<PaginatedHeader> headers() => [
-        PaginatedHeader('Nom', FieldSort.Name),
-        PaginatedHeader('Région', FieldSort.Region)
-      ];
-}
-
-class Wine {
-  int id;
-  String name;
-  String classification;
-  String comment;
-  int domainId;
-  String domain;
-  int locationId;
-  String location;
-  int regionId;
-  String region;
-
-  Wine({
+  const Wine({
     @required this.id,
     @required this.name,
     @required this.classification,
     @required this.comment,
-    this.domainId,
-    this.domain,
-    this.locationId,
-    this.location,
-    this.regionId,
-    this.region,
+    @required this.domainId,
+    @required this.domain,
+    @required this.locationId,
+    @required this.location,
+    @required this.regionId,
+    @required this.region,
   });
 
-  Wine copy() => Wine(
-        id: id,
-        name: name,
-        classification: classification,
-        comment: comment,
-        domainId: domainId,
-        domain: domain,
-        locationId: locationId,
-        location: location,
-        regionId: regionId,
-        region: region,
+  @override
+  List<Object> get props => [
+        id,
+        name,
+        classification,
+        comment,
+        domainId,
+        domain,
+        locationId,
+        location,
+        regionId,
+        region
+      ];
+
+  Wine copyWith({
+    int id,
+    String name,
+    String classification,
+    String comment,
+    int domainId,
+    String domain,
+    int locationId,
+    String location,
+    int regionId,
+    String region,
+  }) =>
+      Wine(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        classification: classification ?? this.classification,
+        comment: comment ?? this.comment,
+        domainId: domainId ?? this.domainId,
+        domain: domain ?? this.domain,
+        locationId: locationId ?? this.locationId,
+        location: location ?? this.location,
+        regionId: regionId ?? this.regionId,
+        region: region ?? this.region,
       );
-
-  static int _getSortField(FieldSort fieldSort) {
-    switch (fieldSort) {
-      case FieldSort.Name:
-        return 2;
-      case FieldSort.Classification:
-        return 3;
-      case FieldSort.Comment:
-        return 3;
-      case FieldSort.Name:
-        return 2;
-      case FieldSort.Domain:
-        return 6;
-      case FieldSort.Location:
-        return 8;
-      case FieldSort.Region:
-        return 10;
-      default:
-        return 1;
-    }
-  }
-
-  static Future<PaginatedWines> getPaginated(
-      Config config, PaginatedParams params) async {
-    final commonQuery = """FROM wine w
-          JOIN domain d ON w.domain_id=d.id
-          JOIN location l ON w.location_id=l.id
-          JOIN region r ON l.region_id=r.id
-          WHERE w.name ILIKE '%${params.search}%' OR r.name ILIKE '%${params.search}%'
-            OR l.name ILIKE '%${params.search}%' OR d.name ILIKE '%${params.search}%'
-            OR w.classification ILIKE '%${params.search}%'
-            OR w.comment ILIKE '%${params.search}%' """;
-    final courtResults = await config.query('SELECT count(1) ' + commonQuery);
-    final int totalLines = courtResults[0][0];
-    final int actualLine = min(params.firstLine, totalLines + 1);
-    final int sort = _getSortField(params.sort);
-    var results =
-        await config.query("""SELECT w.id,w.name,w.classification,w.comment,
-          d.id,d.name,l.id,l.name,r.id,r.name """ +
-            commonQuery +
-            """OR w.comment ILIKE '%${params.search}%'
-          ORDER BY $sort
-          LIMIT 10 OFFSET ${actualLine - 1}""");
-    final wines = results
-        .map((e) => Wine(
-              id: e[0],
-              name: e[1],
-              classification: e[2],
-              comment: e[3],
-              domainId: e[4],
-              domain: e[5],
-              locationId: e[6],
-              location: e[7],
-              regionId: e[8],
-              region: e[9],
-            ))
-        .toList();
-    return PaginatedWines(actualLine, totalLines, wines);
-  }
-
-  Future<void> add(Config config) async {
-    final results = await config
-        .query("""INSERT INTO wine (name,classification,comment,domain_id,location_id)
-          VALUES (@name,@classification,@comment,@domain_id,@location_id)
-          RETURNING id""", values: {
-      "name": name,
-      "classification": classification,
-      "comment": comment,
-      "domain_id": domainId,
-      "location_id": locationId,
-    });
-    id = results[0][0];
-  }
-
-  Future<void> update(Config config) async {
-    await config
-        .query("""UPDATE wine SET name=@name,classification=@classification,
-          comment=@comment,domain_id=@domain_id,location_id=@location_id
-          WHERE id=@id""", values: {
-      "id": id,
-      "name": name,
-      "classification": classification,
-      "comment": comment,
-      "domain_id": domainId,
-      "location_id": locationId,
-    });
-  }
-
-  Future<void> remove(Config config) async {
-    await config.query("DELETE FROM wine WHERE id=@id", values: {"id": id});
-  }
 }

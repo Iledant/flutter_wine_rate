@@ -34,6 +34,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Vins'),
           leading: Icon(Icons.wine_bar_outlined),
+          onTap: () => Navigator.pushNamed(context, '/wines'),
         ),
         ListTile(
           dense: true,

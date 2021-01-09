@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_wine_rate/wine_screen.dart';
 import 'bloc/pick_regions.dart';
+import 'bloc/wines_bloc.dart';
 import 'config.dart';
 import 'common_scaffold.dart';
-import 'redux/store.dart';
 import 'bloc/critics.dart';
 import 'repo/critic_repo.dart';
 import 'bloc/domains.dart';
@@ -16,11 +17,11 @@ import 'critic_screen.dart';
 import 'region_screen.dart';
 import 'domain_screen.dart';
 import 'location_screen.dart';
+import 'repo/wine_repo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = new Config();
-  await Redux.init();
   runApp(MyApp(config));
 }
 
@@ -49,6 +50,10 @@ class MyApp extends StatelessWidget {
           create: (context) => LocationsBloc(
               locationRepository: LocationRepository(db: config.db)),
         ),
+        BlocProvider<WinesBloc>(
+          create: (context) =>
+              WinesBloc(wineRepository: WineRepository(db: config.db)),
+        ),
         BlocProvider<PickRegionsBloc>(
           create: (context) => PickRegionsBloc(
               regionRepository: RegionRepository(db: config.db)),
@@ -67,6 +72,7 @@ class MyApp extends StatelessWidget {
           '/critics': (context) => CriticScreen(),
           '/domains': (context) => DomainScreen(),
           '/locations': (context) => LocationScreen(),
+          '/wines': (context) => WineScreen(),
         },
         theme: ThemeData(
           primarySwatch: Colors.purple,
