@@ -13,15 +13,15 @@ class PickLocationsEmpty extends PickLocationsState {}
 class PickLocationsLoadInProgress extends PickLocationsState {}
 
 class PickLocationsLoadSuccess extends PickLocationsState {
-  final List<Location> domains;
+  final List<Location> locations;
 
-  const PickLocationsLoadSuccess([this.domains = const []]);
-
-  @override
-  List<Object> get props => [domains];
+  const PickLocationsLoadSuccess([this.locations = const []]);
 
   @override
-  String toString() => 'PickLocationsLoadSuccess { domains: $domains }';
+  List<Object> get props => [locations];
+
+  @override
+  String toString() => 'PickLocationsLoadSuccess { domains: $locations }';
 }
 
 class PickLocationsLoadFailure extends PickLocationsState {}

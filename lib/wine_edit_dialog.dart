@@ -59,16 +59,38 @@ class _WineEditDialogState extends State<WineEditDialog> {
     _disabled = nameValue.isEmpty || _domain == null || _location == null;
   }
 
+  Widget popupMenu<T>(
+      List<T> lines, void Function(T) setState, String Function(T) getText) {
+    return Card(
+      child: Column(
+        children: lines
+            .map(
+              (r) => InkWell(
+                onTap: () => setState(r),
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.all(4.0),
+                  child: Text(getText(r)),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+      elevation: 2.0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
           widget._mode == DialogMode.Edit ? "Modifier le vin" : 'Nouveau vin'),
       scrollable: true,
-      content: Wrap(
+      content: Column(
         children: [
           Form(
             child: TextFormField(
+              autofocus: true,
               controller: _nameController,
               onChanged: (value) => setState(() => _handleDisabled(value)),
               autovalidateMode: AutovalidateMode.always,
@@ -78,20 +100,16 @@ class _WineEditDialogState extends State<WineEditDialog> {
             ),
           ),
           SizedBox(height: 16.0),
-          Form(
-            child: TextFormField(
-              controller: _classificationController,
-              onChanged: (value) => setState(() => _handleDisabled(value)),
-              decoration: InputDecoration(labelText: "Classement"),
-            ),
+          TextFormField(
+            controller: _classificationController,
+            onChanged: (value) => setState(() => _handleDisabled(value)),
+            decoration: InputDecoration(labelText: "Classement"),
           ),
           SizedBox(height: 16.0),
-          Form(
-            child: TextFormField(
-              controller: _commentController,
-              onChanged: (value) => setState(() => _handleDisabled(value)),
-              decoration: InputDecoration(labelText: "Commentaire"),
-            ),
+          TextFormField(
+            controller: _commentController,
+            onChanged: (value) => setState(() => _handleDisabled(value)),
+            decoration: InputDecoration(labelText: "Commentaire"),
           ),
           SizedBox(height: 16.0),
           Text(
@@ -131,32 +149,20 @@ class _WineEditDialogState extends State<WineEditDialog> {
                       state is PickDomainsLoadInProgress ||
                       state is PickDomainsEmpty) return SizedBox.shrink();
                   final domains = (state as PickDomainsLoadSuccess).domains;
-                  return Card(
-                    child: Column(
-                      children: domains
-                          .map(
-                            (r) => InkWell(
-                              onTap: () => setState(() {
-                                _domain = r;
-                                _domainController.text = '';
-                                BlocProvider.of<PickDomainsBloc>(context)
-                                    .add(PickDomainsClear());
-                              }),
-                              child: Container(
-                                alignment: Alignment.centerLeft,
-                                padding: EdgeInsets.all(4.0),
-                                child: Text(r.name),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    elevation: 2.0,
-                  );
+                  return popupMenu(
+                      domains,
+                      (domain) => setState(() {
+                            _domain = domain;
+                            _domainController.text = '';
+                            BlocProvider.of<PickDomainsBloc>(context)
+                                .add(PickDomainsClear());
+                          }),
+                      (domain) => domain.name);
                 }),
               ]),
             ),
           ),
+          SizedBox(height: 16.0),
           Text(
             _location == null
                 ? "L'appellation ne peut pas être vide"
@@ -195,29 +201,17 @@ class _WineEditDialogState extends State<WineEditDialog> {
                       state is PickLocationsEmpty) {
                     return SizedBox.shrink();
                   }
-                  final domains = (state as PickLocationsLoadSuccess).domains;
-                  return Card(
-                    child: Column(
-                      children: domains
-                          .map(
-                            (r) => InkWell(
-                              onTap: () => setState(() {
-                                _location = r;
-                                _locationController.text = '';
-                                BlocProvider.of<PickLocationsBloc>(context)
-                                    .add(PicklocationsClear());
-                              }),
-                              child: Container(
-                                alignment: Alignment.centerLeft,
-                                padding: EdgeInsets.all(4.0),
-                                child: Text(r.name),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    elevation: 2.0,
-                  );
+                  final locations =
+                      (state as PickLocationsLoadSuccess).locations;
+                  return popupMenu(
+                      locations,
+                      (location) => setState(() {
+                            _location = location;
+                            _locationController.text = '';
+                            BlocProvider.of<PickLocationsBloc>(context)
+                                .add(PicklocationsClear());
+                          }),
+                      (location) => location.name);
                 }),
               ]),
             ),
@@ -235,8 +229,12 @@ class _WineEditDialogState extends State<WineEditDialog> {
           onPressed: () => Navigator.of(context).pop(Wine(
               id: widget._wine.id,
               name: _nameController.text,
-              classification: _classificationController.text,
-              comment: _commentController.text,
+              classification: _classificationController.text.isEmpty
+                  ? null
+                  : _classificationController.text,
+              comment: _commentController.text.isEmpty
+                  ? null
+                  : _commentController.text,
               domainId: _domain.id,
               domain: _domain.name,
               locationId: _location.id,
