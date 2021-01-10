@@ -94,6 +94,33 @@ class WineRepository {
         actualLine: actualLine, totalLines: totalLines, lines: wines);
   }
 
+  Future<List<Wine>> getFirstFive(String pattern) async {
+    final results =
+        await db.query("""SELECT w.id,w.name,w.classification,w.comment,
+          d.id,d.name,l.id,l.name,r.id,r.name FROM wine w
+          JOIN domain d ON w.domain_id=d.id
+          JOIN location l ON w.location_id=l.id
+          JOIN region r ON l.region_id=r.id
+          WHERE w.name ILIKE '%$pattern%' OR r.name ILIKE '%$pattern%'
+            OR l.name ILIKE '%$pattern%' OR d.name ILIKE '%$pattern%'
+            OR w.classification ILIKE '%$pattern%'
+            OR w.comment ILIKE '%$pattern%' ORDER BY w.name LIMIT 5""");
+    return results
+        .map<Wine>((e) => Wine(
+              id: e[0],
+              name: e[1],
+              classification: e[2],
+              comment: e[3],
+              domainId: e[4],
+              domain: e[5],
+              locationId: e[6],
+              location: e[7],
+              regionId: e[8],
+              region: e[9],
+            ))
+        .toList();
+  }
+
   Future<Wine> add(Wine wine) async {
     final results = await db
         .query("""INSERT INTO wine (name,classification,comment,domain_id,location_id)
