@@ -8,6 +8,10 @@ enum FieldSort {
   Domain,
   Classification,
   Comment,
+  Rate,
+  Year,
+  Date,
+  Critic
 }
 
 class PaginatedParams {
