@@ -45,6 +45,14 @@ class CriticRepository {
         actualLine: actualLine, totalLines: totalLines, lines: lines);
   }
 
+  Future<List<Critic>> getFirstFive(String pattern) async {
+    final results = await db
+        .query("""SELECT id,name FROM critics WHERE name ILIKE '%$pattern%'
+            ORDER BY name LIMIT 5""");
+
+    return results.map<Critic>((e) => Critic(id: e[0], name: e[1])).toList();
+  }
+
   Future<Critic> add(Critic critic) async {
     final results = await db.query(
         "INSERT INTO critics (name) VALUES (@name) RETURNING id",
