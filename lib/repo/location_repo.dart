@@ -55,7 +55,7 @@ class LocationRepository {
     final results =
         await db.query("""SELECT l.id,l.name,r.id,r.name FROM location l 
           JOIN region r ON l.region_id=r.id 
-          WHERE name ILIKE '%$pattern%' ORDER BY name LIMIT 5""");
+          WHERE l.name ILIKE '%$pattern%' ORDER BY l.name LIMIT 5""");
     return results
         .map(
             (e) => Location(id: e[0], name: e[1], regionId: e[2], region: e[3]))
