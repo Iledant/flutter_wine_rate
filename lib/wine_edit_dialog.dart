@@ -64,9 +64,8 @@ class _WineEditDialogState extends State<WineEditDialog> {
     return AlertDialog(
       title: Text(
           widget._mode == DialogMode.Edit ? "Modifier le vin" : 'Nouveau vin'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      scrollable: true,
+      content: Wrap(
         children: [
           Form(
             child: TextFormField(
@@ -106,7 +105,7 @@ class _WineEditDialogState extends State<WineEditDialog> {
                 fontSize: Theme.of(context).textTheme.caption.fontSize),
           ),
           Text(
-            (_domain != null ? _domain.name : '-'),
+            _domain?.name ?? '-',
             style:
                 TextStyle(color: _domain != null ? Colors.black : Colors.red),
           ),
@@ -140,6 +139,8 @@ class _WineEditDialogState extends State<WineEditDialog> {
                               onTap: () => setState(() {
                                 _domain = r;
                                 _domainController.text = '';
+                                BlocProvider.of<PickDomainsBloc>(context)
+                                    .add(PickDomainsClear());
                               }),
                               child: Container(
                                 alignment: Alignment.centerLeft,
@@ -156,7 +157,6 @@ class _WineEditDialogState extends State<WineEditDialog> {
               ]),
             ),
           ),
-          SizedBox(height: 16.0),
           Text(
             _location == null
                 ? "L'appellation ne peut pas être vide"
@@ -192,7 +192,9 @@ class _WineEditDialogState extends State<WineEditDialog> {
                     builder: (context, state) {
                   if (state is PickLocationsLoadFailure ||
                       state is PickLocationsLoadInProgress ||
-                      state is PickLocationsEmpty) return SizedBox.shrink();
+                      state is PickLocationsEmpty) {
+                    return SizedBox.shrink();
+                  }
                   final domains = (state as PickLocationsLoadSuccess).domains;
                   return Card(
                     child: Column(
@@ -202,6 +204,8 @@ class _WineEditDialogState extends State<WineEditDialog> {
                               onTap: () => setState(() {
                                 _location = r;
                                 _locationController.text = '';
+                                BlocProvider.of<PickLocationsBloc>(context)
+                                    .add(PicklocationsClear());
                               }),
                               child: Container(
                                 alignment: Alignment.centerLeft,

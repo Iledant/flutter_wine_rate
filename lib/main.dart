@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_wine_rate/wine_screen.dart';
+import 'bloc/pick_domains_bloc.dart';
+import 'bloc/pick_locations.dart';
 import 'bloc/pick_regions.dart';
 import 'bloc/wines_bloc.dart';
 import 'config.dart';
@@ -57,6 +59,14 @@ class MyApp extends StatelessWidget {
         BlocProvider<PickRegionsBloc>(
           create: (context) => PickRegionsBloc(
               regionRepository: RegionRepository(db: config.db)),
+        ),
+        BlocProvider<PickLocationsBloc>(
+          create: (context) => PickLocationsBloc(
+              locationRepository: LocationRepository(db: config.db)),
+        ),
+        BlocProvider<PickDomainsBloc>(
+          create: (context) => PickDomainsBloc(
+              domainRepository: DomainRepository(db: config.db)),
         ),
       ],
       child: MaterialApp(

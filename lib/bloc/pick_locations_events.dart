@@ -7,6 +7,8 @@ abstract class PickLocationsEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class PicklocationsClear extends PickLocationsEvent {}
+
 class PickLocationsLoaded extends PickLocationsEvent {
   final String pattern;
 

@@ -18,3 +18,5 @@ class PickDomainsLoaded extends PickDomainsEvent {
   @override
   String toString() => 'PickDomainsLoaded { pattern: $pattern }';
 }
+
+class PickDomainsClear extends PickDomainsEvent {}
