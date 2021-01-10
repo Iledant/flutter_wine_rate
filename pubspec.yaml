@@ -23,8 +23,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_redux:
-  redux_thunk:
   bloc:
   flutter_bloc:
   equatable:
