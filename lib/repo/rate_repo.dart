@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:postgres/postgres.dart';
 
 import '../models/rate.dart';
@@ -10,14 +11,17 @@ class PaginatedRates extends PaginatedRows<Rate> {
       : super(actualLine: actualLine, totalLines: totalLines, lines: lines);
 
   @override
-  List<String> rowCells(int index) => [
-        lines[index].wine,
-        lines[index].rate.toStringAsFixed(1),
-        lines[index].year.toString(),
-        lines[index].published.month.toString() +
-            lines[index].published.year.toString(),
-        lines[index].critic,
-      ];
+  List<String> rowCells(int index) {
+    final dateFormatter = new DateFormat('MM/yy');
+
+    return [
+      lines[index].wine,
+      lines[index].rate.toStringAsFixed(1),
+      lines[index].year.toString(),
+      dateFormatter.format(lines[index].published),
+      lines[index].critic,
+    ];
+  }
 
   @override
   List<PaginatedHeader> headers() => [
