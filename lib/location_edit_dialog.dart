@@ -4,7 +4,6 @@ import 'package:flutter_wine_rate/bloc/pick_regions.dart';
 import 'constant.dart';
 import 'models/location.dart';
 import 'models/region.dart';
-import 'disable_flat_button.dart';
 
 class LocationEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -127,19 +126,20 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
         ],
       ),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        DisableFlatButton(
-          disabled: _disabled,
-          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
-          onPressed: () => Navigator.of(context).pop(Location(
-            id: widget._location.id,
-            name: _nameController.text,
-            regionId: _region.id,
-            region: _region.name,
-          )),
+        TextButton(
+          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+          onPressed: _disabled
+              ? null
+              : () => Navigator.of(context).pop(Location(
+                    id: widget._location.id,
+                    name: _nameController.text,
+                    regionId: _region.id,
+                    region: _region.name,
+                  )),
         ),
       ],
     );

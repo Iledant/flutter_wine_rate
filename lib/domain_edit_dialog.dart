@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'constant.dart';
 import 'models/domain.dart';
-import 'disable_flat_button.dart';
 
 class DomainEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -48,15 +47,16 @@ class _DomainEditDialogState extends State<DomainEditDialog> {
         ),
       ),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        DisableFlatButton(
-          disabled: _disabled,
-          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
-          onPressed: () => Navigator.of(context)
-              .pop(Domain(id: widget._domain.id, name: _controller.text)),
+        TextButton(
+          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+          onPressed: _disabled
+              ? null
+              : () => Navigator.of(context)
+                  .pop(Domain(id: widget._domain.id, name: _controller.text)),
         )
       ],
     );

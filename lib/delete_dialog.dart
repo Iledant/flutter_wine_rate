@@ -12,11 +12,11 @@ class DeleteDialog extends StatelessWidget {
     return AlertDialog(
       title: Text("Supprimer $objectKind '$objectName' ?"),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text('Non'),
           onPressed: () => Navigator.of(context).pop(false),
         ),
-        FlatButton(
+        TextButton(
           child: Text('Oui'),
           onPressed: () => Navigator.of(context).pop(true),
         ),
