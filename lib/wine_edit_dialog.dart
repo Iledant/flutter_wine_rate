@@ -6,7 +6,6 @@ import 'constant.dart';
 import 'models/wine.dart';
 import 'models/location.dart';
 import 'models/domain.dart';
-import 'disable_flat_button.dart';
 
 class WineEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -219,28 +218,29 @@ class _WineEditDialogState extends State<WineEditDialog> {
         ],
       ),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        DisableFlatButton(
-          disabled: _disabled,
-          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
-          onPressed: () => Navigator.of(context).pop(Wine(
-              id: widget._wine.id,
-              name: _nameController.text,
-              classification: _classificationController.text.isEmpty
-                  ? null
-                  : _classificationController.text,
-              comment: _commentController.text.isEmpty
-                  ? null
-                  : _commentController.text,
-              domainId: _domain.id,
-              domain: _domain.name,
-              locationId: _location.id,
-              location: _location.name,
-              regionId: _location.regionId,
-              region: _location.region)),
+        TextButton(
+          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+          onPressed: _disabled
+              ? null
+              : () => Navigator.of(context).pop(Wine(
+                  id: widget._wine.id,
+                  name: _nameController.text,
+                  classification: _classificationController.text.isEmpty
+                      ? null
+                      : _classificationController.text,
+                  comment: _commentController.text.isEmpty
+                      ? null
+                      : _commentController.text,
+                  domainId: _domain.id,
+                  domain: _domain.name,
+                  locationId: _location.id,
+                  location: _location.name,
+                  regionId: _location.regionId,
+                  region: _location.region)),
         ),
       ],
     );

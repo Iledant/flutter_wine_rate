@@ -22,6 +22,9 @@ import 'region_screen.dart';
 import 'domain_screen.dart';
 import 'location_screen.dart';
 import 'repo/wine_repo.dart';
+import 'repo/rate_repo.dart';
+import 'bloc/rates.dart';
+import 'rate_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +81,10 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               PickWinesBloc(wineRepository: WineRepository(db: config.db)),
         ),
+        BlocProvider<RatesBloc>(
+          create: (context) =>
+              RatesBloc(rateRepository: RateRepository(db: config.db)),
+        ),
       ],
       child: MaterialApp(
         title: 'Wine Rate',
@@ -93,6 +100,7 @@ class MyApp extends StatelessWidget {
           '/domains': (context) => DomainScreen(),
           '/locations': (context) => LocationScreen(),
           '/wines': (context) => WineScreen(),
+          '/rates': (context) => RateScreen(),
         },
         theme: ThemeData(
           primarySwatch: Colors.purple,

@@ -40,6 +40,7 @@ class AppDrawer extends StatelessWidget {
           dense: true,
           title: Text('Notations'),
           leading: Icon(Icons.stars),
+          onTap: () => Navigator.pushNamed(context, '/rates'),
         ),
         ListTile(
           dense: true,

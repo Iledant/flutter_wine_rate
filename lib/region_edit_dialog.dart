@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'constant.dart';
 import 'models/region.dart';
-import 'disable_flat_button.dart';
 
 class RegionEditDialog extends StatefulWidget {
   final DialogMode _mode;
@@ -48,15 +47,16 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
         ),
       ),
       actions: [
-        FlatButton(
+        TextButton(
           child: Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
-        DisableFlatButton(
-          disabled: _disabled,
-          text: widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer',
-          onPressed: () => Navigator.of(context)
-              .pop(Region(id: widget._region.id, name: _controller.text)),
+        TextButton(
+          child: Text(widget._mode == DialogMode.Edit ? 'Modifier' : 'Créer'),
+          onPressed: _disabled
+              ? null
+              : () => Navigator.of(context)
+                  .pop(Region(id: widget._region.id, name: _controller.text)),
         ),
       ],
     );
