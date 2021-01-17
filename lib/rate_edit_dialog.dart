@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_wine_rate/repo/popup_menu.dart';
 import 'package:intl/intl.dart';
 import 'bloc/pick_critics.dart';
 import 'bloc/pick_wines.dart';
@@ -75,27 +76,6 @@ class _RateEditDialogState extends State<RateEditDialog> {
         _critic == null;
   }
 
-  Widget popupMenu<T>(
-      List<T> lines, void Function(T) setState, String Function(T) getText) {
-    return Card(
-      child: Column(
-        children: lines
-            .map(
-              (r) => InkWell(
-                onTap: () => setState(r),
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(getText(r)),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-      elevation: 2.0,
-    );
-  }
-
   DateTime _getPublished() {
     final strings = _publishedController.text.split("/");
     if (strings.length != 2) return null;
@@ -148,105 +128,67 @@ class _RateEditDialogState extends State<RateEditDialog> {
             ),
           ),
           SizedBox(height: 16.0),
-          Text(
-            _critic == null ? 'Critique requis' : "Critique",
-            style: TextStyle(
-                color: _critic != null
-                    ? Theme.of(context).textTheme.caption.color
-                    : Theme.of(context).errorColor,
-                fontSize: Theme.of(context).textTheme.caption.fontSize),
-          ),
-          Text(
-            _critic?.name ?? '-',
-            style:
-                TextStyle(color: _critic != null ? Colors.black : Colors.red),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              color: Colors.deepPurple[50],
-              child: Column(children: [
-                TextField(
-                  controller: _criticController,
-                  onChanged: (value) =>
-                      BlocProvider.of<PickCriticsBloc>(context)
-                          .add(PickCriticsLoaded(value)),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
-                  ),
-                ),
-                BlocBuilder<PickCriticsBloc, PickCriticsState>(
-                    builder: (context, state) {
-                  if (state is PickCriticsLoadFailure ||
-                      state is PickCriticsLoadInProgress ||
-                      state is PickCriticsEmpty) return SizedBox.shrink();
-                  final critics = (state as PickCriticsLoadSuccess).critics;
-                  return popupMenu(
-                      critics,
-                      (critic) => setState(() {
-                            _critic = critic;
-                            _criticController.text = '';
-                            BlocProvider.of<PickCriticsBloc>(context)
-                                .add(PickCriticsClear());
-                            _handleDisabled();
-                          }),
-                      (critic) => critic.name);
-                }),
-              ]),
-            ),
-          ),
+          BlocBuilder<PickCriticsBloc, PickCriticsState>(
+              builder: (context, state) {
+            Widget child;
+            if (state is PickCriticsLoadFailure ||
+                state is PickCriticsLoadInProgress ||
+                state is PickCriticsEmpty) {
+              child = SizedBox.shrink();
+            } else {
+              final critics = (state as PickCriticsLoadSuccess).critics;
+              child = PopupMenu<Critic>(
+                  lines: critics,
+                  onTap: (critic) => setState(() {
+                        _critic = critic;
+                        _criticController.text = '';
+                        BlocProvider.of<PickCriticsBloc>(context)
+                            .add(PickCriticsClear());
+                        _handleDisabled();
+                      }),
+                  getText: (critic) => critic.name);
+            }
+            return PopupMenuScaffold<Critic>(
+                item: _critic,
+                missingItem: 'Critique requis',
+                hintItem: 'Critique',
+                itemName: (critic) => critic.name,
+                textController: _criticController,
+                onChanged: (value) => BlocProvider.of<PickCriticsBloc>(context)
+                    .add(PickCriticsLoaded(value)),
+                displayWidget: child);
+          }),
           SizedBox(height: 16.0),
-          Text(
-            _wine == null ? "Vin requis" : "Vin",
-            style: TextStyle(
-                color: _wine != null
-                    ? Theme.of(context).textTheme.caption.color
-                    : Theme.of(context).errorColor,
-                fontSize: Theme.of(context).textTheme.caption.fontSize),
-          ),
-          Text(
-            (_wine != null ? _wine.name : '-'),
-            style: TextStyle(color: _wine != null ? Colors.black : Colors.red),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              color: Colors.deepPurple[50],
-              child: Column(children: [
-                TextField(
-                  controller: _wineController,
-                  onChanged: (value) => BlocProvider.of<PickWinesBloc>(context)
-                      .add(PickWinesLoaded(value)),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
-                  ),
-                ),
-                BlocBuilder<PickWinesBloc, PickWinesState>(
-                  builder: (context, state) {
-                    if (state is PickWinesLoadFailure ||
-                        state is PickWinesLoadInProgress ||
-                        state is PickWinesEmpty) return SizedBox.shrink();
-
-                    final wines = (state as PickWinesLoadSuccess).wines;
-                    return popupMenu(
-                        wines,
-                        (wine) => setState(() {
-                              _wine = wine;
-                              _wineController.text = '';
-                              BlocProvider.of<PickWinesBloc>(context)
-                                  .add(PickWinesClear());
-                              _handleDisabled();
-                            }),
-                        (wine) => '${wine.name} [${wine.domain}]');
-                  },
-                ),
-              ]),
-            ),
-          ),
+          BlocBuilder<PickWinesBloc, PickWinesState>(builder: (context, state) {
+            Widget child;
+            if (state is PickWinesLoadFailure ||
+                state is PickWinesLoadInProgress ||
+                state is PickWinesEmpty) {
+              child = SizedBox.shrink();
+            } else {
+              final wines = (state as PickWinesLoadSuccess).wines;
+              child = PopupMenu<Wine>(
+                  lines: wines,
+                  onTap: (wine) => setState(() {
+                        _wine = wine;
+                        _wineController.text = '';
+                        BlocProvider.of<PickWinesBloc>(context)
+                            .add(PickWinesClear());
+                        _handleDisabled();
+                      }),
+                  getText: (wine) => '${wine.name} [${wine.domain}]');
+            }
+            return PopupMenuScaffold(
+              item: _wine,
+              missingItem: 'Vin requis',
+              hintItem: 'Vin',
+              itemName: (wine) => wine.name,
+              displayWidget: child,
+              textController: _wineController,
+              onChanged: (value) => BlocProvider.of<PickWinesBloc>(context)
+                  .add(PickWinesLoaded(value)),
+            );
+          }),
         ],
       ),
       actions: [
