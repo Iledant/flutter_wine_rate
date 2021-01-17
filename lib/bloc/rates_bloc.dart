@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
@@ -41,7 +42,8 @@ class RatesBloc extends Bloc<RatesEvent, RatesState> {
         await this.rateRepository.add(event.rate);
         final rates = await this.rateRepository.getPaginated(event.params);
         yield RatesLoadSuccess(rates);
-      } catch (_) {
+      } catch (e) {
+        debugPrint('RateAdd $e');
         yield RatesLoadFailure();
       }
     }

@@ -6,7 +6,7 @@ import 'bloc/rates.dart';
 import 'constant.dart';
 import 'paginated_table.dart';
 import 'delete_dialog.dart';
-// import 'rate_edit_dialog.dart';
+import 'rate_edit_dialog.dart';
 import 'common_scaffold.dart';
 import 'models/rate.dart';
 import 'models/pagination.dart';
@@ -15,20 +15,20 @@ class RateScreen extends StatelessWidget {
   final _nameController = TextEditingController();
   final _scrollController = ScrollController();
 
-  // void _addOrModify(DialogMode mode, BuildContext context, Rate rate) async {
-  //   final result = await showEditRateDialog(context, rate, mode);
-  //   if (result == null) return;
-  //   final params =
-  //       PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
-  //   switch (mode) {
-  //     case DialogMode.Edit:
-  //       BlocProvider.of<RatesBloc>(context).add(RateUpdated(result, params));
-  //       break;
-  //     default:
-  //       BlocProvider.of<RatesBloc>(context).add(RateAdded(result, params));
-  //       break;
-  //   }
-  // }
+  void _addOrModify(DialogMode mode, BuildContext context, Rate rate) async {
+    final result = await showEditRateDialog(context, rate, mode);
+    if (result == null) return;
+    final params =
+        PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
+    switch (mode) {
+      case DialogMode.Edit:
+        BlocProvider.of<RatesBloc>(context).add(RateUpdated(result, params));
+        break;
+      default:
+        BlocProvider.of<RatesBloc>(context).add(RateAdded(result, params));
+        break;
+    }
+  }
 
   void _remove(Rate rate, BuildContext context, PaginatedParams params) async {
     final confirm = await showDeleteDialog(context, "la notation ", rate.wine);
@@ -64,23 +64,28 @@ class RateScreen extends StatelessWidget {
           color: Colors.deepPurple.shade50,
           hasAction: true,
           rows: rates,
-          // editHook: (i) =>
-          //     _addOrModify(DialogMode.Edit, context, rates.lines[i]),
-          // addHook: () => _addOrModify(
-          //     DialogMode.Create,
-          //     context,
-          //     Rate(
-          //       id: 0,
-          //       name: '',
-          //       regionId: 0,
-          //       region: '',
-          //       comment: '',
-          //       classification: '',
-          //       locationId: 0,
-          //       location: '',
-          //       domainId: 0,
-          //       domain: '',
-          //     )),
+          editHook: (i) =>
+              _addOrModify(DialogMode.Edit, context, rates.lines[i]),
+          addHook: () => _addOrModify(
+              DialogMode.Create,
+              context,
+              Rate(
+                  id: 0,
+                  criticId: 0,
+                  critic: null,
+                  rate: 0.0,
+                  wineId: 0,
+                  wine: null,
+                  comment: null,
+                  classification: null,
+                  locationId: 0,
+                  location: null,
+                  domainId: 0,
+                  domain: null,
+                  regionId: 0,
+                  region: null,
+                  year: 0,
+                  published: DateTime.now())),
           deleteHook: (i) => _remove(
             rates.lines[i],
             context,
@@ -117,7 +122,7 @@ class RateScreen extends StatelessWidget {
                 size: titleStyle.fontSize,
                 color: titleStyle.color,
               ),
-              Text(' Vins', style: titleStyle),
+              Text(' Notations', style: titleStyle),
             ],
           ),
           Center(
