@@ -18,3 +18,5 @@ class PickRegionsLoaded extends PickRegionsEvent {
   @override
   String toString() => 'PickRegionsLoaded { pattern: $pattern }';
 }
+
+class PickRegionsClear extends PickRegionsEvent {}
