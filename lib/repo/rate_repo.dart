@@ -1,8 +1,7 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:postgres/postgres.dart';
 
+import '../config.dart';
 import '../models/rate.dart';
 import '../models/pagination.dart';
 
@@ -38,9 +37,7 @@ class PaginatedRates extends PaginatedRows<Rate> {
 }
 
 class RateRepository {
-  final PostgreSQLConnection db;
-
-  const RateRepository({@required this.db});
+  const RateRepository();
 
   static int _getSortField(FieldSort fieldSort) {
     switch (fieldSort) {
@@ -65,7 +62,8 @@ class RateRepository {
     }
   }
 
-  Future<PaginatedRates> getPaginated(PaginatedParams params) async {
+  static Future<PaginatedRates> getPaginated(PaginatedParams params) async {
+    final db = await Config().db;
     final commonQuery = """ FROM rate r
       JOIN critics c ON r.critics_id=c.id
       JOIN wine w ON w.id=r.wine_id
@@ -111,7 +109,8 @@ class RateRepository {
         actualLine: actualLine, totalLines: totalLines, lines: rates);
   }
 
-  Future<Rate> add(Rate rate) async {
+  static Future<Rate> add(Rate rate) async {
+    final db = await Config().db;
     final results = await db
         .query("""INSERT INTO rate (critics_id,wine_id,published,rate,year)
           VALUES (@critics_id,@wine_id,@published,@rate,@year)
@@ -148,7 +147,8 @@ class RateRepository {
     );
   }
 
-  Future<Rate> update(Rate rate) async {
+  static Future<Rate> update(Rate rate) async {
+    final db = await Config().db;
     await db.query("""UPDATE rate SET critics_id=@critics_id,wine_id=@wine_id,
         published=@published,rate=@rate,year=@year
           WHERE id=${rate.id}""", substitutionValues: {
@@ -182,7 +182,8 @@ class RateRepository {
     );
   }
 
-  Future<void> remove(Rate rate) async {
+  static Future<void> remove(Rate rate) async {
+    final db = await Config().db;
     return await db.query("DELETE FROM rate WHERE id=@id",
         substitutionValues: {"id": rate.id});
   }

@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/rate_repo.dart';
 import 'rates.dart';
 
 class RatesBloc extends Bloc<RatesEvent, RatesState> {
-  final RateRepository rateRepository;
-
-  RatesBloc({@required this.rateRepository}) : super(RatesEmpty());
+  RatesBloc() : super(RatesEmpty());
 
   @override
   Stream<RatesState> mapEventToState(RatesEvent event) async* {
@@ -28,7 +25,7 @@ class RatesBloc extends Bloc<RatesEvent, RatesState> {
   Stream<RatesState> _mapRatesLoadedToState(PaginatedParams params) async* {
     try {
       yield RatesLoadInProgress();
-      final rates = await this.rateRepository.getPaginated(params);
+      final rates = await RateRepository.getPaginated(params);
       yield RatesLoadSuccess(rates);
     } catch (_) {
       yield RatesLoadFailure();
@@ -39,8 +36,8 @@ class RatesBloc extends Bloc<RatesEvent, RatesState> {
     if (state is RatesLoadSuccess) {
       try {
         yield RatesLoadInProgress();
-        await this.rateRepository.add(event.rate);
-        final rates = await this.rateRepository.getPaginated(event.params);
+        await RateRepository.add(event.rate);
+        final rates = await RateRepository.getPaginated(event.params);
         yield RatesLoadSuccess(rates);
       } catch (e) {
         debugPrint('RateAdd $e');
@@ -53,8 +50,8 @@ class RatesBloc extends Bloc<RatesEvent, RatesState> {
     if (state is RatesLoadSuccess) {
       try {
         yield RatesLoadInProgress();
-        await this.rateRepository.update(event.rate);
-        final rates = await this.rateRepository.getPaginated(event.params);
+        await RateRepository.update(event.rate);
+        final rates = await RateRepository.getPaginated(event.params);
         yield RatesLoadSuccess(rates);
       } catch (_) {
         yield RatesLoadFailure();
@@ -66,8 +63,8 @@ class RatesBloc extends Bloc<RatesEvent, RatesState> {
     if (state is RatesLoadSuccess) {
       try {
         yield RatesLoadInProgress();
-        await this.rateRepository.remove(event.rate);
-        final rates = await this.rateRepository.getPaginated(event.params);
+        await RateRepository.remove(event.rate);
+        final rates = await RateRepository.getPaginated(event.params);
         yield RatesLoadSuccess(rates);
       } catch (_) {
         yield RatesLoadFailure();
