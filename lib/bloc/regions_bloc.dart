@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/region_repo.dart';
 import 'regions.dart';
 
 class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
-  final RegionRepository regionRepository;
-
-  RegionsBloc({@required this.regionRepository}) : super(RegionsEmpty());
+  RegionsBloc() : super(RegionsEmpty());
 
   @override
   Stream<RegionsState> mapEventToState(RegionsEvent event) async* {
@@ -27,7 +24,7 @@ class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
   Stream<RegionsState> _mapRegionsLoadedToState(PaginatedParams params) async* {
     try {
       yield RegionsLoadInProgress();
-      final regions = await this.regionRepository.getPaginated(params);
+      final regions = await RegionRepository.getPaginated(params);
       yield RegionsLoadSuccess(regions);
     } catch (_) {
       yield RegionsLoadFailure();
@@ -38,8 +35,8 @@ class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
     if (state is RegionsLoadSuccess) {
       try {
         yield RegionsLoadInProgress();
-        await this.regionRepository.add(event.region);
-        final regions = await this.regionRepository.getPaginated(event.params);
+        await RegionRepository.add(event.region);
+        final regions = await RegionRepository.getPaginated(event.params);
         yield RegionsLoadSuccess(regions);
       } catch (_) {
         yield RegionsLoadFailure();
@@ -51,8 +48,8 @@ class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
     if (state is RegionsLoadSuccess) {
       try {
         yield RegionsLoadInProgress();
-        await this.regionRepository.update(event.region);
-        final regions = await this.regionRepository.getPaginated(event.params);
+        await RegionRepository.update(event.region);
+        final regions = await RegionRepository.getPaginated(event.params);
         yield RegionsLoadSuccess(regions);
       } catch (_) {
         yield RegionsLoadFailure();
@@ -64,8 +61,8 @@ class RegionsBloc extends Bloc<RegionsEvent, RegionsState> {
     if (state is RegionsLoadSuccess) {
       try {
         yield RegionsLoadInProgress();
-        await this.regionRepository.remove(event.region);
-        final regions = await this.regionRepository.getPaginated(event.params);
+        await RegionRepository.remove(event.region);
+        final regions = await RegionRepository.getPaginated(event.params);
         yield RegionsLoadSuccess(regions);
       } catch (_) {
         yield RegionsLoadFailure();
