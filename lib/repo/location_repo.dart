@@ -1,6 +1,4 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:postgres/postgres.dart';
 
 import '../config.dart';
 import '../models/location.dart';
