@@ -1,15 +1,11 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../repo/critic_repo.dart';
 import 'pick_critics.dart';
 
 class PickCriticsBloc extends Bloc<PickCriticsEvent, PickCriticsState> {
-  final CriticRepository criticRepository;
-
-  PickCriticsBloc({@required this.criticRepository})
-      : super(PickCriticsEmpty());
+  PickCriticsBloc() : super(PickCriticsEmpty());
 
   @override
   Stream<PickCriticsState> mapEventToState(PickCriticsEvent event) async* {
@@ -23,7 +19,7 @@ class PickCriticsBloc extends Bloc<PickCriticsEvent, PickCriticsState> {
   Stream<PickCriticsState> _mapPickCriticsLoadedToState(String pattern) async* {
     try {
       yield PickCriticsLoadInProgress();
-      final critics = await this.criticRepository.getFirstFive(pattern);
+      final critics = await CriticRepository.getFirstFive(pattern);
       yield PickCriticsLoadSuccess(critics);
     } catch (_) {
       yield PickCriticsLoadFailure();

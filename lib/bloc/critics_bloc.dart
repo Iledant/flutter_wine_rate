@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/critic_repo.dart';
 import './critics.dart';
 
 class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
-  final CriticRepository criticRepository;
-
-  CriticsBloc({@required this.criticRepository}) : super(CriticsEmpty());
+  CriticsBloc() : super(CriticsEmpty());
 
   @override
   Stream<CriticsState> mapEventToState(CriticsEvent event) async* {
@@ -27,7 +24,7 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
   Stream<CriticsState> _mapCriticsLoadedToState(PaginatedParams params) async* {
     try {
       yield CriticsLoadInProgress();
-      final critics = await this.criticRepository.getPaginated(params);
+      final critics = await CriticRepository.getPaginated(params);
       yield CriticsLoadSuccess(critics);
     } catch (_) {
       yield CriticsLoadFailure();
@@ -38,8 +35,8 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
     if (state is CriticsLoadSuccess) {
       try {
         yield CriticsLoadInProgress();
-        await this.criticRepository.add(event.critic);
-        final critics = await this.criticRepository.getPaginated(event.params);
+        await CriticRepository.add(event.critic);
+        final critics = await CriticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);
       } catch (_) {
         yield CriticsLoadFailure();
@@ -51,8 +48,8 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
     if (state is CriticsLoadSuccess) {
       try {
         yield CriticsLoadInProgress();
-        await this.criticRepository.update(event.critic);
-        final critics = await this.criticRepository.getPaginated(event.params);
+        await CriticRepository.update(event.critic);
+        final critics = await CriticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);
       } catch (_) {
         yield CriticsLoadFailure();
@@ -64,8 +61,8 @@ class CriticsBloc extends Bloc<CriticsEvent, CriticsState> {
     if (state is CriticsLoadSuccess) {
       try {
         yield CriticsLoadInProgress();
-        await this.criticRepository.remove(event.critic);
-        final critics = await this.criticRepository.getPaginated(event.params);
+        await CriticRepository.remove(event.critic);
+        final critics = await CriticRepository.getPaginated(event.params);
         yield CriticsLoadSuccess(critics);
       } catch (_) {
         yield CriticsLoadFailure();
