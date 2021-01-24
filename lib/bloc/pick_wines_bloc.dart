@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../repo/wine_repo.dart';
 import 'pick_wines.dart';
 
 class PickWinesBloc extends Bloc<PickWinesEvent, PickWinesState> {
-  final WineRepository wineRepository;
-
-  PickWinesBloc({@required this.wineRepository}) : super(PickWinesEmpty());
+  PickWinesBloc() : super(PickWinesEmpty());
 
   @override
   Stream<PickWinesState> mapEventToState(PickWinesEvent event) async* {
@@ -22,7 +19,7 @@ class PickWinesBloc extends Bloc<PickWinesEvent, PickWinesState> {
   Stream<PickWinesState> _mapPickWinesLoadedToState(String pattern) async* {
     try {
       yield PickWinesLoadInProgress();
-      final wines = await this.wineRepository.getFirstFive(pattern);
+      final wines = await WineRepository.getFirstFive(pattern);
       yield PickWinesLoadSuccess(wines);
     } catch (_) {
       yield PickWinesLoadFailure();

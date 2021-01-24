@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/wine_repo.dart';
 import 'wines.dart';
 
 class WinesBloc extends Bloc<WinesEvent, WinesState> {
-  final WineRepository wineRepository;
-
-  WinesBloc({@required this.wineRepository}) : super(WinesEmpty());
+  WinesBloc() : super(WinesEmpty());
 
   @override
   Stream<WinesState> mapEventToState(WinesEvent event) async* {
@@ -27,7 +24,7 @@ class WinesBloc extends Bloc<WinesEvent, WinesState> {
   Stream<WinesState> _mapWinesLoadedToState(PaginatedParams params) async* {
     try {
       yield WinesLoadInProgress();
-      final wines = await this.wineRepository.getPaginated(params);
+      final wines = await WineRepository.getPaginated(params);
       yield WinesLoadSuccess(wines);
     } catch (_) {
       yield WinesLoadFailure();
@@ -38,8 +35,8 @@ class WinesBloc extends Bloc<WinesEvent, WinesState> {
     if (state is WinesLoadSuccess) {
       try {
         yield WinesLoadInProgress();
-        await this.wineRepository.add(event.wine);
-        final wines = await this.wineRepository.getPaginated(event.params);
+        await WineRepository.add(event.wine);
+        final wines = await WineRepository.getPaginated(event.params);
         yield WinesLoadSuccess(wines);
       } catch (_) {
         yield WinesLoadFailure();
@@ -51,8 +48,8 @@ class WinesBloc extends Bloc<WinesEvent, WinesState> {
     if (state is WinesLoadSuccess) {
       try {
         yield WinesLoadInProgress();
-        await this.wineRepository.update(event.wine);
-        final wines = await this.wineRepository.getPaginated(event.params);
+        await WineRepository.update(event.wine);
+        final wines = await WineRepository.getPaginated(event.params);
         yield WinesLoadSuccess(wines);
       } catch (_) {
         yield WinesLoadFailure();
@@ -64,8 +61,8 @@ class WinesBloc extends Bloc<WinesEvent, WinesState> {
     if (state is WinesLoadSuccess) {
       try {
         yield WinesLoadInProgress();
-        await this.wineRepository.remove(event.wine);
-        final wines = await this.wineRepository.getPaginated(event.params);
+        await WineRepository.remove(event.wine);
+        final wines = await WineRepository.getPaginated(event.params);
         yield WinesLoadSuccess(wines);
       } catch (_) {
         yield WinesLoadFailure();

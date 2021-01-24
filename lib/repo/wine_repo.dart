@@ -1,7 +1,6 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:postgres/postgres.dart';
 
+import '../config.dart';
 import '../models/wine.dart';
 import '../models/pagination.dart';
 
@@ -31,9 +30,7 @@ class PaginatedWines extends PaginatedRows<Wine> {
 }
 
 class WineRepository {
-  final PostgreSQLConnection db;
-
-  const WineRepository({@required this.db});
+  const WineRepository();
 
   static int _getSortField(FieldSort fieldSort) {
     switch (fieldSort) {
@@ -56,7 +53,8 @@ class WineRepository {
     }
   }
 
-  Future<PaginatedWines> getPaginated(PaginatedParams params) async {
+  static Future<PaginatedWines> getPaginated(PaginatedParams params) async {
+    final db = await Config().db;
     final commonQuery = """FROM wine w
           JOIN domain d ON w.domain_id=d.id
           JOIN location l ON w.location_id=l.id
@@ -94,7 +92,8 @@ class WineRepository {
         actualLine: actualLine, totalLines: totalLines, lines: wines);
   }
 
-  Future<List<Wine>> getFirstFive(String pattern) async {
+  static Future<List<Wine>> getFirstFive(String pattern) async {
+    final db = await Config().db;
     final results =
         await db.query("""SELECT w.id,w.name,w.classification,w.comment,
           d.id,d.name,l.id,l.name,r.id,r.name FROM wine w
@@ -121,7 +120,8 @@ class WineRepository {
         .toList();
   }
 
-  Future<Wine> add(Wine wine) async {
+  static Future<Wine> add(Wine wine) async {
+    final db = await Config().db;
     final results = await db
         .query("""INSERT INTO wine (name,classification,comment,domain_id,location_id)
           VALUES (@name,@classification,@comment,@domain_id,@location_id)
@@ -135,7 +135,8 @@ class WineRepository {
     return wine.copyWith(id: results[0][0]);
   }
 
-  Future<Wine> update(Wine wine) async {
+  static Future<Wine> update(Wine wine) async {
+    final db = await Config().db;
     await db.query("""UPDATE wine SET name=@name,classification=@classification,
           comment=@comment,domain_id=@domain_id,location_id=@location_id
           WHERE id=@id""", substitutionValues: {
@@ -166,7 +167,8 @@ class WineRepository {
     );
   }
 
-  Future<void> remove(Wine wine) async {
+  static Future<void> remove(Wine wine) async {
+    final db = await Config().db;
     return await db.query("DELETE FROM wine WHERE id=@id",
         substitutionValues: {"id": wine.id});
   }
