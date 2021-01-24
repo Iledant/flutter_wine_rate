@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:postgres/postgres.dart';
 
+import '../config.dart';
 import '../models/location.dart';
 import '../models/pagination.dart';
 
@@ -18,9 +19,7 @@ class PaginatedLocations extends PaginatedRows<Location> {
 }
 
 class LocationRepository {
-  final PostgreSQLConnection db;
-
-  const LocationRepository({@required this.db});
+  const LocationRepository();
 
   static int _getSortField(FieldSort fieldSort) {
     if (fieldSort == FieldSort.Id) return 1;
@@ -28,7 +27,8 @@ class LocationRepository {
     return 4;
   }
 
-  Future<PaginatedLocations> getPaginated(PaginatedParams params) async {
+  static Future<PaginatedLocations> getPaginated(PaginatedParams params) async {
+    final db = await Config().db;
     final commonQuery = """ FROM location l 
         JOIN region r ON l.region_id=r.id 
         WHERE l.name ILIKE '%${params.search}%' OR r.name ILIKE '%${params.search}%' """;
@@ -51,7 +51,8 @@ class LocationRepository {
         actualLine: actualLine, totalLines: totalLines, lines: lines);
   }
 
-  Future<List<Location>> getFirstFive(String pattern) async {
+  static Future<List<Location>> getFirstFive(String pattern) async {
+    final db = await Config().db;
     final results =
         await db.query("""SELECT l.id,l.name,r.id,r.name FROM location l 
           JOIN region r ON l.region_id=r.id 
@@ -62,13 +63,15 @@ class LocationRepository {
         .toList();
   }
 
-  Future<Location> add(Location location) async {
+  static Future<Location> add(Location location) async {
+    final db = await Config().db;
     final results = await db.query(
         "INSERT INTO location (name,region_id) VALUES ('${location.name}',${location.regionId}) RETURNING id");
     return location.copyWith(id: results[0][0]);
   }
 
-  Future<Location> update(Location location) async {
+  static Future<Location> update(Location location) async {
+    final db = await Config().db;
     await db.query("""UPDATE location 
     SET name='${location.name}', region_id=${location.regionId}
     WHERE id=${location.id}""");
@@ -83,7 +86,8 @@ class LocationRepository {
         region: results[0][3]);
   }
 
-  Future<void> remove(Location location) async {
+  static Future<void> remove(Location location) async {
+    final db = await Config().db;
     await db.query("DELETE FROM location WHERE id=${location.id}");
   }
 }

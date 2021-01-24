@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/location_repo.dart';
 import 'locations.dart';
 
 class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
-  final LocationRepository locationRepository;
-
-  LocationsBloc({@required this.locationRepository}) : super(LocationsEmpty());
+  LocationsBloc() : super(LocationsEmpty());
 
   @override
   Stream<LocationsState> mapEventToState(LocationsEvent event) async* {
@@ -28,7 +25,7 @@ class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
       PaginatedParams params) async* {
     try {
       yield LocationsLoadInProgress();
-      final locations = await this.locationRepository.getPaginated(params);
+      final locations = await LocationRepository.getPaginated(params);
       yield LocationsLoadSuccess(locations);
     } catch (_) {
       yield LocationsLoadFailure();
@@ -39,9 +36,8 @@ class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
     if (state is LocationsLoadSuccess) {
       try {
         yield LocationsLoadInProgress();
-        await this.locationRepository.add(event.location);
-        final locations =
-            await this.locationRepository.getPaginated(event.params);
+        await LocationRepository.add(event.location);
+        final locations = await LocationRepository.getPaginated(event.params);
         yield LocationsLoadSuccess(locations);
       } catch (_) {
         yield LocationsLoadFailure();
@@ -54,9 +50,8 @@ class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
     if (state is LocationsLoadSuccess) {
       try {
         yield LocationsLoadInProgress();
-        await this.locationRepository.update(event.location);
-        final locations =
-            await this.locationRepository.getPaginated(event.params);
+        await LocationRepository.update(event.location);
+        final locations = await LocationRepository.getPaginated(event.params);
         yield LocationsLoadSuccess(locations);
       } catch (_) {
         yield LocationsLoadFailure();
@@ -69,9 +64,8 @@ class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
     if (state is LocationsLoadSuccess) {
       try {
         yield LocationsLoadInProgress();
-        await this.locationRepository.remove(event.location);
-        final locations =
-            await this.locationRepository.getPaginated(event.params);
+        await LocationRepository.remove(event.location);
+        final locations = await LocationRepository.getPaginated(event.params);
         yield LocationsLoadSuccess(locations);
       } catch (_) {
         yield LocationsLoadFailure();
