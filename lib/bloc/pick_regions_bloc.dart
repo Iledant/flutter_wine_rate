@@ -15,6 +15,8 @@ class PickRegionsBloc extends Bloc<PickRegionsEvent, PickRegionsState> {
   Stream<PickRegionsState> mapEventToState(PickRegionsEvent event) async* {
     if (event is PickRegionsLoaded) {
       yield* _mapPickRegionsLoadedToState(event.pattern);
+    } else if (event is PickRegionsClear) {
+      yield* _mapPickRegionsClearToState();
     }
   }
 
@@ -26,5 +28,9 @@ class PickRegionsBloc extends Bloc<PickRegionsEvent, PickRegionsState> {
     } catch (_) {
       yield PickRegionsLoadFailure();
     }
+  }
+
+  Stream<PickRegionsState> _mapPickRegionsClearToState() async* {
+    yield PickRegionsLoadSuccess();
   }
 }
