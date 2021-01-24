@@ -1,7 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class Region extends Equatable {
+abstract class EquatableWithName extends Equatable {
+  String displayName();
+
+  const EquatableWithName() : super();
+}
+
+class Region extends EquatableWithName {
   final String name;
   final int id;
 
@@ -16,5 +22,10 @@ class Region extends Equatable {
   @override
   String toString() {
     return 'Region { id: $id, name: $name }';
+  }
+
+  @override
+  String displayName() {
+    return name;
   }
 }
