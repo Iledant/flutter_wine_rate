@@ -1,9 +1,8 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:postgres/postgres.dart';
 
 import '../models/critic.dart';
 import '../models/pagination.dart';
+import '../Config.dart';
 
 class PaginatedCritics extends PaginatedRows<Critic> {
   const PaginatedCritics({int actualLine, int totalLines, List<Critic> lines})
@@ -17,11 +16,10 @@ class PaginatedCritics extends PaginatedRows<Critic> {
 }
 
 class CriticRepository {
-  final PostgreSQLConnection db;
+  const CriticRepository();
 
-  const CriticRepository({@required this.db});
-
-  Future<PaginatedCritics> getPaginated(PaginatedParams params) async {
+  static Future<PaginatedCritics> getPaginated(PaginatedParams params) async {
+    final db = await Config().db;
     final commonQuery = " FROM critics WHERE name ILIKE @search ";
     final courtResults = await db.query("SELECT count(1) " + commonQuery,
         substitutionValues: {"search": '%${params.search}%'});
@@ -45,7 +43,8 @@ class CriticRepository {
         actualLine: actualLine, totalLines: totalLines, lines: lines);
   }
 
-  Future<List<Critic>> getFirstFive(String pattern) async {
+  static Future<List<Critic>> getFirstFive(String pattern) async {
+    final db = await Config().db;
     final results = await db
         .query("""SELECT id,name FROM critics WHERE name ILIKE '%$pattern%'
             ORDER BY name LIMIT 5""");
@@ -53,14 +52,16 @@ class CriticRepository {
     return results.map<Critic>((e) => Critic(id: e[0], name: e[1])).toList();
   }
 
-  Future<Critic> add(Critic critic) async {
+  static Future<Critic> add(Critic critic) async {
+    final db = await Config().db;
     final results = await db.query(
         "INSERT INTO critics (name) VALUES (@name) RETURNING id",
         substitutionValues: {"name": critic.name});
     return critic.copyWith(id: results[0][0]);
   }
 
-  Future<Critic> update(Critic critic) async {
+  static Future<Critic> update(Critic critic) async {
+    final db = await Config().db;
     final results = await db.query(
         """UPDATE critics SET name=@name WHERE id=@id 
     RETURNING id,name""",
@@ -68,7 +69,8 @@ class CriticRepository {
     return Critic(id: results[0][0], name: results[0][1]);
   }
 
-  Future<void> remove(Critic critic) async {
+  static Future<void> remove(Critic critic) async {
+    final db = await Config().db;
     await db.query("DELETE FROM critics WHERE id=@id",
         substitutionValues: {"id": critic.id});
   }
