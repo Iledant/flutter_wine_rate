@@ -1,7 +1,6 @@
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:postgres/postgres.dart';
 
+import '../config.dart';
 import '../models/domain.dart';
 import '../models/pagination.dart';
 
@@ -17,11 +16,10 @@ class PaginatedDomains extends PaginatedRows<Domain> {
 }
 
 class DomainRepository {
-  final PostgreSQLConnection db;
+  const DomainRepository();
 
-  const DomainRepository({@required this.db});
-
-  Future<PaginatedDomains> getPaginated(PaginatedParams params) async {
+  static Future<PaginatedDomains> getPaginated(PaginatedParams params) async {
+    final db = await Config().db;
     final commonQuery = " FROM domain WHERE name ILIKE @search ";
     final courtResults = await db.query("SELECT count(1) " + commonQuery,
         substitutionValues: {"search": '%${params.search}%'});
@@ -45,28 +43,32 @@ class DomainRepository {
         actualLine: actualLine, totalLines: totalLines, lines: lines);
   }
 
-  Future<List<Domain>> getFirstFive(String pattern) async {
+  static Future<List<Domain>> getFirstFive(String pattern) async {
+    final db = await Config().db;
     final results = await db
         .query("""SELECT id,name FROM domain WHERE name ILIKE '%$pattern%' 
           ORDER BY name LIMIT 5""");
     return results.map((e) => Domain(id: e[0], name: e[1])).toList();
   }
 
-  Future<Domain> add(Domain domain) async {
+  static Future<Domain> add(Domain domain) async {
+    final db = await Config().db;
     final results = await db.query(
         "INSERT INTO domain (name) VALUES (@name) RETURNING id",
         substitutionValues: {"name": domain.name});
     return domain.copyWith(id: results[0][0]);
   }
 
-  Future<Domain> update(Domain domain) async {
+  static Future<Domain> update(Domain domain) async {
+    final db = await Config().db;
     final results = await db.query("""UPDATE domain SET name=@name WHERE id=@id 
     RETURNING id,name""",
         substitutionValues: {"name": domain.name, "id": domain.id});
     return Domain(id: results[0][0], name: results[0][1]);
   }
 
-  Future<void> remove(Domain domain) async {
+  static Future<void> remove(Domain domain) async {
+    final db = await Config().db;
     await db.query("DELETE FROM domain WHERE id=@id",
         substitutionValues: {"id": domain.id});
   }

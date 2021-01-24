@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 import '../models/pagination.dart';
 import '../repo/domain_repo.dart';
 import 'domains.dart';
 
 class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
-  final DomainRepository domainRepository;
-
-  DomainsBloc({@required this.domainRepository}) : super(DomainsEmpty());
+  DomainsBloc() : super(DomainsEmpty());
 
   @override
   Stream<DomainsState> mapEventToState(DomainsEvent event) async* {
@@ -27,7 +24,7 @@ class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
   Stream<DomainsState> _mapDomainsLoadedToState(PaginatedParams params) async* {
     try {
       yield DomainsLoadInProgress();
-      final domains = await this.domainRepository.getPaginated(params);
+      final domains = await DomainRepository.getPaginated(params);
       yield DomainsLoadSuccess(domains);
     } catch (_) {
       yield DomainsLoadFailure();
@@ -38,8 +35,8 @@ class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
     if (state is DomainsLoadSuccess) {
       try {
         yield DomainsLoadInProgress();
-        await this.domainRepository.add(event.domain);
-        final domains = await this.domainRepository.getPaginated(event.params);
+        await DomainRepository.add(event.domain);
+        final domains = await DomainRepository.getPaginated(event.params);
         yield DomainsLoadSuccess(domains);
       } catch (_) {
         yield DomainsLoadFailure();
@@ -51,8 +48,8 @@ class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
     if (state is DomainsLoadSuccess) {
       try {
         yield DomainsLoadInProgress();
-        await this.domainRepository.update(event.domain);
-        final domains = await this.domainRepository.getPaginated(event.params);
+        await DomainRepository.update(event.domain);
+        final domains = await DomainRepository.getPaginated(event.params);
         yield DomainsLoadSuccess(domains);
       } catch (_) {
         yield DomainsLoadFailure();
@@ -64,8 +61,8 @@ class DomainsBloc extends Bloc<DomainsEvent, DomainsState> {
     if (state is DomainsLoadSuccess) {
       try {
         yield DomainsLoadInProgress();
-        await this.domainRepository.remove(event.domain);
-        final domains = await this.domainRepository.getPaginated(event.params);
+        await DomainRepository.remove(event.domain);
+        final domains = await DomainRepository.getPaginated(event.params);
         yield DomainsLoadSuccess(domains);
       } catch (_) {
         yield DomainsLoadFailure();
