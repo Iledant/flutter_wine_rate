@@ -19,45 +19,53 @@ class Log {
 }
 
 class Config {
-  PostgreSQLConnection _db;
-  Log _log;
+  static Config _config;
+  Config._internal();
 
-  Config() {
-    this._log = new Log('flutter-wine-rate.log');
+  factory Config() {
+    if (_config == null) {
+      _config = Config._internal();
+    }
+    return _config;
+  }
+  static Config get config => _config;
+
+  final Log _log = new Log('flutter-wine-rate.log');
+
+  static PostgreSQLConnection _db;
+
+  Future<PostgreSQLConnection> get db async {
+    if (_db != null) return _db;
     try {
       File cfgFile = new File('./config.yml');
-      final configText = cfgFile.readAsStringSync();
-      dynamic cfgMap = loadYaml(configText);
-      connect(cfgMap);
+      final configText = await cfgFile.readAsString();
+      final cfgMap = loadYaml(configText);
+      final dbConfig = cfgMap['db_config'];
+      String host = dbConfig['host'];
+      int port = dbConfig['port'];
+      String user = dbConfig['user'];
+      String dbName = dbConfig['db_name'];
+      String password = dbConfig['password'];
+      _db = new PostgreSQLConnection(host, port, dbName,
+          username: user, password: password);
+      await _db.open();
+      return _db;
     } catch (e) {
       this._log.log('erreur de configuration $e');
       exit(1);
     }
   }
 
-  PostgreSQLConnection get db => _db;
-
-  connect(dynamic config) async {
-    String host = config['db_config']['host'];
-    int port = config['db_config']['port'];
-    String user = config['db_config']['user'];
-    String dbName = config['db_config']['db_name'];
-    String password = config['db_config']['password'];
-    this._db = new PostgreSQLConnection(host, port, dbName,
-        username: user, password: password);
-    await this._db.open();
-  }
-
   void log(String msg) {
     _log.log(msg);
   }
 
-  Future<PostgreSQLResult> query(String qry,
-      {Map<String, dynamic> values}) async {
-    return this._db.query(qry, substitutionValues: values);
-  }
+  // Future<PostgreSQLResult> query(String qry,
+  //     {Map<String, dynamic> values}) async {
+  //   return this._db.query(qry, substitutionValues: values);
+  // }
 
-  Future<int> execute(String qry, {Map<String, dynamic> values}) async {
-    return this._db.execute(qry, substitutionValues: values);
-  }
+  // Future<int> execute(String qry, {Map<String, dynamic> values}) async {
+  //   return this._db.execute(qry, substitutionValues: values);
+  // }
 }
