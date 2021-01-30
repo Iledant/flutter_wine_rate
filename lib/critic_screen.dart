@@ -26,9 +26,9 @@ class CriticScreen extends HookWidget {
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
     if (mode == DialogMode.Edit)
-      provider.add(result, params);
-    else
       provider.update(result, params);
+    else
+      provider.add(result, params);
   }
 
   void _remove(Critic critic, BuildContext context, PaginatedParams params,
