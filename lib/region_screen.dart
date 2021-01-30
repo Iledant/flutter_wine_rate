@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_wine_rate/providers/region_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'bloc/regions.dart';
 import 'common_scaffold.dart';
 import 'constant.dart';
 import 'delete_dialog.dart';
@@ -13,6 +11,7 @@ import 'region_edit_dialog.dart';
 import 'models/region.dart';
 import 'models/pagination.dart';
 import 'repo/region_repo.dart';
+import 'screen_widget.dart';
 
 class RegionScreen extends HookWidget {
   final _scrollController = ScrollController();
@@ -20,78 +19,53 @@ class RegionScreen extends HookWidget {
 
   RegionScreen({Key key}) : super(key: key);
 
-  void _addOrModify(
-      DialogMode mode, BuildContext context, Region region) async {
+  void _addOrModify(DialogMode mode, BuildContext context, Region region,
+      PaginatedRegionsProvider provider) async {
     final result = await showEditRegionDialog(context, region, mode);
     if (result == null) return;
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
     switch (mode) {
       case DialogMode.Edit:
-        BlocProvider.of<RegionsBloc>(context)
-            .add(RegionUpdated(result, params));
+        provider.add(result, params);
         break;
       default:
-        BlocProvider.of<RegionsBloc>(context).add(RegionAdded(result, params));
+        provider.update(result, params);
         break;
     }
   }
 
-  void _remove(
-      Region region, BuildContext context, PaginatedParams params) async {
+  void _remove(Region region, BuildContext context, PaginatedParams params,
+      PaginatedRegionsProvider provider) async {
     final confirm = await showDeleteDialog(context, 'la région ', region.name);
     if (!confirm) return;
-    BlocProvider.of<RegionsBloc>(context).add(RegionDeleted(region, params));
+    provider.remove(region, params);
   }
 
-  // Widget _emptyWidget(BuildContext context) {
-  //   BlocProvider.of<RegionsBloc>(context).add(
-  //     RegionsLoaded(
-  //       PaginatedParams(
-  //         search: _nameController.text,
-  //         sort: FieldSort.Name,
-  //       ),
-  //     ),
-  //   );
-  //   return SizedBox.shrink();
-  // }
-
-  Widget _progressWidget() =>
-      Center(child: CircularProgressIndicator(value: null));
-
-  Widget _errorWidget() => Center(
-        child: Container(
-          color: Colors.red,
-          padding: EdgeInsets.all(8.0),
-          child: Text('Erreur de chargement'),
-        ),
-      );
-
-  Widget _loadedWidget(BuildContext context, PaginatedRegions regions) =>
+  Widget _tableWidget(BuildContext context, PaginatedRegions regions,
+          PaginatedRegionsProvider provider) =>
       Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
           rows: regions,
-          editHook: (i) =>
-              _addOrModify(DialogMode.Edit, context, regions.lines[i]),
-          addHook: () =>
-              _addOrModify(DialogMode.Create, context, Region(id: 0, name: '')),
+          editHook: (i) => _addOrModify(
+              DialogMode.Edit, context, regions.lines[i], provider),
+          addHook: () => _addOrModify(
+              DialogMode.Create, context, Region(id: 0, name: ''), provider),
           deleteHook: (i) => _remove(
-            regions.lines[i],
-            context,
-            PaginatedParams(
-              search: _nameController.text,
-              firstLine: regions.actualLine,
-              sort: FieldSort.Name,
-            ),
-          ),
-          moveHook: (i) => BlocProvider.of<RegionsBloc>(context).add(
-            RegionsLoaded(
+              regions.lines[i],
+              context,
               PaginatedParams(
-                firstLine: i,
                 search: _nameController.text,
+                firstLine: regions.actualLine,
                 sort: FieldSort.Name,
               ),
+              provider),
+          moveHook: (i) => provider.fetch(
+            PaginatedParams(
+              firstLine: i,
+              search: _nameController.text,
+              sort: FieldSort.Name,
             ),
           ),
         ),
@@ -135,12 +109,9 @@ class RegionScreen extends HookWidget {
           ),
           SizedBox(height: 10.0),
           regions.when(
-              loading: () => _progressWidget(),
-              error: (e, __) {
-                print('Erreur: $e');
-                return _errorWidget();
-              },
-              data: (regions) => _loadedWidget(context, regions)),
+              loading: () => ProgressWidget(),
+              error: (error, _) => ScreenErrorWidget(error: error),
+              data: (regions) => _tableWidget(context, regions, provider)),
         ],
       ),
     );
