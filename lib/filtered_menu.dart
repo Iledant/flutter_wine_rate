@@ -29,25 +29,26 @@ class FilteredMenu<T> extends StatelessWidget {
               icon: Icon(Icons.filter_alt_outlined, size: 16.0),
             ),
           ),
-          (values.length == 0)
-              ? SizedBox.shrink()
-              : Card(
-                  child: Column(
-                    children: values
-                        .map(
-                          (r) => InkWell(
-                            onTap: () => onChanged(r),
-                            child: Container(
-                              alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.all(4.0),
-                              child: Text(valueDisplay(r)),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  elevation: 2.0,
-                ),
+          if (values.isEmpty)
+            const SizedBox.shrink()
+          else
+            Card(
+              child: Column(
+                children: values
+                    .map(
+                      (r) => InkWell(
+                        onTap: () => onChanged(r),
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.all(4.0),
+                          child: Text(valueDisplay(r)),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              elevation: 2.0,
+            ),
         ],
       ),
     );
