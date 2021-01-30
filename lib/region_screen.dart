@@ -25,14 +25,10 @@ class RegionScreen extends HookWidget {
     if (result == null) return;
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
-    switch (mode) {
-      case DialogMode.Edit:
-        provider.add(result, params);
-        break;
-      default:
-        provider.update(result, params);
-        break;
-    }
+    if (mode == DialogMode.Edit)
+      provider.update(result, params);
+    else
+      provider.add(result, params);
   }
 
   void _remove(Region region, BuildContext context, PaginatedParams params,
