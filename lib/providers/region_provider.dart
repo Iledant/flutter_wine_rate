@@ -31,14 +31,16 @@ class PaginatedRegionsProvider
 }
 
 class PickRegionsProvider extends StateNotifier<AsyncValue<List<Region>>> {
-  PickRegionsProvider() : super(AsyncValue.loading()) {
-    fetch('');
-  }
+  PickRegionsProvider() : super(AsyncValue.data(const []));
 
   Future<void> fetch(String pattern) async {
     state = AsyncValue.loading();
     state =
         await AsyncValue.guard(() => RegionRepository.getFirstFive(pattern));
+  }
+
+  void clear() {
+    state = AsyncValue.data(const []);
   }
 }
 
