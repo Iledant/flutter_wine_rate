@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/providers/location_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'bloc/locations.dart';
 import 'common_scaffold.dart';
 import 'constants.dart';
 import 'delete_dialog.dart';
@@ -10,71 +11,44 @@ import 'location_edit_dialog.dart';
 import 'models/location.dart';
 import 'models/pagination.dart';
 import 'repo/location_repo.dart';
+import 'screen_widget.dart';
 
-class LocationScreen extends StatelessWidget {
+class LocationScreen extends HookWidget {
   final _scrollController = ScrollController();
   final _nameController = TextEditingController();
   LocationScreen({Key key}) : super(key: key);
 
-  void _addOrModify(
-      DialogMode mode, BuildContext context, Location location) async {
+  void _addOrModify(DialogMode mode, BuildContext context, Location location,
+      PaginatedLocationsProvider provider) async {
     final result = await showEditLocationDialog(context, location, mode);
     if (result == null) return;
+
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
-    switch (mode) {
-      case DialogMode.Edit:
-        BlocProvider.of<LocationsBloc>(context)
-            .add(LocationUpdated(result, params));
-        break;
-      default:
-        BlocProvider.of<LocationsBloc>(context)
-            .add(LocationAdded(result, params));
-        break;
-    }
+    if (mode == DialogMode.Edit)
+      provider.update(result, params);
+    else
+      provider.add(result, params);
   }
 
-  void _remove(
-      Location location, BuildContext context, PaginatedParams params) async {
+  void _remove(Location location, BuildContext context, PaginatedParams params,
+      PaginatedLocationsProvider provider) async {
     final confirm =
         await showDeleteDialog(context, "l'appellation ", location.name);
     if (!confirm) return;
-    BlocProvider.of<LocationsBloc>(context)
-        .add(LocationDeleted(location, params));
+    provider.remove(location, params);
   }
 
-  Widget _emptyWidget(BuildContext context) {
-    BlocProvider.of<LocationsBloc>(context).add(
-      LocationsLoaded(
-        PaginatedParams(
-          search: _nameController.text,
-          sort: FieldSort.Name,
-        ),
-      ),
-    );
-    return SizedBox.shrink();
-  }
-
-  Widget _progressWidget() =>
-      Center(child: CircularProgressIndicator(value: null));
-
-  Widget _errorWidget() => Center(
-        child: Container(
-          color: Colors.red,
-          padding: EdgeInsets.all(8.0),
-          child: Text('Erreur de chargement'),
-        ),
-      );
-
-  Widget _loadedWidget(BuildContext context, PaginatedLocations locations) =>
+  Widget _tableWidget(BuildContext context, PaginatedLocations locations,
+          PaginatedLocationsProvider provider) =>
       Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
           rows: locations,
-          editHook: (i) =>
-              _addOrModify(DialogMode.Edit, context, locations.lines[i]),
+          editHook: (i) => _addOrModify(
+              DialogMode.Edit, context, locations.lines[i], provider),
           addHook: () => _addOrModify(DialogMode.Create, context,
-              Location(id: 0, name: '', regionId: 0, region: '')),
+              Location(id: 0, name: '', regionId: 0, region: ''), provider),
           deleteHook: (i) => _remove(
             locations.lines[i],
             context,
@@ -83,14 +57,13 @@ class LocationScreen extends StatelessWidget {
               firstLine: locations.actualLine,
               sort: FieldSort.Name,
             ),
+            provider,
           ),
-          moveHook: (i) => BlocProvider.of<LocationsBloc>(context).add(
-            LocationsLoaded(
-              PaginatedParams(
-                firstLine: i,
-                search: _nameController.text,
-                sort: FieldSort.Name,
-              ),
+          moveHook: (i) => provider.fetch(
+            PaginatedParams(
+              firstLine: i,
+              search: _nameController.text,
+              sort: FieldSort.Name,
             ),
           ),
         ),
@@ -99,6 +72,8 @@ class LocationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
+    final provider = useProvider(paginatedLocationsProvider);
+    final locations = useProvider(paginatedLocationsProvider.state);
     return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
@@ -116,33 +91,28 @@ class LocationScreen extends StatelessWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
-                onChanged: (value) =>
-                    BlocProvider.of<LocationsBloc>(context).add(
-                  LocationsLoaded(
-                    PaginatedParams(
-                      search: _nameController.text,
-                      sort: FieldSort.Name,
-                    ),
+                onChanged: (value) => provider.fetch(
+                  PaginatedParams(
+                    search: _nameController.text,
+                    sort: FieldSort.Name,
                   ),
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
-          BlocBuilder<LocationsBloc, LocationsState>(builder: (context, state) {
-            if (state is LocationsEmpty) return _emptyWidget(context);
-            if (state is LocationsLoadInProgress) return _progressWidget();
-            if (state is LocationsLoadFailure) return _errorWidget();
-            final locations = (state as LocationsLoadSuccess).locations;
-            return _loadedWidget(context, locations);
-          }),
+          const SizedBox(height: 10.0),
+          locations.when(
+            data: (critics) => _tableWidget(context, critics, provider),
+            loading: () => const ProgressWidget(),
+            error: (error, __) => ScreenErrorWidget(error: error),
+          ),
         ],
       ),
     );
