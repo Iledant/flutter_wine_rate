@@ -59,13 +59,4 @@ class Config {
   void log(String msg) {
     _log.log(msg);
   }
-
-  // Future<PostgreSQLResult> query(String qry,
-  //     {Map<String, dynamic> values}) async {
-  //   return this._db.query(qry, substitutionValues: values);
-  // }
-
-  // Future<int> execute(String qry, {Map<String, dynamic> values}) async {
-  //   return this._db.execute(qry, substitutionValues: values);
-  // }
 }
