@@ -24,7 +24,7 @@ class FilteredMenu<T> extends StatelessWidget {
           TextField(
             controller: _textController,
             onChanged: (value) => fetchHook(value),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               isDense: true,
               icon: Icon(Icons.filter_alt_outlined, size: 16.0),
             ),
