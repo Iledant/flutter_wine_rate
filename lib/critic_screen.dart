@@ -11,6 +11,7 @@ import 'critic_edit_dialog.dart';
 import 'models/critic.dart';
 import 'models/pagination.dart';
 import 'repo/critic_repo.dart';
+import 'screen_widget.dart';
 
 class CriticScreen extends HookWidget {
   final _scrollController = ScrollController();
@@ -28,7 +29,7 @@ class CriticScreen extends HookWidget {
         provider.add(result, params);
         break;
       default:
-        provider.add(result, params);
+        provider.update(result, params);
         break;
     }
   }
@@ -112,38 +113,8 @@ class CriticScreen extends HookWidget {
           critics.when(
               data: (critics) => _tableWidget(context, critics, provider),
               loading: () => ProgressWidget(),
-              error: (error, __) => ErrorWidget()),
+              error: (error, __) => ScreenErrorWidget(error: error)),
         ],
-      ),
-    );
-  }
-}
-
-class ProgressWidget extends StatelessWidget {
-  const ProgressWidget({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) =>
-      Center(child: CircularProgressIndicator(value: null));
-}
-
-class ErrorWidget extends StatelessWidget {
-  const ErrorWidget({
-    Key key,
-    this.error,
-  }) : super(key: key);
-  final Object error;
-
-  @override
-  Widget build(BuildContext context) {
-    if (error != null) debugPrint('Erreur : $error');
-    return Center(
-      child: Container(
-        color: Colors.red,
-        padding: EdgeInsets.all(8.0),
-        child: Text('Erreur de chargement'),
       ),
     );
   }
