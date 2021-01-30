@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/providers/region_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'bloc/regions.dart';
 import 'common_scaffold.dart';
@@ -11,9 +14,10 @@ import 'models/region.dart';
 import 'models/pagination.dart';
 import 'repo/region_repo.dart';
 
-class RegionScreen extends StatelessWidget {
+class RegionScreen extends HookWidget {
   final _scrollController = ScrollController();
   final _nameController = TextEditingController();
+
   RegionScreen({Key key}) : super(key: key);
 
   void _addOrModify(
@@ -40,17 +44,17 @@ class RegionScreen extends StatelessWidget {
     BlocProvider.of<RegionsBloc>(context).add(RegionDeleted(region, params));
   }
 
-  Widget _emptyWidget(BuildContext context) {
-    BlocProvider.of<RegionsBloc>(context).add(
-      RegionsLoaded(
-        PaginatedParams(
-          search: _nameController.text,
-          sort: FieldSort.Name,
-        ),
-      ),
-    );
-    return SizedBox.shrink();
-  }
+  // Widget _emptyWidget(BuildContext context) {
+  //   BlocProvider.of<RegionsBloc>(context).add(
+  //     RegionsLoaded(
+  //       PaginatedParams(
+  //         search: _nameController.text,
+  //         sort: FieldSort.Name,
+  //       ),
+  //     ),
+  //   );
+  //   return SizedBox.shrink();
+  // }
 
   Widget _progressWidget() =>
       Center(child: CircularProgressIndicator(value: null));
@@ -97,6 +101,8 @@ class RegionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
+    final provider = useProvider(paginatedRegionsProvider);
+    final regions = useProvider(paginatedRegionsProvider.state);
     return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
@@ -117,14 +123,10 @@ class RegionScreen extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
-                onChanged: (value) => BlocProvider.of<RegionsBloc>(context).add(
-                  RegionsLoaded(
-                    PaginatedParams(
-                      search: _nameController.text,
-                      sort: FieldSort.Name,
-                    ),
-                  ),
-                ),
+                onChanged: (value) => provider.fetch(PaginatedParams(
+                  search: _nameController.text,
+                  sort: FieldSort.Name,
+                )),
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
@@ -133,13 +135,13 @@ class RegionScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.0),
-          BlocBuilder<RegionsBloc, RegionsState>(builder: (context, state) {
-            if (state is RegionsEmpty) return _emptyWidget(context);
-            if (state is RegionsLoadInProgress) return _progressWidget();
-            if (state is RegionsLoadFailure) return _errorWidget();
-            final regions = (state as RegionsLoadSuccess).regions;
-            return _loadedWidget(context, regions);
-          }),
+          regions.when(
+              loading: () => _progressWidget(),
+              error: (e, __) {
+                print('Erreur: $e');
+                return _errorWidget();
+              },
+              data: (regions) => _loadedWidget(context, regions)),
         ],
       ),
     );

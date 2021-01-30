@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_wine_rate/wine_screen.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:postgres/postgres.dart';
 import 'bloc/pick_critics_bloc.dart';
 import 'bloc/pick_domains_bloc.dart';
@@ -25,7 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = Config();
   final db = await config.db;
-  runApp(MyApp(db));
+  runApp(ProviderScope(child: MyApp(db)));
 }
 
 class MyApp extends StatelessWidget {
