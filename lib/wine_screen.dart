@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'repo/wine_repo.dart';
 import 'bloc/wines.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'paginated_table.dart';
 import 'delete_dialog.dart';
 import 'wine_edit_dialog.dart';

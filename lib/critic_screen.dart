@@ -4,7 +4,7 @@ import 'package:flutter_wine_rate/providers/critic_provider.dart';
 import 'package:hooks_riverpod/all.dart';
 
 import 'common_scaffold.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'delete_dialog.dart';
 import 'paginated_table.dart';
 import 'critic_edit_dialog.dart';

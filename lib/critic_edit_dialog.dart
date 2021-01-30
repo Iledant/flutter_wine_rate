@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'constant.dart';
+import 'constants.dart';
 import 'models/critic.dart';
 
 class CriticEditDialog extends StatefulWidget {

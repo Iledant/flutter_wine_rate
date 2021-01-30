@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'repo/rate_repo.dart';
 import 'bloc/rates.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'paginated_table.dart';
 import 'delete_dialog.dart';
 import 'rate_edit_dialog.dart';

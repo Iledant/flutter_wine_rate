@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/domains.dart';
 import 'common_scaffold.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'delete_dialog.dart';
 import 'paginated_table.dart';
 import 'domain_edit_dialog.dart';

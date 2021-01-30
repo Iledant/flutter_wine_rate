@@ -4,7 +4,7 @@ import 'package:flutter_wine_rate/popup_menu.dart';
 import 'package:intl/intl.dart';
 import 'bloc/pick_critics.dart';
 import 'bloc/pick_wines.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'models/critic.dart';
 import 'models/rate.dart';
 import 'models/wine.dart';

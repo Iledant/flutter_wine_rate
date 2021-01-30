@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/pick_domains.dart';
 import 'bloc/pick_locations.dart';
-import 'constant.dart';
+import 'constants.dart';
 import 'models/wine.dart';
 import 'models/location.dart';
 import 'models/domain.dart';
