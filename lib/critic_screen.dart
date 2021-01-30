@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_wine_rate/providers/critic_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'providers/critic_provider.dart';
 import 'common_scaffold.dart';
 import 'constants.dart';
 import 'delete_dialog.dart';
@@ -90,7 +90,7 @@ class CriticScreen extends HookWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
                 onChanged: (value) => provider.fetch(
@@ -99,17 +99,17 @@ class CriticScreen extends HookWidget {
                     sort: FieldSort.Name,
                   ),
                 ),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           critics.when(
             data: (critics) => _tableWidget(context, critics, provider),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, __) => ScreenErrorWidget(error: error),
           ),
         ],
