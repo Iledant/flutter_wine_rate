@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/providers/domain_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'bloc/domains.dart';
 import 'common_scaffold.dart';
 import 'constants.dart';
 import 'delete_dialog.dart';
@@ -10,68 +11,43 @@ import 'domain_edit_dialog.dart';
 import 'models/domain.dart';
 import 'models/pagination.dart';
 import 'repo/domain_repo.dart';
+import 'screen_widget.dart';
 
-class DomainScreen extends StatelessWidget {
+class DomainScreen extends HookWidget {
   final _scrollController = ScrollController();
   final _nameController = TextEditingController();
   DomainScreen({Key key}) : super(key: key);
 
-  void _addOrModify(
-      DialogMode mode, BuildContext context, Domain domain) async {
+  void _addOrModify(DialogMode mode, BuildContext context, Domain domain,
+      PaginatedDomainsProvider provider) async {
     final result = await showEditDomainDialog(context, domain, mode);
     if (result == null) return;
+
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
-    switch (mode) {
-      case DialogMode.Edit:
-        BlocProvider.of<DomainsBloc>(context)
-            .add(DomainUpdated(result, params));
-        break;
-      default:
-        BlocProvider.of<DomainsBloc>(context).add(DomainAdded(result, params));
-        break;
-    }
+    if (mode == DialogMode.Edit)
+      provider.update(result, params);
+    else
+      provider.add(result, params);
   }
 
-  void _remove(
-      Domain domain, BuildContext context, PaginatedParams params) async {
+  void _remove(Domain domain, BuildContext context, PaginatedParams params,
+      PaginatedDomainsProvider provider) async {
     final confirm = await showDeleteDialog(context, 'le domaine ', domain.name);
     if (!confirm) return;
-    BlocProvider.of<DomainsBloc>(context).add(DomainDeleted(domain, params));
+    provider.remove(domain, params);
   }
 
-  Widget _emptyWidget(BuildContext context) {
-    BlocProvider.of<DomainsBloc>(context).add(
-      DomainsLoaded(
-        PaginatedParams(
-          search: _nameController.text,
-          sort: FieldSort.Name,
-        ),
-      ),
-    );
-    return SizedBox.shrink();
-  }
-
-  Widget _progressWidget() =>
-      Center(child: CircularProgressIndicator(value: null));
-
-  Widget _errorWidget() => Center(
-        child: Container(
-          color: Colors.red,
-          padding: EdgeInsets.all(8.0),
-          child: Text('Erreur de chargement'),
-        ),
-      );
-
-  Widget _loadedWidget(BuildContext context, PaginatedDomains domains) =>
+  Widget _tableWidget(BuildContext context, PaginatedDomains domains,
+          PaginatedDomainsProvider provider) =>
       Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
           rows: domains,
-          editHook: (i) =>
-              _addOrModify(DialogMode.Edit, context, domains.lines[i]),
-          addHook: () =>
-              _addOrModify(DialogMode.Create, context, Domain(id: 0, name: '')),
+          editHook: (i) => _addOrModify(
+              DialogMode.Edit, context, domains.lines[i], provider),
+          addHook: () => _addOrModify(
+              DialogMode.Create, context, Domain(id: 0, name: ''), provider),
           deleteHook: (i) => _remove(
             domains.lines[i],
             context,
@@ -80,14 +56,13 @@ class DomainScreen extends StatelessWidget {
               firstLine: domains.actualLine,
               sort: FieldSort.Name,
             ),
+            provider,
           ),
-          moveHook: (i) => BlocProvider.of<DomainsBloc>(context).add(
-            DomainsLoaded(
-              PaginatedParams(
-                firstLine: i,
-                search: _nameController.text,
-                sort: FieldSort.Name,
-              ),
+          moveHook: (i) => provider.fetch(
+            PaginatedParams(
+              firstLine: i,
+              search: _nameController.text,
+              sort: FieldSort.Name,
             ),
           ),
         ),
@@ -96,6 +71,8 @@ class DomainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
+    final provider = useProvider(paginatedDomainsProvider);
+    final domains = useProvider(paginatedDomainsProvider.state);
     return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
@@ -116,12 +93,10 @@ class DomainScreen extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
-                onChanged: (value) => BlocProvider.of<DomainsBloc>(context).add(
-                  DomainsLoaded(
-                    PaginatedParams(
-                      search: _nameController.text,
-                      sort: FieldSort.Name,
-                    ),
+                onChanged: (value) => provider.fetch(
+                  PaginatedParams(
+                    search: _nameController.text,
+                    sort: FieldSort.Name,
                   ),
                 ),
                 decoration: InputDecoration(
@@ -132,13 +107,11 @@ class DomainScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.0),
-          BlocBuilder<DomainsBloc, DomainsState>(builder: (context, state) {
-            if (state is DomainsEmpty) return _emptyWidget(context);
-            if (state is DomainsLoadInProgress) return _progressWidget();
-            if (state is DomainsLoadFailure) return _errorWidget();
-            final domains = (state as DomainsLoadSuccess).domains;
-            return _loadedWidget(context, domains);
-          }),
+          domains.when(
+            data: (domains) => _tableWidget(context, domains, provider),
+            loading: () => ProgressWidget(),
+            error: (error, __) => ScreenErrorWidget(error: error),
+          )
         ],
       ),
     );
