@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/providers/critic_provider.dart';
+import 'package:hooks_riverpod/all.dart';
 
-import 'bloc/critics.dart';
 import 'common_scaffold.dart';
 import 'constant.dart';
 import 'delete_dialog.dart';
@@ -11,85 +12,59 @@ import 'models/critic.dart';
 import 'models/pagination.dart';
 import 'repo/critic_repo.dart';
 
-class CriticScreen extends StatelessWidget {
+class CriticScreen extends HookWidget {
   final _scrollController = ScrollController();
   final _nameController = TextEditingController();
   CriticScreen({Key key}) : super(key: key);
 
-  void _addOrModify(
-      DialogMode mode, BuildContext context, Critic critic) async {
+  void _addOrModify(DialogMode mode, BuildContext context, Critic critic,
+      PaginatedCriticsProvider provider) async {
     final result = await showEditCriticDialog(context, critic, mode);
     if (result == null) return;
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
     switch (mode) {
       case DialogMode.Edit:
-        BlocProvider.of<CriticsBloc>(context)
-            .add(CriticUpdated(result, params));
+        provider.add(result, params);
         break;
       default:
-        BlocProvider.of<CriticsBloc>(context).add(CriticAdded(result, params));
+        provider.add(result, params);
         break;
     }
   }
 
-  void _remove(
-      Critic critic, BuildContext context, PaginatedParams params) async {
+  void _remove(Critic critic, BuildContext context, PaginatedParams params,
+      PaginatedCriticsProvider provider) async {
     final confirm =
         await showDeleteDialog(context, 'le critique ', critic.name);
     if (!confirm) return;
-    BlocProvider.of<CriticsBloc>(context).add(CriticDeleted(critic, params));
+    provider.remove(critic, params);
   }
 
-  Widget _emptyWidget(BuildContext context) {
-    BlocProvider.of<CriticsBloc>(context).add(
-      CriticsLoaded(
-        PaginatedParams(
-          search: _nameController.text,
-          sort: FieldSort.Name,
-        ),
-      ),
-    );
-    return SizedBox.shrink();
-  }
-
-  Widget _progressWidget() =>
-      Center(child: CircularProgressIndicator(value: null));
-
-  Widget _errorWidget() => Center(
-        child: Container(
-          color: Colors.red,
-          padding: EdgeInsets.all(8.0),
-          child: Text('Erreur de chargement'),
-        ),
-      );
-
-  Widget _loadedWidget(BuildContext context, PaginatedCritics critics) =>
+  Widget _tableWidget(BuildContext context, PaginatedCritics critics,
+          PaginatedCriticsProvider provider) =>
       Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
-          hasAction: true,
           rows: critics,
-          editHook: (i) =>
-              _addOrModify(DialogMode.Edit, context, critics.lines[i]),
-          addHook: () =>
-              _addOrModify(DialogMode.Create, context, Critic(id: 0, name: '')),
+          editHook: (i) => _addOrModify(
+              DialogMode.Edit, context, critics.lines[i], provider),
+          addHook: () => _addOrModify(
+              DialogMode.Create, context, Critic(id: 0, name: ''), provider),
           deleteHook: (i) => _remove(
-            critics.lines[i],
-            context,
-            PaginatedParams(
-              search: _nameController.text,
-              firstLine: critics.actualLine,
-              sort: FieldSort.Name,
-            ),
-          ),
-          moveHook: (i) => BlocProvider.of<CriticsBloc>(context).add(
-            CriticsLoaded(
+              critics.lines[i],
+              context,
               PaginatedParams(
-                firstLine: i,
                 search: _nameController.text,
+                firstLine: critics.actualLine,
                 sort: FieldSort.Name,
               ),
+              provider),
+          moveHook: (i) => provider.fetch(
+            PaginatedParams(
+              firstLine: i,
+              search: _nameController.text,
+              sort: FieldSort.Name,
             ),
           ),
         ),
@@ -98,6 +73,8 @@ class CriticScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context).textTheme.headline4;
+    final provider = useProvider(paginatedCriticsProvider);
+    final critics = useProvider(paginatedCriticsProvider.state);
     return CommonScaffold(
       body: ListView(
         padding: EdgeInsets.all(8.0),
@@ -118,12 +95,10 @@ class CriticScreen extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
-                onChanged: (value) => BlocProvider.of<CriticsBloc>(context).add(
-                  CriticsLoaded(
-                    PaginatedParams(
-                      search: _nameController.text,
-                      sort: FieldSort.Name,
-                    ),
+                onChanged: (value) => provider.fetch(
+                  PaginatedParams(
+                    search: _nameController.text,
+                    sort: FieldSort.Name,
                   ),
                 ),
                 decoration: InputDecoration(
@@ -134,14 +109,41 @@ class CriticScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.0),
-          BlocBuilder<CriticsBloc, CriticsState>(builder: (context, state) {
-            if (state is CriticsEmpty) return _emptyWidget(context);
-            if (state is CriticsLoadInProgress) return _progressWidget();
-            if (state is CriticsLoadFailure) return _errorWidget();
-            final critics = (state as CriticsLoadSuccess).critics;
-            return _loadedWidget(context, critics);
-          }),
+          critics.when(
+              data: (critics) => _tableWidget(context, critics, provider),
+              loading: () => ProgressWidget(),
+              error: (error, __) => ErrorWidget()),
         ],
+      ),
+    );
+  }
+}
+
+class ProgressWidget extends StatelessWidget {
+  const ProgressWidget({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) =>
+      Center(child: CircularProgressIndicator(value: null));
+}
+
+class ErrorWidget extends StatelessWidget {
+  const ErrorWidget({
+    Key key,
+    this.error,
+  }) : super(key: key);
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    if (error != null) debugPrint('Erreur : $error');
+    return Center(
+      child: Container(
+        color: Colors.red,
+        padding: EdgeInsets.all(8.0),
+        child: Text('Erreur de chargement'),
       ),
     );
   }

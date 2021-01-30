@@ -62,7 +62,6 @@ class RateScreen extends StatelessWidget {
   Widget _loadedWidget(BuildContext context, PaginatedRates rates) => Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
-          hasAction: true,
           rows: rates,
           editHook: (i) =>
               _addOrModify(DialogMode.Edit, context, rates.lines[i]),

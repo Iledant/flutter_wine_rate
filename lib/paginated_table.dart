@@ -2,10 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'models/pagination.dart';
 
-typedef hookFunction = void Function(int);
-
 class PaginatedTable extends StatelessWidget {
-  final bool hasAction;
   final PaginatedRows rows;
   final void Function(int) editHook;
   final void Function(int) deleteHook;
@@ -16,8 +13,7 @@ class PaginatedTable extends StatelessWidget {
   final Color color;
 
   PaginatedTable(
-      {@required this.hasAction,
-      @required this.rows,
+      {@required this.rows,
       this.editHook,
       this.deleteHook,
       this.moveHook,
@@ -30,26 +26,22 @@ class PaginatedTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<DataColumn> headings = rows
+    final hasAction = editHook != null && deleteHook != null;
+    final headings = rows
         .headers()
         .map((e) => DataColumn(
-            label: fieldSort == e.fieldSort
-                ? Row(children: [
-                    Text(e.label),
-                    Icon(Icons.arrow_downward, size: 16.0)
-                  ])
-                : Text(e.label),
-            onSort: (index, _) => sortHook?.call(e.fieldSort)))
+            label: Row(children: [
+              Text(e.label),
+              if (fieldSort == e.fieldSort)
+                Icon(Icons.arrow_downward, size: 16.0)
+            ]),
+            onSort: (_, __) => sortHook?.call(e.fieldSort)))
         .toList();
     if (hasAction) headings.add(DataColumn(label: Text('Actions')));
 
     final actualLine = rows.actualLine;
     final totalLines = rows.totalLines;
     final lastLine = min(actualLine + 9, totalLines);
-    final nextPressed =
-        (totalLines == lastLine) ? null : () => moveHook?.call(actualLine + 10);
-    final backPressed =
-        (actualLine == 1) ? null : () => moveHook?.call(actualLine - 10);
 
     final List<DataRow> datas = List<DataRow>.generate(
       lastLine - actualLine + 1,
@@ -61,20 +53,8 @@ class PaginatedTable extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    iconSize: 16.0,
-                    splashRadius: 16.0,
-                    constraints: BoxConstraints(),
-                    onPressed: () => editHook?.call(i),
-                    icon: Icon(Icons.edit),
-                  ),
-                  IconButton(
-                    iconSize: 16.0,
-                    splashRadius: 16.0,
-                    constraints: BoxConstraints(),
-                    onPressed: () => deleteHook?.call(i),
-                    icon: Icon(Icons.delete),
-                  ),
+                  _actionButton(Icons.edit, () => editHook?.call(i)),
+                  _actionButton(Icons.delete, () => deleteHook?.call(i)),
                 ],
               ),
             ),
@@ -88,10 +68,8 @@ class PaginatedTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           DataTable(
-            headingTextStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+            headingTextStyle:
+                TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
             columns: headings,
             horizontalMargin: 12.0,
             columnSpacing: 12.0,
@@ -100,41 +78,58 @@ class PaginatedTable extends StatelessWidget {
             showBottomBorder: true,
             rows: datas,
           ),
-          SizedBox(height: 8.0),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (addHook != null)
-                IconButton(
-                  onPressed: addHook,
-                  icon: Icon(Icons.add),
-                  splashRadius: 16.0,
-                  color: Theme.of(context).primaryColor,
-                ),
-              SizedBox(width: 12.0),
-              Text('$actualLine-$lastLine sur $totalLines'),
-              SizedBox(width: 12.0),
-              IconButton(
-                icon: Icon(
-                  Icons.keyboard_arrow_left,
-                ),
-                splashRadius: 12.0,
-                padding: EdgeInsets.all(4.0),
-                constraints: BoxConstraints(maxWidth: 30.0),
-                onPressed: backPressed,
-              ),
-              IconButton(
-                icon: Icon(Icons.keyboard_arrow_right),
-                splashRadius: 12.0,
-                padding: EdgeInsets.all(4.0),
-                constraints: BoxConstraints(maxWidth: 30.0),
-                onPressed: nextPressed,
-              ),
-              SizedBox(width: 8.0),
-            ],
-          ),
+          const SizedBox(height: 8.0),
+          _bottomNavigation(
+              context, actualLine, lastLine, totalLines, moveHook),
         ],
       ),
+    );
+  }
+
+  IconButton _actionButton(IconData icon, void Function() onPressed) {
+    return IconButton(
+      iconSize: 16.0,
+      splashRadius: 16.0,
+      constraints: BoxConstraints(),
+      onPressed: onPressed,
+      icon: Icon(icon),
+    );
+  }
+
+  Wrap _bottomNavigation(BuildContext context, int actualLine, int lastLine,
+      int totalLines, void Function(int) moveHook) {
+    final nextPressed =
+        (totalLines == lastLine) ? null : () => moveHook?.call(actualLine + 10);
+    final backPressed =
+        (actualLine == 1) ? null : () => moveHook?.call(actualLine - 10);
+
+    return Wrap(
+      spacing: 12.0,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (addHook != null)
+          IconButton(
+            icon: Icon(Icons.add),
+            splashRadius: 16.0,
+            color: Theme.of(context).primaryColor,
+            onPressed: addHook,
+          ),
+        Text('$actualLine-$lastLine sur $totalLines'),
+        Row(mainAxisSize: MainAxisSize.min, children: [
+          _arrowButton(Icons.keyboard_arrow_left, backPressed),
+          _arrowButton(Icons.keyboard_arrow_right, nextPressed),
+        ])
+      ],
+    );
+  }
+
+  IconButton _arrowButton(IconData icon, void Function() onPressed) {
+    return IconButton(
+      icon: Icon(icon),
+      splashRadius: 12.0,
+      padding: EdgeInsets.all(4.0),
+      constraints: BoxConstraints(maxWidth: 30.0),
+      onPressed: onPressed,
     );
   }
 }

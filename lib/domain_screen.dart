@@ -67,7 +67,6 @@ class DomainScreen extends StatelessWidget {
       Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
-          hasAction: true,
           rows: domains,
           editHook: (i) =>
               _addOrModify(DialogMode.Edit, context, domains.lines[i]),

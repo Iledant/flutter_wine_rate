@@ -64,7 +64,6 @@ class WineScreen extends StatelessWidget {
   Widget _loadedWidget(BuildContext context, PaginatedWines wines) => Center(
         child: PaginatedTable(
           color: Colors.deepPurple.shade50,
-          hasAction: true,
           rows: wines,
           editHook: (i) =>
               _addOrModify(DialogMode.Edit, context, wines.lines[i]),
