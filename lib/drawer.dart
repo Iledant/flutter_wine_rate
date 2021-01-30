@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 
+class _DrawerItem {
+  final String title;
+  final IconData icon;
+  final String route;
+
+  const _DrawerItem(
+      {@required this.title, @required this.icon, @required this.route});
+}
+
+final _drawerItems = [
+  _DrawerItem(title: 'Régions', icon: Icons.map, route: '/regions'),
+  _DrawerItem(
+      title: 'Appellations', icon: Icons.location_on, route: '/locations'),
+  _DrawerItem(title: 'Domaines', icon: Icons.home_outlined, route: '/domains'),
+  _DrawerItem(title: 'Vins', icon: Icons.wine_bar_outlined, route: '/wines'),
+  _DrawerItem(title: 'Notations', icon: Icons.stars, route: '/rates'),
+  _DrawerItem(
+      title: 'Critiques', icon: Icons.account_circle, route: '/critics'),
+];
+
 class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,42 +32,16 @@ class AppDrawer extends StatelessWidget {
               child: Text('Menu', style: TextStyle(color: Colors.white)),
               decoration: BoxDecoration(color: Colors.purple.shade900),
             )),
-        ListTile(
-          dense: true,
-          title: Text('Régions'),
-          leading: Icon(Icons.map),
-          onTap: () => Navigator.pushNamed(context, '/regions'),
-        ),
-        ListTile(
-          dense: true,
-          title: Text('Appellations'),
-          leading: Icon(Icons.location_on),
-          onTap: () => Navigator.pushNamed(context, '/locations'),
-        ),
-        ListTile(
-          dense: true,
-          title: Text('Domaines'),
-          leading: Icon(Icons.home_outlined),
-          onTap: () => Navigator.pushNamed(context, '/domains'),
-        ),
-        ListTile(
-          dense: true,
-          title: Text('Vins'),
-          leading: Icon(Icons.wine_bar_outlined),
-          onTap: () => Navigator.pushNamed(context, '/wines'),
-        ),
-        ListTile(
-          dense: true,
-          title: Text('Notations'),
-          leading: Icon(Icons.stars),
-          onTap: () => Navigator.pushNamed(context, '/rates'),
-        ),
-        ListTile(
-          dense: true,
-          title: Text('Critiques'),
-          leading: Icon(Icons.account_circle),
-          onTap: () => Navigator.pushNamed(context, '/critics'),
-        ),
+        ..._drawerItems
+            .map(
+              (item) => ListTile(
+                dense: true,
+                title: Text(item.title),
+                leading: Icon(item.icon),
+                onTap: () => Navigator.pushNamed(context, item.route),
+              ),
+            )
+            .toList(),
       ],
     ));
   }
