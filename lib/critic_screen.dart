@@ -22,16 +22,13 @@ class CriticScreen extends HookWidget {
       PaginatedCriticsProvider provider) async {
     final result = await showEditCriticDialog(context, critic, mode);
     if (result == null) return;
+
     final params =
         PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
-    switch (mode) {
-      case DialogMode.Edit:
-        provider.add(result, params);
-        break;
-      default:
-        provider.update(result, params);
-        break;
-    }
+    if (mode == DialogMode.Edit)
+      provider.add(result, params);
+    else
+      provider.update(result, params);
   }
 
   void _remove(Critic critic, BuildContext context, PaginatedParams params,
@@ -111,9 +108,10 @@ class CriticScreen extends HookWidget {
           ),
           SizedBox(height: 10.0),
           critics.when(
-              data: (critics) => _tableWidget(context, critics, provider),
-              loading: () => ProgressWidget(),
-              error: (error, __) => ScreenErrorWidget(error: error)),
+            data: (critics) => _tableWidget(context, critics, provider),
+            loading: () => ProgressWidget(),
+            error: (error, __) => ScreenErrorWidget(error: error),
+          ),
         ],
       ),
     );
