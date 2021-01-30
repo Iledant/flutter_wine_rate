@@ -37,9 +37,7 @@ class _DomainEditDialogState extends State<DomainEditDialog> {
       content: Form(
         child: TextFormField(
           controller: _controller,
-          onChanged: (value) {
-            setState(() => _disabled = value.isEmpty);
-          },
+          onChanged: (text) => setState(() => _disabled = text.isEmpty),
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
               value.isEmpty ? 'Le nom ne peut être vide' : null,
