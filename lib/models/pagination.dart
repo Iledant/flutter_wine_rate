@@ -15,19 +15,19 @@ enum FieldSort {
 }
 
 class PaginatedParams {
-  String search;
-  int firstLine;
-  FieldSort sort;
+  final String search;
+  final int firstLine;
+  final FieldSort sort;
 
-  PaginatedParams(
+  const PaginatedParams(
       {this.search = '', this.firstLine = 1, this.sort = FieldSort.Id});
 }
 
 class PaginatedHeader {
-  String label;
-  FieldSort fieldSort;
+  final String label;
+  final FieldSort fieldSort;
 
-  PaginatedHeader(this.label, this.fieldSort);
+  const PaginatedHeader(this.label, this.fieldSort);
 }
 
 abstract class PaginatedRows<T> {
