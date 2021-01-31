@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_wine_rate/popup_menu.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/providers/critic_provider.dart';
+import 'package:flutter_wine_rate/screen_widget.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'bloc/pick_critics.dart';
-import 'bloc/pick_wines.dart';
 import 'constants.dart';
 import 'models/critic.dart';
+import 'models/equatable_with_name.dart';
 import 'models/rate.dart';
 import 'models/wine.dart';
+import 'providers/wine_provider.dart';
 
-class RateEditDialog extends StatefulWidget {
+final _rateRegExp = RegExp(r"^100|[89]\d(\.\d)?$");
+final _yearRegExp = RegExp(r"^19\d\d|20\d\d$");
+final _dateRegExp = RegExp(r"^\d{2}\/\d{4}$");
+final _dateFormatter = DateFormat("MM/yyyy");
+
+class RateEditDialog extends StatefulHookWidget {
   final DialogMode _mode;
   final Rate _rate;
 
@@ -25,10 +32,6 @@ class _RateEditDialogState extends State<RateEditDialog> {
   final _publishedController = TextEditingController();
   final _criticController = TextEditingController();
   final _wineController = TextEditingController();
-  final _rateRegExp = RegExp(r"^100|[89]\d(\.\d)?$");
-  final _yearRegExp = RegExp(r"^19\d\d|20\d\d$");
-  final _dateRegExp = RegExp(r"^\d{2}\/\d{4}$");
-  final _dateFormatter = DateFormat("MM/yyyy");
   bool _disabled;
   Critic _critic;
   Wine _wine;
@@ -86,6 +89,10 @@ class _RateEditDialogState extends State<RateEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final criticsProvider = useProvider(pickCriticsProvider);
+    final critics = useProvider(pickCriticsProvider.state);
+    final winesProvider = useProvider(pickWinesProvider);
+    final wines = useProvider(pickWinesProvider.state);
     return AlertDialog(
       title: Text(widget._mode == DialogMode.Edit
           ? "Modifier La note"
@@ -104,7 +111,7 @@ class _RateEditDialogState extends State<RateEditDialog> {
               decoration: InputDecoration(labelText: "Millésime"),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           Form(
             child: TextFormField(
               controller: _rateController,
@@ -115,7 +122,7 @@ class _RateEditDialogState extends State<RateEditDialog> {
               decoration: InputDecoration(labelText: "Note"),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           Form(
             child: TextFormField(
               controller: _publishedController,
@@ -127,68 +134,38 @@ class _RateEditDialogState extends State<RateEditDialog> {
               decoration: InputDecoration(labelText: "Date de notation"),
             ),
           ),
+          const SizedBox(height: 16.0),
+          critics.when(
+            data: (suggestions) => ItemPicker<Critic>(
+              item: _critic,
+              suggestions: suggestions,
+              fetchItems: (value) => criticsProvider.fetch(value),
+              onChanged: (EquatableWithName r) => setState(() {
+                _critic = r;
+                criticsProvider.clear();
+              }),
+              itemHintMessage: "Critique",
+              nullItemMessage: "Critique requis",
+            ),
+            loading: () => ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
+          ),
           SizedBox(height: 16.0),
-          BlocBuilder<PickCriticsBloc, PickCriticsState>(
-              builder: (context, state) {
-            Widget child;
-            if (state is PickCriticsLoadFailure ||
-                state is PickCriticsLoadInProgress ||
-                state is PickCriticsEmpty) {
-              child = SizedBox.shrink();
-            } else {
-              final critics = (state as PickCriticsLoadSuccess).critics;
-              child = PopupMenu<Critic>(
-                  lines: critics,
-                  onTap: (critic) => setState(() {
-                        _critic = critic;
-                        _criticController.text = '';
-                        BlocProvider.of<PickCriticsBloc>(context)
-                            .add(PickCriticsClear());
-                        _handleDisabled();
-                      }),
-                  getText: (critic) => critic.name);
-            }
-            return PopupMenuScaffold<Critic>(
-                item: _critic,
-                missingItem: 'Critique requis',
-                hintItem: 'Critique',
-                itemName: (critic) => critic.name,
-                textController: _criticController,
-                onChanged: (value) => BlocProvider.of<PickCriticsBloc>(context)
-                    .add(PickCriticsLoaded(value)),
-                displayWidget: child);
-          }),
-          SizedBox(height: 16.0),
-          BlocBuilder<PickWinesBloc, PickWinesState>(builder: (context, state) {
-            Widget child;
-            if (state is PickWinesLoadFailure ||
-                state is PickWinesLoadInProgress ||
-                state is PickWinesEmpty) {
-              child = SizedBox.shrink();
-            } else {
-              final wines = (state as PickWinesLoadSuccess).wines;
-              child = PopupMenu<Wine>(
-                  lines: wines,
-                  onTap: (wine) => setState(() {
-                        _wine = wine;
-                        _wineController.text = '';
-                        BlocProvider.of<PickWinesBloc>(context)
-                            .add(PickWinesClear());
-                        _handleDisabled();
-                      }),
-                  getText: (wine) => '${wine.name} [${wine.domain}]');
-            }
-            return PopupMenuScaffold(
+          wines.when(
+            data: (suggestions) => ItemPicker<Wine>(
               item: _wine,
-              missingItem: 'Vin requis',
-              hintItem: 'Vin',
-              itemName: (wine) => wine.name,
-              displayWidget: child,
-              textController: _wineController,
-              onChanged: (value) => BlocProvider.of<PickWinesBloc>(context)
-                  .add(PickWinesLoaded(value)),
-            );
-          }),
+              suggestions: suggestions,
+              fetchItems: (value) => winesProvider.fetch(value),
+              onChanged: (EquatableWithName r) => setState(() {
+                _wine = r;
+                winesProvider.clear();
+              }),
+              itemHintMessage: "Critique",
+              nullItemMessage: "Critique requis",
+            ),
+            loading: () => ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
+          ),
         ],
       ),
       actions: [
