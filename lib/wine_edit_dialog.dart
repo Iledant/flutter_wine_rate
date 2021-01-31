@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'bloc/pick_domains.dart';
-import 'bloc/pick_locations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'providers/domain_provider.dart';
 import 'constants.dart';
+import 'models/equatable_with_name.dart';
 import 'models/wine.dart';
 import 'models/location.dart';
 import 'models/domain.dart';
+import 'providers/location_provider.dart';
+import 'screen_widget.dart';
 
-class WineEditDialog extends StatefulWidget {
+class WineEditDialog extends StatefulHookWidget {
   final DialogMode _mode;
   final Wine _wine;
 
@@ -58,29 +62,12 @@ class _WineEditDialogState extends State<WineEditDialog> {
     _disabled = nameValue.isEmpty || _domain == null || _location == null;
   }
 
-  Widget popupMenu<T>(
-      List<T> lines, void Function(T) setState, String Function(T) getText) {
-    return Card(
-      child: Column(
-        children: lines
-            .map(
-              (r) => InkWell(
-                onTap: () => setState(r),
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.all(4.0),
-                  child: Text(getText(r)),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-      elevation: 2.0,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final domainsProvider = useProvider(pickDomainsProvider);
+    final domains = useProvider(pickDomainsProvider.state);
+    final locationsProvider = useProvider(pickLocationsProvider);
+    final locations = useProvider(pickLocationsProvider.state);
     return AlertDialog(
       title: Text(
           widget._mode == DialogMode.Edit ? "Modifier le vin" : 'Nouveau vin'),
@@ -111,109 +98,36 @@ class _WineEditDialogState extends State<WineEditDialog> {
             decoration: InputDecoration(labelText: "Commentaire"),
           ),
           SizedBox(height: 16.0),
-          Text(
-            _domain == null
-                ? 'Le domaine ne peut pas être vide'
-                : "Domaine d'appartenance",
-            style: TextStyle(
-                color: _domain != null
-                    ? Theme.of(context).textTheme.caption.color
-                    : Theme.of(context).errorColor,
-                fontSize: Theme.of(context).textTheme.caption.fontSize),
-          ),
-          Text(
-            _domain?.name ?? '-',
-            style:
-                TextStyle(color: _domain != null ? Colors.black : Colors.red),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              color: Colors.deepPurple[50],
-              child: Column(children: [
-                TextField(
-                  controller: _domainController,
-                  onChanged: (value) =>
-                      BlocProvider.of<PickDomainsBloc>(context)
-                          .add(PickDomainsLoaded(value)),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
-                  ),
-                ),
-                BlocBuilder<PickDomainsBloc, PickDomainsState>(
-                    builder: (context, state) {
-                  if (state is PickDomainsLoadFailure ||
-                      state is PickDomainsLoadInProgress ||
-                      state is PickDomainsEmpty) return SizedBox.shrink();
-                  final domains = (state as PickDomainsLoadSuccess).domains;
-                  return popupMenu(
-                      domains,
-                      (domain) => setState(() {
-                            _domain = domain;
-                            _domainController.text = '';
-                            BlocProvider.of<PickDomainsBloc>(context)
-                                .add(PickDomainsClear());
-                          }),
-                      (domain) => domain.name);
-                }),
-              ]),
+          domains.when(
+            data: (suggestions) => ItemPicker<Domain>(
+              item: _domain,
+              suggestions: suggestions,
+              fetchItems: (value) => domainsProvider.fetch(value),
+              onChanged: (EquatableWithName r) => setState(() {
+                _domain = r;
+                domainsProvider.clear();
+              }),
+              itemHintMessage: "Domaine",
+              nullItemMessage: "Domaine requis",
             ),
+            loading: () => ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
           ),
           SizedBox(height: 16.0),
-          Text(
-            _location == null
-                ? "L'appellation ne peut pas être vide"
-                : "Appellation d'appartenance",
-            style: TextStyle(
-                color: _location != null
-                    ? Theme.of(context).textTheme.caption.color
-                    : Theme.of(context).errorColor,
-                fontSize: Theme.of(context).textTheme.caption.fontSize),
-          ),
-          Text(
-            (_location != null ? _location.name : '-'),
-            style:
-                TextStyle(color: _location != null ? Colors.black : Colors.red),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-            child: Container(
-              padding: EdgeInsets.all(8.0),
-              color: Colors.deepPurple[50],
-              child: Column(children: [
-                TextField(
-                  controller: _locationController,
-                  onChanged: (value) =>
-                      BlocProvider.of<PickLocationsBloc>(context)
-                          .add(PickLocationsLoaded(value)),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
-                  ),
-                ),
-                BlocBuilder<PickLocationsBloc, PickLocationsState>(
-                    builder: (context, state) {
-                  if (state is PickLocationsLoadFailure ||
-                      state is PickLocationsLoadInProgress ||
-                      state is PickLocationsEmpty) {
-                    return SizedBox.shrink();
-                  }
-                  final locations =
-                      (state as PickLocationsLoadSuccess).locations;
-                  return popupMenu(
-                      locations,
-                      (location) => setState(() {
-                            _location = location;
-                            _locationController.text = '';
-                            BlocProvider.of<PickLocationsBloc>(context)
-                                .add(PicklocationsClear());
-                          }),
-                      (location) => location.name);
-                }),
-              ]),
+          locations.when(
+            data: (suggestions) => ItemPicker<Location>(
+              item: _location,
+              suggestions: suggestions,
+              fetchItems: (value) => locationsProvider.fetch(value),
+              onChanged: (EquatableWithName r) => setState(() {
+                _location = r;
+                locationsProvider.clear();
+              }),
+              itemHintMessage: "Appellation",
+              nullItemMessage: "Appellation requise",
             ),
+            loading: () => ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
           ),
         ],
       ),

@@ -38,6 +38,10 @@ class PickDomainsProvider extends StateNotifier<AsyncValue<List<Domain>>> {
     state =
         await AsyncValue.guard(() => DomainRepository.getFirstFive(pattern));
   }
+
+  void clear() {
+    state = AsyncValue.data(const []);
+  }
 }
 
 final paginatedDomainsProvider =

@@ -1,7 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_wine_rate/models/equatable_with_name.dart';
 
-class Location extends Equatable {
+class Location extends EquatableWithName {
   final int id;
   final String name;
   final int regionId;
@@ -29,4 +29,7 @@ class Location extends Equatable {
   String toString() {
     return 'Location { id: $id, name: $name, regionId: $regionId, region: $region }';
   }
+
+  @override
+  String displayName() => '$name [$region]';
 }

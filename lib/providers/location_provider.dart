@@ -39,6 +39,10 @@ class PickLocationsProvider extends StateNotifier<AsyncValue<List<Location>>> {
     state =
         await AsyncValue.guard(() => LocationRepository.getFirstFive(pattern));
   }
+
+  void clear() {
+    state = AsyncValue.data(const []);
+  }
 }
 
 final paginatedLocationsProvider =

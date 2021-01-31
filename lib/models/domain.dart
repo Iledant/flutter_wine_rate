@@ -1,7 +1,8 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class Domain extends Equatable {
+import 'equatable_with_name.dart';
+
+class Domain extends EquatableWithName {
   final String name;
   final int id;
 
@@ -17,4 +18,7 @@ class Domain extends Equatable {
   String toString() {
     return 'Domain { id: $id, name: $name }';
   }
+
+  @override
+  String displayName() => name;
 }
