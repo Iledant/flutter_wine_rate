@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'providers/wine_provider.dart';
@@ -12,7 +13,7 @@ import 'common_scaffold.dart';
 import 'models/wine.dart';
 import 'models/pagination.dart';
 
-class WineScreen extends StatelessWidget {
+class WineScreen extends HookWidget {
   final _nameController = TextEditingController();
   final _scrollController = ScrollController();
 
