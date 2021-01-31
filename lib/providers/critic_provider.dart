@@ -31,9 +31,7 @@ class PaginatedCriticsProvider
 }
 
 class PickCriticsProvider extends StateNotifier<AsyncValue<List<Critic>>> {
-  PickCriticsProvider() : super(AsyncValue.loading()) {
-    fetch('');
-  }
+  PickCriticsProvider() : super(AsyncValue.data(const []));
 
   Future<void> fetch(String pattern) async {
     state = AsyncValue.loading();

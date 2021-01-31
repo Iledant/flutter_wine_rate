@@ -160,8 +160,8 @@ class _RateEditDialogState extends State<RateEditDialog> {
                 _wine = r;
                 winesProvider.clear();
               }),
-              itemHintMessage: "Critique",
-              nullItemMessage: "Critique requis",
+              itemHintMessage: "Vin",
+              nullItemMessage: "Vin requis",
             ),
             loading: () => ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
