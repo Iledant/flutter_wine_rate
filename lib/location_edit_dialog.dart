@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_wine_rate/providers/region_provider.dart';
 import 'package:flutter_wine_rate/screen_widget.dart';
 import 'package:hooks_riverpod/all.dart';
 import 'constants.dart';
+import 'models/equatable_with_name.dart';
 import 'models/location.dart';
 import 'models/region.dart';
 
-class LocationEditDialog extends StatefulWidget {
+class LocationEditDialog extends StatefulHookWidget {
   final DialogMode _mode;
   final Location _location;
 
@@ -44,6 +46,8 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final regions = useProvider(pickRegionsProvider.state);
+    final provider = useProvider(pickRegionsProvider);
     return AlertDialog(
       title: Text(widget._mode == DialogMode.Edit
           ? "Modifier l'appellation"
@@ -64,27 +68,21 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
             ),
           ),
           SizedBox(height: 16.0),
-          Consumer(
-            builder: (context, watch, state) {
-              final regions = watch(pickRegionsProvider.state);
-              final provider = watch(pickRegionsProvider);
-              return regions.when(
-                data: (suggestions) => ItemPicker<Region>(
-                  item: _region,
-                  suggestions: suggestions,
-                  fetchItems: (value) => provider.fetch(value),
-                  onChanged: (EquatableWithName r) => setState(() {
-                    _region = r;
-                    provider.clear();
-                  }),
-                  itemHintMessage: "Région de l'appellation",
-                  nullItemMessage: "Région requise",
-                ),
-                loading: () => ProgressWidget(),
-                error: (error, _) => ScreenErrorWidget(error: error),
-              );
-            },
-          )
+          regions.when(
+            data: (suggestions) => ItemPicker<Region>(
+              item: _region,
+              suggestions: suggestions,
+              fetchItems: (value) => provider.fetch(value),
+              onChanged: (EquatableWithName r) => setState(() {
+                _region = r;
+                provider.clear();
+              }),
+              itemHintMessage: "Région de l'appellation",
+              nullItemMessage: "Région requise",
+            ),
+            loading: () => ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
+          ),
         ],
       ),
       actions: [
