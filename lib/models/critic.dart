@@ -1,7 +1,8 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-class Critic extends Equatable {
+import 'equatable_with_name.dart';
+
+class Critic extends EquatableWithName {
   final String name;
   final int id;
 
@@ -17,4 +18,7 @@ class Critic extends Equatable {
   String toString() {
     return 'Critic { id: $id, name: $name }';
   }
+
+  @override
+  String displayName() => name;
 }

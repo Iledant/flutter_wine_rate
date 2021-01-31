@@ -1,7 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_wine_rate/models/equatable_with_name.dart';
 
-class Wine extends Equatable {
+class Wine extends EquatableWithName {
   final int id;
   final String name;
   final String classification;
@@ -64,4 +64,7 @@ class Wine extends Equatable {
         regionId: regionId ?? this.regionId,
         region: region ?? this.region,
       );
+
+  @override
+  String displayName() => '$name [$domain]';
 }

@@ -1,11 +1,6 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-abstract class EquatableWithName extends Equatable {
-  String displayName();
-
-  const EquatableWithName() : super();
-}
+import 'equatable_with_name.dart';
 
 class Region extends EquatableWithName {
   final String name;
