@@ -30,13 +30,15 @@ class PaginatedWinesProvider extends StateNotifier<AsyncValue<PaginatedWines>> {
 }
 
 class PickWinesProvider extends StateNotifier<AsyncValue<List<Wine>>> {
-  PickWinesProvider() : super(AsyncValue.loading()) {
-    fetch('');
-  }
+  PickWinesProvider() : super(AsyncValue.data(const []));
 
   Future<void> fetch(String pattern) async {
     state = AsyncValue.loading();
     state = await AsyncValue.guard(() => WineRepository.getFirstFive(pattern));
+  }
+
+  void clear() {
+    state = AsyncValue.data(const []);
   }
 }
 

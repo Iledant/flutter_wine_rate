@@ -32,9 +32,7 @@ class PaginatedLocationsProvider
 }
 
 class PickLocationsProvider extends StateNotifier<AsyncValue<List<Location>>> {
-  PickLocationsProvider() : super(AsyncValue.loading()) {
-    fetch('');
-  }
+  PickLocationsProvider() : super(AsyncValue.data(const []));
 
   Future<void> fetch(String pattern) async {
     state = AsyncValue.loading();

@@ -40,6 +40,10 @@ class PickCriticsProvider extends StateNotifier<AsyncValue<List<Critic>>> {
     state =
         await AsyncValue.guard(() => CriticRepository.getFirstFive(pattern));
   }
+
+  void clear() {
+    state = AsyncValue.data(const []);
+  }
 }
 
 final paginatedCriticsProvider =

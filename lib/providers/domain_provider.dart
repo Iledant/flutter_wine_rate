@@ -31,9 +31,7 @@ class PaginatedDomainsProvider
 }
 
 class PickDomainsProvider extends StateNotifier<AsyncValue<List<Domain>>> {
-  PickDomainsProvider() : super(AsyncValue.loading()) {
-    fetch('');
-  }
+  PickDomainsProvider() : super(AsyncValue.data(const []));
 
   Future<void> fetch(String pattern) async {
     state = AsyncValue.loading();
