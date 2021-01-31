@@ -27,11 +27,13 @@ class AppDrawer extends StatelessWidget {
         child: ListView(
       children: [
         Container(
-            height: 64.0,
-            child: DrawerHeader(
-              child: const Text('Menu', style: TextStyle(color: Colors.white)),
-              decoration: BoxDecoration(color: Colors.purple.shade900),
-            )),
+          height: 64.0,
+          child: DrawerHeader(
+            child:
+                const Text('Menu', style: const TextStyle(color: Colors.white)),
+            decoration: BoxDecoration(color: Colors.purple.shade900),
+          ),
+        ),
         ..._drawerItems
             .map(
               (item) => ListTile(
