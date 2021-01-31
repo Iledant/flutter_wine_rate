@@ -22,7 +22,7 @@ class PopupMenu<T> extends StatelessWidget {
                 onTap: () => onTap(r),
                 child: Container(
                   alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.all(4.0),
                   child: Text(getText(r)),
                 ),
               ),
@@ -73,16 +73,16 @@ class PopupMenuScaffold<T> extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 8.0),
           child: Container(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             color: Colors.deepPurple[50],
             child: Column(
               children: [
                 TextField(
                   controller: textController,
                   onChanged: onChanged,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     isDense: true,
-                    icon: Icon(Icons.filter_alt_outlined, size: 16.0),
+                    icon: const Icon(Icons.filter_alt_outlined, size: 16.0),
                   ),
                 ),
                 displayWidget

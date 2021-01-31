@@ -84,15 +84,15 @@ class _ItemPickerState<T extends EquatableWithName>
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 8.0),
           child: Container(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             color: Colors.deepPurple[50],
             child: Column(children: [
               TextField(
                 controller: itemController,
                 onChanged: (value) => widget.fetchItems(value),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   isDense: true,
-                  icon: Icon(Icons.filter_alt_outlined, size: 16.0),
+                  icon: const Icon(Icons.filter_alt_outlined, size: 16.0),
                 ),
               ),
               if (widget.suggestions.length == 0)
@@ -109,7 +109,7 @@ class _ItemPickerState<T extends EquatableWithName>
                             }),
                             child: Container(
                               alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.all(4.0),
                               child: Text(r.displayName()),
                             ),
                           ),

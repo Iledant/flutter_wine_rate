@@ -119,7 +119,7 @@ class _RateEditDialogState extends State<RateEditDialog> {
               autovalidateMode: AutovalidateMode.always,
               validator: (String value) =>
                   !_rateRegExp.hasMatch(value) ? 'Note requise' : null,
-              decoration: InputDecoration(labelText: "Note"),
+              decoration: const InputDecoration(labelText: "Note"),
             ),
           ),
           const SizedBox(height: 16.0),
@@ -131,7 +131,7 @@ class _RateEditDialogState extends State<RateEditDialog> {
               validator: (String value) => !_dateRegExp.hasMatch(value)
                   ? 'Date de notation (p.e. 05/2020) requise'
                   : null,
-              decoration: InputDecoration(labelText: "Date de notation"),
+              decoration: const InputDecoration(labelText: "Date de notation"),
             ),
           ),
           const SizedBox(height: 16.0),
@@ -147,10 +147,10 @@ class _RateEditDialogState extends State<RateEditDialog> {
               itemHintMessage: "Critique",
               nullItemMessage: "Critique requis",
             ),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           wines.when(
             data: (suggestions) => ItemPicker<Wine>(
               item: _wine,
@@ -163,14 +163,14 @@ class _RateEditDialogState extends State<RateEditDialog> {
               itemHintMessage: "Vin",
               nullItemMessage: "Vin requis",
             ),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
           ),
         ],
       ),
       actions: [
         TextButton(
-          child: Text('Annuler'),
+          child: const Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
         TextButton(

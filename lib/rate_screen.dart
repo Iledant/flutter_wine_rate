@@ -94,7 +94,7 @@ class RateScreen extends HookWidget {
     final rates = useProvider(paginatedRatesProvider.state);
     return CommonScaffold(
       body: ListView(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
           Row(
@@ -109,7 +109,7 @@ class RateScreen extends HookWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
                 onChanged: (value) => provider.fetch(
@@ -118,14 +118,14 @@ class RateScreen extends HookWidget {
                     sort: FieldSort.Name,
                   ),
                 ),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                decoration: const InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           rates.when(
             data: (rates) => _tableWidget(context, rates, provider),
             loading: () => const ProgressWidget(),

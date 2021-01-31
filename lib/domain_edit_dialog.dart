@@ -41,7 +41,7 @@ class _DomainEditDialogState extends State<DomainEditDialog> {
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
               value.isEmpty ? 'Le nom ne peut être vide' : null,
-          decoration: InputDecoration(hintText: 'Nom'),
+          decoration: const InputDecoration(hintText: 'Nom'),
         ),
       ),
       actions: [

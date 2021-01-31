@@ -85,19 +85,19 @@ class _WineEditDialogState extends State<WineEditDialog> {
               decoration: InputDecoration(labelText: "Nom du vin"),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           TextFormField(
             controller: _classificationController,
             onChanged: (value) => setState(() => _handleDisabled(value)),
-            decoration: InputDecoration(labelText: "Classement"),
+            decoration: const InputDecoration(labelText: "Classement"),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           TextFormField(
             controller: _commentController,
             onChanged: (value) => setState(() => _handleDisabled(value)),
-            decoration: InputDecoration(labelText: "Commentaire"),
+            decoration: const InputDecoration(labelText: "Commentaire"),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           domains.when(
             data: (suggestions) => ItemPicker<Domain>(
               item: _domain,
@@ -110,7 +110,7 @@ class _WineEditDialogState extends State<WineEditDialog> {
               itemHintMessage: "Domaine",
               nullItemMessage: "Domaine requis",
             ),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
           ),
           SizedBox(height: 16.0),
@@ -126,14 +126,14 @@ class _WineEditDialogState extends State<WineEditDialog> {
               itemHintMessage: "Appellation",
               nullItemMessage: "Appellation requise",
             ),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
           ),
         ],
       ),
       actions: [
         TextButton(
-          child: Text('Annuler'),
+          child: const Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
         TextButton(

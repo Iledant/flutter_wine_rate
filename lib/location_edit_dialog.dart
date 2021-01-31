@@ -64,10 +64,11 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
               autovalidateMode: AutovalidateMode.always,
               validator: (String value) =>
                   value.isEmpty ? 'Le nom ne peut être vide' : null,
-              decoration: InputDecoration(labelText: "Nom de l'appellation"),
+              decoration:
+                  const InputDecoration(labelText: "Nom de l'appellation"),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           regions.when(
             data: (suggestions) => ItemPicker<Region>(
               item: _region,
@@ -80,14 +81,14 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
               itemHintMessage: "Région de l'appellation",
               nullItemMessage: "Région requise",
             ),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, _) => ScreenErrorWidget(error: error),
           ),
         ],
       ),
       actions: [
         TextButton(
-          child: Text('Annuler'),
+          child: const Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
         TextButton(

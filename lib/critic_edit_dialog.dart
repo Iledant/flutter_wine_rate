@@ -41,7 +41,7 @@ class _CriticEditDialogState extends State<CriticEditDialog> {
               setState(() => _disabled = _controller.text.isEmpty),
           autovalidateMode: AutovalidateMode.always,
           validator: (text) => text.isEmpty ? 'Le nom ne peut être vide' : null,
-          decoration: InputDecoration(hintText: 'Nom'),
+          decoration: const InputDecoration(hintText: 'Nom'),
         ),
       ),
       actions: [

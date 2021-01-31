@@ -75,7 +75,7 @@ class DomainScreen extends HookWidget {
     final domains = useProvider(paginatedDomainsProvider.state);
     return CommonScaffold(
       body: ListView(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
           Row(
@@ -90,7 +90,7 @@ class DomainScreen extends HookWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
                 onChanged: (value) => provider.fetch(
@@ -100,16 +100,16 @@ class DomainScreen extends HookWidget {
                   ),
                 ),
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           domains.when(
             data: (domains) => _tableWidget(context, domains, provider),
-            loading: () => ProgressWidget(),
+            loading: () => const ProgressWidget(),
             error: (error, __) => ScreenErrorWidget(error: error),
           )
         ],

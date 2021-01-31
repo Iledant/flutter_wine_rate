@@ -37,18 +37,16 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
       content: Form(
         child: TextFormField(
           controller: _controller,
-          onChanged: (value) {
-            setState(() => _disabled = value.isEmpty);
-          },
+          onChanged: (value) => setState(() => _disabled = value.isEmpty),
           autovalidateMode: AutovalidateMode.always,
           validator: (String value) =>
               value.isEmpty ? 'Le nom ne peut être vide' : null,
-          decoration: InputDecoration(hintText: 'Nom'),
+          decoration: const InputDecoration(hintText: 'Nom'),
         ),
       ),
       actions: [
         TextButton(
-          child: Text('Annuler'),
+          child: const Text('Annuler'),
           onPressed: () => Navigator.of(context).pop(null),
         ),
         TextButton(

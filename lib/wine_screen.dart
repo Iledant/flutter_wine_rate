@@ -89,7 +89,7 @@ class WineScreen extends HookWidget {
     final wines = useProvider(paginatedWinesProvider.state);
     return CommonScaffold(
       body: ListView(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
           Row(
@@ -104,7 +104,7 @@ class WineScreen extends HookWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
                 onChanged: (value) => provider.fetch(
@@ -113,14 +113,14 @@ class WineScreen extends HookWidget {
                     sort: FieldSort.Name,
                   ),
                 ),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                decoration: const InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           wines.when(
             data: (wines) => _tableWidget(context, wines, provider),
             loading: () => const ProgressWidget(),

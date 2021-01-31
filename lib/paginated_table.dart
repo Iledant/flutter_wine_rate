@@ -33,11 +33,11 @@ class PaginatedTable extends StatelessWidget {
             label: Row(children: [
               Text(e.label),
               if (fieldSort == e.fieldSort)
-                Icon(Icons.arrow_downward, size: 16.0)
+                const Icon(Icons.arrow_downward, size: 16.0)
             ]),
             onSort: (_, __) => sortHook?.call(e.fieldSort)))
         .toList();
-    if (hasAction) headings.add(DataColumn(label: Text('Actions')));
+    if (hasAction) headings.add(const DataColumn(label: Text('Actions')));
 
     final actualLine = rows.actualLine;
     final totalLines = rows.totalLines;
@@ -68,8 +68,8 @@ class PaginatedTable extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           DataTable(
-            headingTextStyle:
-                TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+            headingTextStyle: const TextStyle(
+                fontWeight: FontWeight.w600, color: Colors.black),
             columns: headings,
             horizontalMargin: 12.0,
             columnSpacing: 12.0,
@@ -109,16 +109,19 @@ class PaginatedTable extends StatelessWidget {
       children: [
         if (addHook != null)
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             splashRadius: 16.0,
             color: Theme.of(context).primaryColor,
             onPressed: addHook,
           ),
         Text('$actualLine-$lastLine sur $totalLines'),
-        Row(mainAxisSize: MainAxisSize.min, children: [
-          _arrowButton(Icons.keyboard_arrow_left, backPressed),
-          _arrowButton(Icons.keyboard_arrow_right, nextPressed),
-        ])
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _arrowButton(Icons.keyboard_arrow_left, backPressed),
+            _arrowButton(Icons.keyboard_arrow_right, nextPressed),
+          ],
+        )
       ],
     );
   }
@@ -127,8 +130,8 @@ class PaginatedTable extends StatelessWidget {
     return IconButton(
       icon: Icon(icon),
       splashRadius: 12.0,
-      padding: EdgeInsets.all(4.0),
-      constraints: BoxConstraints(maxWidth: 30.0),
+      padding: const EdgeInsets.all(4.0),
+      constraints: const BoxConstraints(maxWidth: 30.0),
       onPressed: onPressed,
     );
   }

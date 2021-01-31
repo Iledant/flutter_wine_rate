@@ -76,7 +76,7 @@ class LocationScreen extends HookWidget {
     final locations = useProvider(paginatedLocationsProvider.state);
     return CommonScaffold(
       body: ListView(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
           Row(

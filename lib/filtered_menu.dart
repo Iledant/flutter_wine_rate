@@ -26,7 +26,7 @@ class FilteredMenu<T> extends StatelessWidget {
             onChanged: (value) => fetchHook(value),
             decoration: const InputDecoration(
               isDense: true,
-              icon: Icon(Icons.filter_alt_outlined, size: 16.0),
+              icon: const Icon(Icons.filter_alt_outlined, size: 16.0),
             ),
           ),
           if (values.isEmpty)
@@ -40,7 +40,7 @@ class FilteredMenu<T> extends StatelessWidget {
                         onTap: () => onChanged(r),
                         child: Container(
                           alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.all(4.0),
+                          padding: const EdgeInsets.all(4.0),
                           child: Text(valueDisplay(r)),
                         ),
                       ),

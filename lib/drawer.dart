@@ -29,7 +29,7 @@ class AppDrawer extends StatelessWidget {
         Container(
             height: 64.0,
             child: DrawerHeader(
-              child: Text('Menu', style: TextStyle(color: Colors.white)),
+              child: const Text('Menu', style: TextStyle(color: Colors.white)),
               decoration: BoxDecoration(color: Colors.purple.shade900),
             )),
         ..._drawerItems

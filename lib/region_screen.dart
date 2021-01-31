@@ -74,7 +74,7 @@ class RegionScreen extends HookWidget {
     final regions = useProvider(paginatedRegionsProvider.state);
     return CommonScaffold(
       body: ListView(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
           Row(
@@ -89,23 +89,23 @@ class RegionScreen extends HookWidget {
           ),
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 300),
+              constraints: const BoxConstraints(maxWidth: 300),
               child: TextFormField(
                 controller: _nameController,
                 onChanged: (value) => provider.fetch(PaginatedParams(
                   search: _nameController.text,
                   sort: FieldSort.Name,
                 )),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                decoration: const InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
                   hintText: 'Recherche',
                 ),
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           regions.when(
-              loading: () => ProgressWidget(),
+              loading: () => const ProgressWidget(),
               error: (error, _) => ScreenErrorWidget(error: error),
               data: (regions) => _tableWidget(context, regions, provider)),
         ],
