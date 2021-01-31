@@ -109,7 +109,7 @@ class LocationScreen extends HookWidget {
           ),
           const SizedBox(height: 10.0),
           locations.when(
-            data: (critics) => _tableWidget(context, critics, provider),
+            data: (locations) => _tableWidget(context, locations, provider),
             loading: () => const ProgressWidget(),
             error: (error, __) => ScreenErrorWidget(error: error),
           ),
