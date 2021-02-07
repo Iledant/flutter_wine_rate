@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/models/equatable_with_name.dart';
+
+import 'pagination.dart';
 
 class Location extends EquatableWithName {
   final int id;
   final String name;
   final int regionId;
   final String region;
+  static const tableHeaders = [
+    PaginatedHeader('Nom', FieldSort.Name),
+    PaginatedHeader('Region', FieldSort.Region)
+  ];
 
   Location({
     @required this.id,
@@ -32,4 +37,7 @@ class Location extends EquatableWithName {
 
   @override
   String displayName() => '$name [$region]';
+
+  @override
+  List<String> rows() => [name, region];
 }

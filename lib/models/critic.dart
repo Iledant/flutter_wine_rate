@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'equatable_with_name.dart';
+import 'pagination.dart';
 
 class Critic extends EquatableWithName {
   final String name;
   final int id;
+  static const tableHeaders = [const PaginatedHeader('Nom', FieldSort.Name)];
 
   const Critic({@required this.id, @required this.name});
 
@@ -21,4 +22,10 @@ class Critic extends EquatableWithName {
 
   @override
   String displayName() => name;
+
+  // @override
+  // List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
+
+  @override
+  List<String> rows() => [name];
 }

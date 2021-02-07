@@ -6,7 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'constants.dart';
 import 'models/critic.dart';
-import 'models/equatable_with_name.dart';
+import 'models/pagination.dart';
 import 'models/rate.dart';
 import 'models/wine.dart';
 import 'providers/wine_provider.dart';

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'equatable_with_name.dart';
+import 'pagination.dart';
 
 class Region extends EquatableWithName {
   final String name;
   final int id;
+  static const tableHeaders = [PaginatedHeader('Nom', FieldSort.Name)];
 
   const Region({@required this.id, @required this.name});
 
@@ -20,7 +21,8 @@ class Region extends EquatableWithName {
   }
 
   @override
-  String displayName() {
-    return name;
-  }
+  String displayName() => name;
+
+  @override
+  List<String> rows() => [name];
 }

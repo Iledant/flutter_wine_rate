@@ -41,15 +41,15 @@ class RegionScreen extends HookWidget {
   Widget _tableWidget(BuildContext context, PaginatedRegions regions,
           PaginatedRegionsProvider provider) =>
       Center(
-        child: PaginatedTable(
+        child: PaginatedTable<Region, PaginatedRegions>(
           color: Colors.deepPurple.shade50,
           rows: regions,
-          editHook: (i) => _addOrModify(
-              DialogMode.Edit, context, regions.lines[i], provider),
+          editHook: (region) =>
+              _addOrModify(DialogMode.Edit, context, region, provider),
           addHook: () => _addOrModify(
               DialogMode.Create, context, Region(id: 0, name: ''), provider),
-          deleteHook: (i) => _remove(
-              regions.lines[i],
+          deleteHook: (region) => _remove(
+              region,
               context,
               PaginatedParams(
                 search: _nameController.text,
@@ -67,9 +67,18 @@ class RegionScreen extends HookWidget {
         ),
       );
 
+  Row _title(BuildContext context) {
+    final titleStyle = Theme.of(context).textTheme.headline4;
+    return Row(
+      children: [
+        Icon(Icons.map, size: titleStyle.fontSize, color: titleStyle.color),
+        Text(' Régions', style: titleStyle),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final titleStyle = Theme.of(context).textTheme.headline4;
     final provider = useProvider(paginatedRegionsProvider);
     final regions = useProvider(paginatedRegionsProvider.state);
     return CommonScaffold(
@@ -77,16 +86,7 @@ class RegionScreen extends HookWidget {
         padding: const EdgeInsets.all(8.0),
         controller: _scrollController,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.map,
-                size: titleStyle.fontSize,
-                color: titleStyle.color,
-              ),
-              Text(' Régions', style: titleStyle),
-            ],
-          ),
+          _title(context),
           Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 300),

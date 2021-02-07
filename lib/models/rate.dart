@@ -1,7 +1,9 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class Rate extends Equatable {
+import 'pagination.dart';
+
+class Rate extends EquatableWithName {
   final int id;
   final int criticId;
   final String critic;
@@ -18,6 +20,17 @@ class Rate extends Equatable {
   final DateTime published;
   final double rate;
   final int year;
+  static const tableHeaders = [
+    PaginatedHeader('Vin', FieldSort.Name),
+    PaginatedHeader('Appellation', FieldSort.Location),
+    PaginatedHeader('Domaine', FieldSort.Domain),
+    PaginatedHeader('Note', FieldSort.Rate),
+    PaginatedHeader('Millésime', FieldSort.Year),
+    PaginatedHeader('Date', FieldSort.Date),
+    PaginatedHeader('Critique', FieldSort.Critic),
+  ];
+
+  static final dateFormatter = new DateFormat('MM/yy');
 
   const Rate({
     @required this.id,
@@ -94,4 +107,18 @@ class Rate extends Equatable {
         comment: comment ?? this.comment,
         classification: classification ?? this.classification,
       );
+
+  @override
+  String displayName() => '$wine $rate';
+
+  @override
+  List<String> rows() => [
+        wine,
+        location,
+        domain,
+        rate.toString(),
+        year.toString(),
+        dateFormatter.format(published),
+        critic
+      ];
 }

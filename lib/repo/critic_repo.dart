@@ -12,7 +12,7 @@ class PaginatedCritics extends PaginatedRows<Critic> {
   List<String> rowCells(int index) => [lines[index].name];
 
   @override
-  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
+  List<PaginatedHeader> tableHeaders() => Critic.tableHeaders;
 }
 
 class CriticRepository {

@@ -12,7 +12,7 @@ class PaginatedRegions extends PaginatedRows<Region> {
   List<String> rowCells(int index) => [lines[index].name];
 
   @override
-  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
+  List<PaginatedHeader> tableHeaders() => Region.tableHeaders;
 }
 
 class RegionRepository {

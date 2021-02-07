@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'models/equatable_with_name.dart';
+import 'models/pagination.dart';
 
 class ProgressWidget extends StatelessWidget {
   const ProgressWidget({

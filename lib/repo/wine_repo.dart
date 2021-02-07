@@ -19,14 +19,7 @@ class PaginatedWines extends PaginatedRows<Wine> {
       ];
 
   @override
-  List<PaginatedHeader> headers() => [
-        PaginatedHeader('Nom', FieldSort.Name),
-        PaginatedHeader('Classement', FieldSort.Classification),
-        PaginatedHeader('Commentaire', FieldSort.Comment),
-        PaginatedHeader('Domaine', FieldSort.Domain),
-        PaginatedHeader('Appellation', FieldSort.Location),
-        PaginatedHeader('Région', FieldSort.Region),
-      ];
+  List<PaginatedHeader> tableHeaders() => Wine.tableHeaders;
 }
 
 class WineRepository {

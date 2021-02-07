@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_wine_rate/models/equatable_with_name.dart';
+import 'pagination.dart';
 
 class Wine extends EquatableWithName {
   final int id;
@@ -12,6 +12,14 @@ class Wine extends EquatableWithName {
   final String location;
   final int regionId;
   final String region;
+  static const tableHeaders = [
+    PaginatedHeader('Nom', FieldSort.Name),
+    PaginatedHeader('Classement', FieldSort.Classification),
+    PaginatedHeader('Commentaire', FieldSort.Comment),
+    PaginatedHeader('Domaine', FieldSort.Domain),
+    PaginatedHeader('Appellation', FieldSort.Location),
+    PaginatedHeader('Région', FieldSort.Region),
+  ];
 
   const Wine({
     @required this.id,
@@ -25,6 +33,10 @@ class Wine extends EquatableWithName {
     @required this.regionId,
     @required this.region,
   });
+
+  @override
+  List<String> rows() =>
+      [name, classification ?? '', comment ?? '', domain, location, region];
 
   @override
   List<Object> get props => [

@@ -40,11 +40,11 @@ class RateScreen extends HookWidget {
   Widget _tableWidget(BuildContext context, PaginatedRates rates,
           PaginatedRatesProvider provider) =>
       Center(
-        child: PaginatedTable(
+        child: PaginatedTable<Rate, PaginatedRates>(
           color: Colors.deepPurple.shade50,
           rows: rates,
-          editHook: (i) =>
-              _addOrModify(DialogMode.Edit, context, rates.lines[i], provider),
+          editHook: (rate) =>
+              _addOrModify(DialogMode.Edit, context, rate, provider),
           addHook: () => _addOrModify(
             DialogMode.Create,
             context,
@@ -67,8 +67,8 @@ class RateScreen extends HookWidget {
                 published: DateTime.now()),
             provider,
           ),
-          deleteHook: (i) => _remove(
-            rates.lines[i],
+          deleteHook: (rate) => _remove(
+            rate,
             context,
             PaginatedParams(
               search: _nameController.text,

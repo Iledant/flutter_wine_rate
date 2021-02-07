@@ -2,17 +2,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'models/pagination.dart';
 
-class PaginatedTable extends StatelessWidget {
-  final PaginatedRows rows;
-  final void Function(int) editHook;
-  final void Function(int) deleteHook;
+class PaginatedTable<S extends EquatableWithName, T extends PaginatedRows<S>>
+    extends StatefulWidget {
+  final T rows;
+  final void Function(S) editHook;
+  final void Function(S) deleteHook;
   final void Function(int) moveHook;
   final void Function() addHook;
   final void Function(FieldSort) sortHook;
   final FieldSort fieldSort;
   final Color color;
+  final void Function(PaginatedParams) changeHook;
 
-  PaginatedTable(
+  const PaginatedTable(
       {@required this.rows,
       this.editHook,
       this.deleteHook,
@@ -20,50 +22,70 @@ class PaginatedTable extends StatelessWidget {
       this.addHook,
       this.sortHook,
       this.fieldSort,
+      this.changeHook,
       @required this.color,
       Key key})
       : super(key: key);
 
   @override
+  _PaginatedTableState<S, T> createState() => _PaginatedTableState<S, T>();
+}
+
+class _PaginatedTableState<S extends EquatableWithName,
+    T extends PaginatedRows<S>> extends State<PaginatedTable<S, T>> {
+  final _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hasAction = editHook != null && deleteHook != null;
-    final headings = rows
-        .headers()
+    final hasAction = widget.editHook != null && widget.deleteHook != null;
+    final headings = widget.rows
+        .tableHeaders()
         .map((e) => DataColumn(
-            label: Row(children: [
-              Text(e.label),
-              if (fieldSort == e.fieldSort)
-                const Icon(Icons.arrow_downward, size: 16.0)
-            ]),
-            onSort: (_, __) => sortHook?.call(e.fieldSort)))
+            label: Row(
+              children: [
+                Text(e.label),
+                if (widget.fieldSort == e.fieldSort)
+                  const Icon(Icons.arrow_downward, size: 16.0)
+              ],
+            ),
+            onSort: (_, __) => widget.sortHook?.call(e.fieldSort)))
         .toList();
     if (hasAction) headings.add(const DataColumn(label: Text('Actions')));
 
-    final actualLine = rows.actualLine;
-    final totalLines = rows.totalLines;
+    final actualLine = widget.rows.actualLine;
+    final totalLines = widget.rows.totalLines;
     final lastLine = min(actualLine + 9, totalLines);
 
-    final List<DataRow> datas = List<DataRow>.generate(
-      lastLine - actualLine + 1,
-      (i) => DataRow(
-        cells: [
-          ...rows.rowCells(i).map((r) => DataCell(Text(r))).toList(),
-          if (hasAction)
-            DataCell(
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _actionButton(Icons.edit, () => editHook?.call(i)),
-                  _actionButton(Icons.delete, () => deleteHook?.call(i)),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
+    final List<DataRow> dataRows = widget.rows.lines
+        .map(
+          (line) => DataRow(
+            cells: [
+              ...line.rows().map((text) => DataCell(Text(text))).toList(),
+              if (hasAction)
+                DataCell(
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _actionButton(
+                          Icons.edit, () => widget.editHook.call(line)),
+                      _actionButton(
+                          Icons.delete, () => widget.deleteHook.call(line)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        )
+        .toList();
 
     return Card(
-      color: color,
+      color: widget.color,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -76,11 +98,10 @@ class PaginatedTable extends StatelessWidget {
             dataRowHeight: 30.0,
             headingRowHeight: 30.0,
             showBottomBorder: true,
-            rows: datas,
+            rows: dataRows,
           ),
           const SizedBox(height: 8.0),
-          _bottomNavigation(
-              context, actualLine, lastLine, totalLines, moveHook),
+          _bottomNavigation(context, actualLine, lastLine, totalLines),
         ],
       ),
     );
@@ -96,23 +117,24 @@ class PaginatedTable extends StatelessWidget {
     );
   }
 
-  Wrap _bottomNavigation(BuildContext context, int actualLine, int lastLine,
-      int totalLines, void Function(int) moveHook) {
-    final nextPressed =
-        (totalLines == lastLine) ? null : () => moveHook?.call(actualLine + 10);
+  Wrap _bottomNavigation(
+      BuildContext context, int actualLine, int lastLine, int totalLines) {
+    final nextPressed = (totalLines == lastLine)
+        ? null
+        : () => widget.moveHook?.call(actualLine + 10);
     final backPressed =
-        (actualLine == 1) ? null : () => moveHook?.call(actualLine - 10);
+        (actualLine == 1) ? null : () => widget.moveHook?.call(actualLine - 10);
 
     return Wrap(
       spacing: 12.0,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (addHook != null)
+        if (widget.addHook != null)
           IconButton(
             icon: const Icon(Icons.add),
             splashRadius: 16.0,
             color: Theme.of(context).primaryColor,
-            onPressed: addHook,
+            onPressed: widget.addHook,
           ),
         Text('$actualLine-$lastLine sur $totalLines'),
         Row(

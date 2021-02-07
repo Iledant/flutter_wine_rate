@@ -13,7 +13,7 @@ class PaginatedLocations extends PaginatedRows<Location> {
   List<String> rowCells(int index) => [lines[index].name];
 
   @override
-  List<PaginatedHeader> headers() => [PaginatedHeader('Nom', FieldSort.Name)];
+  List<PaginatedHeader> tableHeaders() => Location.tableHeaders;
 }
 
 class LocationRepository {

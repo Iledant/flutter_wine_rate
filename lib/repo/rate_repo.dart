@@ -25,15 +25,7 @@ class PaginatedRates extends PaginatedRows<Rate> {
   }
 
   @override
-  List<PaginatedHeader> headers() => [
-        PaginatedHeader('Vin', FieldSort.Name),
-        PaginatedHeader('Appellation', FieldSort.Location),
-        PaginatedHeader('Domaine', FieldSort.Domain),
-        PaginatedHeader('Note', FieldSort.Rate),
-        PaginatedHeader('Millésime', FieldSort.Year),
-        PaginatedHeader('Date', FieldSort.Date),
-        PaginatedHeader('Critique', FieldSort.Critic),
-      ];
+  List<PaginatedHeader> tableHeaders() => Rate.tableHeaders;
 }
 
 class RateRepository {

@@ -4,7 +4,7 @@ import 'package:flutter_wine_rate/providers/region_provider.dart';
 import 'package:flutter_wine_rate/screen_widget.dart';
 import 'package:hooks_riverpod/all.dart';
 import 'constants.dart';
-import 'models/equatable_with_name.dart';
+import 'models/pagination.dart';
 import 'models/location.dart';
 import 'models/region.dart';
 

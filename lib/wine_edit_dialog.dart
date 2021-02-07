@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'providers/domain_provider.dart';
 import 'constants.dart';
-import 'models/equatable_with_name.dart';
+import 'models/pagination.dart';
 import 'models/wine.dart';
 import 'models/location.dart';
 import 'models/domain.dart';

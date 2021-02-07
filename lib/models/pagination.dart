@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 enum FieldSort {
   Id,
@@ -30,16 +31,28 @@ class PaginatedHeader {
   const PaginatedHeader(this.label, this.fieldSort);
 }
 
-abstract class PaginatedRows<T> {
+abstract class TableHeaders {
+  List<PaginatedHeader> tableHeaders();
+
+  const TableHeaders();
+}
+
+abstract class PaginatedRows<T> extends TableHeaders {
   final int actualLine;
   final int totalLines;
   final List<T> lines;
 
   List<String> rowCells(int index);
-  List<PaginatedHeader> headers();
 
   const PaginatedRows(
       {@required this.actualLine,
       @required this.totalLines,
       @required this.lines});
+}
+
+abstract class EquatableWithName extends Equatable {
+  String displayName();
+  List<String> rows();
+
+  const EquatableWithName() : super();
 }
