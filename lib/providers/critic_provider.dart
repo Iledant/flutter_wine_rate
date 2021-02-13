@@ -4,8 +4,8 @@ import '../models/pagination.dart';
 import '../repo/critic_repo.dart';
 
 class PaginatedCriticsProvider
-    extends StateNotifier<AsyncValue<PaginatedCritics>> {
-  PaginatedCriticsProvider() : super(AsyncValue.loading()) {
+    extends PaginatedNotifier<Critic, PaginatedCritics> {
+  PaginatedCriticsProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 

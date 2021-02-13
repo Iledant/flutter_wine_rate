@@ -4,8 +4,8 @@ import '../models/domain.dart';
 import '../repo/domain_repo.dart';
 
 class PaginatedDomainsProvider
-    extends StateNotifier<AsyncValue<PaginatedDomains>> {
-  PaginatedDomainsProvider() : super(AsyncValue.loading()) {
+    extends PaginatedNotifier<Domain, PaginatedDomains> {
+  PaginatedDomainsProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 

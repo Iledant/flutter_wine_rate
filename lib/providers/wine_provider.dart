@@ -3,8 +3,8 @@ import '../models/pagination.dart';
 import '../models/wine.dart';
 import '../repo/wine_repo.dart';
 
-class PaginatedWinesProvider extends StateNotifier<AsyncValue<PaginatedWines>> {
-  PaginatedWinesProvider() : super(AsyncValue.loading()) {
+class PaginatedWinesProvider extends PaginatedNotifier<Wine, PaginatedWines> {
+  PaginatedWinesProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 

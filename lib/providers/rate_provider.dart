@@ -3,8 +3,8 @@ import '../models/pagination.dart';
 import '../models/rate.dart';
 import '../repo/rate_repo.dart';
 
-class PaginatedRatesProvider extends StateNotifier<AsyncValue<PaginatedRates>> {
-  PaginatedRatesProvider() : super(AsyncValue.loading()) {
+class PaginatedRatesProvider extends PaginatedNotifier<Rate, PaginatedRates> {
+  PaginatedRatesProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 
