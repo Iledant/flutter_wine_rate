@@ -33,7 +33,7 @@ class DomainScreen extends HookWidget {
 
   void _remove(Domain domain, BuildContext context, PaginatedParams params,
       PaginatedDomainsProvider provider) async {
-    final confirm = await showDeleteDialog(context, 'le domaine ', domain.name);
+    final confirm = await showDeleteDialog(context, domain.name);
     if (!confirm) return;
     provider.remove(domain, params);
   }

@@ -4,8 +4,8 @@ import '../models/region.dart';
 import '../repo/region_repo.dart';
 
 class PaginatedRegionsProvider
-    extends StateNotifier<AsyncValue<PaginatedRegions>> {
-  PaginatedRegionsProvider() : super(AsyncValue.loading()) {
+    extends PaginatedNotifier<Region, PaginatedRegions> {
+  PaginatedRegionsProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 

@@ -33,8 +33,7 @@ class LocationScreen extends HookWidget {
 
   void _remove(Location location, BuildContext context, PaginatedParams params,
       PaginatedLocationsProvider provider) async {
-    final confirm =
-        await showDeleteDialog(context, "l'appellation ", location.name);
+    final confirm = await showDeleteDialog(context, location.name);
     if (!confirm) return;
     provider.remove(location, params);
   }

@@ -33,8 +33,7 @@ class CriticScreen extends HookWidget {
 
   void _remove(Critic critic, BuildContext context, PaginatedParams params,
       PaginatedCriticsProvider provider) async {
-    final confirm =
-        await showDeleteDialog(context, 'le critique ', critic.name);
+    final confirm = await showDeleteDialog(context, critic.name);
     if (!confirm) return;
     provider.remove(critic, params);
   }

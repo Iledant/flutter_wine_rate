@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
 class DeleteDialog extends StatelessWidget {
-  final String kind;
   final String name;
 
-  DeleteDialog({@required this.kind, @required this.name, Key key})
-      : super(key: key);
+  DeleteDialog({@required this.name, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Supprimer $kind '$name' ?"),
+      title: Text("Supprimer l'élément '$name' ?"),
       actions: [
         TextButton(
           child: Text('Non'),
@@ -25,10 +23,10 @@ class DeleteDialog extends StatelessWidget {
   }
 }
 
-Future<bool> showDeleteDialog(BuildContext context, String kind, name) async {
+Future<bool> showDeleteDialog(BuildContext context, String name) async {
   return await showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (context) => DeleteDialog(kind: kind, name: name),
+    builder: (context) => DeleteDialog(name: name),
   );
 }

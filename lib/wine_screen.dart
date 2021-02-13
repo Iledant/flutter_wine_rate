@@ -31,8 +31,7 @@ class WineScreen extends HookWidget {
 
   void _remove(Wine location, BuildContext context, PaginatedParams params,
       PaginatedWinesProvider provider) async {
-    final confirm =
-        await showDeleteDialog(context, "l'appellation ", location.name);
+    final confirm = await showDeleteDialog(context, location.name);
     if (!confirm) return;
     provider.remove(location, params);
   }

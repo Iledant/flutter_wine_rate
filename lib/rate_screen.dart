@@ -32,7 +32,7 @@ class RateScreen extends HookWidget {
 
   void _remove(Rate rate, BuildContext context, PaginatedParams params,
       PaginatedRatesProvider provider) async {
-    final confirm = await showDeleteDialog(context, "la notation ", rate.wine);
+    final confirm = await showDeleteDialog(context, rate.wine);
     if (!confirm) return;
     provider.remove(rate, params);
   }

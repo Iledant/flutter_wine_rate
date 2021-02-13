@@ -62,9 +62,10 @@ class _RegionEditDialogState extends State<RegionEditDialog> {
 }
 
 Future<Region> showEditRegionDialog(
-    BuildContext context, Region domain, DialogMode mode) {
+    BuildContext context, Region region, DialogMode mode) {
+  if (region == null) region = Region(id: 0, name: '');
   return showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => RegionEditDialog(mode, domain));
+      builder: (context) => RegionEditDialog(mode, region));
 }

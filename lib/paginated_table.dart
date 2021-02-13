@@ -1,9 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_wine_rate/screen_widget.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'constants.dart';
+import 'delete_dialog.dart';
 import 'models/pagination.dart';
 
 class PaginatedTable<S extends EquatableWithName, T extends PaginatedRows<S>>
-    extends StatefulWidget {
+    extends StatelessWidget {
   final T rows;
   final void Function(S) editHook;
   final void Function(S) deleteHook;
@@ -28,41 +33,27 @@ class PaginatedTable<S extends EquatableWithName, T extends PaginatedRows<S>>
       : super(key: key);
 
   @override
-  _PaginatedTableState<S, T> createState() => _PaginatedTableState<S, T>();
-}
-
-class _PaginatedTableState<S extends EquatableWithName,
-    T extends PaginatedRows<S>> extends State<PaginatedTable<S, T>> {
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final hasAction = widget.editHook != null && widget.deleteHook != null;
-    final headings = widget.rows
+    final hasAction = editHook != null && deleteHook != null;
+    final headings = rows
         .tableHeaders()
         .map((e) => DataColumn(
             label: Row(
               children: [
                 Text(e.label),
-                if (widget.fieldSort == e.fieldSort)
+                if (fieldSort == e.fieldSort)
                   const Icon(Icons.arrow_downward, size: 16.0)
               ],
             ),
-            onSort: (_, __) => widget.sortHook?.call(e.fieldSort)))
+            onSort: (_, __) => sortHook?.call(e.fieldSort)))
         .toList();
     if (hasAction) headings.add(const DataColumn(label: Text('Actions')));
 
-    final actualLine = widget.rows.actualLine;
-    final totalLines = widget.rows.totalLines;
+    final actualLine = rows.actualLine;
+    final totalLines = rows.totalLines;
     final lastLine = min(actualLine + 9, totalLines);
 
-    final List<DataRow> dataRows = widget.rows.lines
+    final List<DataRow> dataRows = rows.lines
         .map(
           (line) => DataRow(
             cells: [
@@ -72,10 +63,8 @@ class _PaginatedTableState<S extends EquatableWithName,
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _actionButton(
-                          Icons.edit, () => widget.editHook.call(line)),
-                      _actionButton(
-                          Icons.delete, () => widget.deleteHook.call(line)),
+                      _actionButton(Icons.edit, () => editHook.call(line)),
+                      _actionButton(Icons.delete, () => deleteHook.call(line)),
                     ],
                   ),
                 ),
@@ -85,7 +74,7 @@ class _PaginatedTableState<S extends EquatableWithName,
         .toList();
 
     return Card(
-      color: widget.color,
+      color: color,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -119,22 +108,21 @@ class _PaginatedTableState<S extends EquatableWithName,
 
   Wrap _bottomNavigation(
       BuildContext context, int actualLine, int lastLine, int totalLines) {
-    final nextPressed = (totalLines == lastLine)
-        ? null
-        : () => widget.moveHook?.call(actualLine + 10);
+    final nextPressed =
+        (totalLines == lastLine) ? null : () => moveHook?.call(actualLine + 10);
     final backPressed =
-        (actualLine == 1) ? null : () => widget.moveHook?.call(actualLine - 10);
+        (actualLine == 1) ? null : () => moveHook?.call(actualLine - 10);
 
     return Wrap(
       spacing: 12.0,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (widget.addHook != null)
+        if (addHook != null)
           IconButton(
             icon: const Icon(Icons.add),
             splashRadius: 16.0,
             color: Theme.of(context).primaryColor,
-            onPressed: widget.addHook,
+            onPressed: addHook,
           ),
         Text('$actualLine-$lastLine sur $totalLines'),
         Row(
@@ -156,5 +144,107 @@ class _PaginatedTableState<S extends EquatableWithName,
       constraints: const BoxConstraints(maxWidth: 30.0),
       onPressed: onPressed,
     );
+  }
+}
+
+class ItemsTableWidget<T extends EquatableWithName, S extends PaginatedRows<T>,
+    P extends PaginatedNotifier<T, S>> extends StatefulHookWidget {
+  final P provider;
+  final AsyncValue<S> items;
+  final Future<T> Function(BuildContext, T, DialogMode) showEditDialog;
+
+  ItemsTableWidget(
+      {@required this.provider,
+      @required this.items,
+      @required this.showEditDialog,
+      Key key})
+      : super(key: key);
+
+  @override
+  _ItemsTableWidgetState createState() => _ItemsTableWidgetState<T, S, P>();
+}
+
+class _ItemsTableWidgetState<T extends EquatableWithName,
+        S extends PaginatedRows<T>, P extends PaginatedNotifier<T, S>>
+    extends State<ItemsTableWidget<T, S, P>> {
+  final _nameController = TextEditingController();
+
+  void dispoise() {
+    _nameController.dispose();
+  }
+
+  @override
+  build(BuildContext context) {
+    return Column(
+      children: [
+        Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: TextFormField(
+              controller: _nameController,
+              onChanged: (value) => widget.provider.fetch(PaginatedParams(
+                search: _nameController.text,
+                sort: FieldSort.Name,
+              )),
+              decoration: const InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Recherche',
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10.0),
+        widget.items.when(
+            loading: () => const ProgressWidget(),
+            error: (error, _) => ScreenErrorWidget(error: error),
+            data: (items) => _tableWidget(context, items, widget.provider)),
+      ],
+    );
+  }
+
+  Widget _tableWidget(BuildContext context, S items, P provider) => Center(
+        child: PaginatedTable<T, S>(
+          color: Colors.deepPurple.shade50,
+          rows: items,
+          editHook: (item) =>
+              _addOrModify(DialogMode.Edit, context, item, provider),
+          addHook: () =>
+              _addOrModify(DialogMode.Create, context, null, provider),
+          deleteHook: (item) => _remove(
+              item,
+              context,
+              PaginatedParams(
+                search: _nameController.text,
+                firstLine: items.actualLine,
+                sort: FieldSort.Name,
+              ),
+              provider),
+          moveHook: (i) => provider.fetch(
+            PaginatedParams(
+              firstLine: i,
+              search: _nameController.text,
+              sort: FieldSort.Name,
+            ),
+          ),
+        ),
+      );
+
+  void _addOrModify(
+      DialogMode mode, BuildContext context, T item, P provider) async {
+    final T result = await widget.showEditDialog(context, item, mode);
+    if (result == null) return;
+    final params =
+        PaginatedParams(search: _nameController.text, sort: FieldSort.Name);
+    if (mode == DialogMode.Edit)
+      provider.update(result, params);
+    else
+      provider.add(result, params);
+  }
+
+  void _remove(
+      T item, BuildContext context, PaginatedParams params, P provider) async {
+    final confirm = await showDeleteDialog(context, item.displayName());
+    if (!confirm) return;
+    provider.remove(item, params);
   }
 }
