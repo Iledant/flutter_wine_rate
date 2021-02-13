@@ -4,8 +4,8 @@ import '../models/location.dart';
 import '../repo/location_repo.dart';
 
 class PaginatedLocationsProvider
-    extends StateNotifier<AsyncValue<PaginatedLocations>> {
-  PaginatedLocationsProvider() : super(AsyncValue.loading()) {
+    extends PaginatedNotifier<Location, PaginatedLocations> {
+  PaginatedLocationsProvider() : super() {
     fetch(PaginatedParams(sort: FieldSort.Name));
   }
 

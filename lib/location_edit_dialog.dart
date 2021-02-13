@@ -109,6 +109,8 @@ class _LocationEditDialogState extends State<LocationEditDialog> {
 
 Future<Location> showEditLocationDialog(
     BuildContext context, Location location, DialogMode mode) {
+  if (location == null)
+    location = Location(id: 0, name: '', region: '', regionId: 0);
   return showDialog(
       context: context,
       barrierDismissible: false,
